@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: express-web
+  namespace: apps
+  labels: { app: express-web }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: express-web } }
+  template:
+    metadata: { labels: { app: express-web } }
+    spec:
+      containers:
+        - name: app
+          image: REPLACE_WITH_IMAGE_URI
+          ports: [ { containerPort: 3000 } ]
+          env: [ { name: PORT, value: "3000" } ]
+          readinessProbe:
+            httpGet: { path: /health, port: 3000 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits:   { cpu: "500m", memory: "512Mi" }
