@@ -1,38 +1,31 @@
+# k8s/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: express-web-app
   namespace: apps
-  labels:
-    app: express-web-app
+  labels: { app: express-web-app }
 spec:
   replicas: 2
   selector:
-    matchLabels:
-      app: express-web-app
+    matchLabels: { app: express-web-app }
   template:
     metadata:
-      labels:
-        app: express-web-app
+      labels: { app: express-web-app }
     spec:
       containers:
       - name: express
         image: 780593603882.dkr.ecr.us-east-1.amazonaws.com/t2s-express-app:latest
         ports:
-        - name: http
-          containerPort: 3000
+        - { name: http, containerPort: 3000 }
         env:
-        - name: PORT
-          value: "3000"
+        - { name: PORT, value: "3000" }
+        # Probes only if you have /health implemented; comment out otherwise.
         readinessProbe:
-          httpGet:
-            path: /health         # make sure your app actually serves this!
-            port: 3000
+          httpGet: { path: /health, port: 3000 }
           initialDelaySeconds: 5
           periodSeconds: 5
         livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
+          httpGet: { path: /health, port: 3000 }
           initialDelaySeconds: 10
           periodSeconds: 10
