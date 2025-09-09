@@ -1,17 +1,10 @@
 terraform {
   required_version = ">= 1.3.0"
-
-  backend "s3" {
-    bucket         = "emmanuel-tf-state-09042025"
-    key            = "eks/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "terraform-locks"
-    encrypt        = true
-  }
-
+  # To use S3 backend, replace this with your backend block.
+  # backend "s3" {}
   required_providers {
-    aws = { source = "hashicorp/aws", version = "~> 5.55" }
+    aws        = { source = "hashicorp/aws", version = "~> 5.55" }
     kubernetes = { source = "hashicorp/kubernetes", version = "~> 2.29" }
-    helm = { source = "hashicorp/helm", version = "~> 2.13" }
+    helm       = { source = "hashicorp/helm", version = "~> 2.13" }
   }
 }

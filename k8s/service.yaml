@@ -1,9 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: express-web-svc
+  name: express-web-app
   namespace: apps
 spec:
+  selector:
+    app: express-web-app
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
   type: ClusterIP
-  selector: { app: express-web }
-  ports: [ { port: 80, targetPort: 3000 } ]
