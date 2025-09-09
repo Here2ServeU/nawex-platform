@@ -1,4 +1,3 @@
-gitignore
 # -------------------------------------------------------------
 # Node.js
 # -------------------------------------------------------------
@@ -33,48 +32,45 @@ coverage/
 *.tsbuildinfo
 
 # -------------------------------------------------------------
-# Terraform
+# Terraform (ignore state, cache, sensitive files)
 # -------------------------------------------------------------
-# Local Terraform directories
-**/.terraform/
+terraform/backend/.terraform/
+terraform/backend/.terraform.lock.hcl
+terraform/backend/terraform.tfstate*
+terraform/backend/terraform.tfstate.backup
 
-# State files, which can contain sensitive data
-*.tfstate
-*.tfstate.*
+terraform/ecr/.terraform/
+terraform/ecr/.terraform.lock.hcl
+terraform/ecr/terraform.tfstate*
+terraform/ecr/terraform.tfstate.backup
 
-# Crash log files
+terraform/eks/.terraform/
+terraform/eks/.terraform.lock.hcl
+terraform/eks/terraform.tfstate*
+terraform/eks/terraform.tfstate.backup
+
+# Ignore all .tfstate files globally
+**/*.tfstate
+**/*.tfstate.backup
+
+# Terraform crash logs
 crash.log
 crash.*.log
 
-# Variable files, which may contain sensitive data
+# Terraform variable files (local secrets)
 *.tfvars
 *.tfvars.json
-
-# Ignore override files used for local testing
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
-
-# Terraform plan output files
-*.tfplan
-
-# CLI configuration files
-.terraformrc
-terraform.rc
 
 # -------------------------------------------------------------
 # Docker and Containers
 # -------------------------------------------------------------
 # Docker image build context
-# (Use .dockerignore for exclusions specific to the image build)
-# Files that contain sensitive data or local development files
-# that are not required for the final image.
+# (Use .dockerignore for exclusions specific to image builds)
 
-# Docker files
-# Some editors (like VS Code) generate these.
+# Docker temp dirs
 .docker/
 
+# -------------------------------------------------------------
 # General IDE and OS files
 # -------------------------------------------------------------
 # Visual Studio Code
