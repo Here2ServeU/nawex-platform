@@ -173,7 +173,8 @@ cd ../ecr         && terraform destroy -auto-approve
 3. If Terraform fails with **DependencyViolation** errors (common with ALBs, ENIs, IGWs), run the helper:
 
 ```bash
-bash scripts/cleanup-igw.sh
+chmod +x scripts/cleanup.sh
+bash scripts/cleanup.sh
 ```
 
 This script:
