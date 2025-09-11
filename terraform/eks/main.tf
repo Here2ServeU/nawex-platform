@@ -38,8 +38,29 @@ module "vpc" {
 }
 
 ############################
+# Map current AWS principal to cluster-admin
+############################
+locals {
+  caller_arn = data.aws_caller_identity.current.arn
+  is_role    = can(regex(":role/", local.caller_arn))
+
+  aws_auth_roles = local.is_role ? [{
+    rolearn  = local.caller_arn
+    username = "admin"
+    groups   = ["system:masters"]
+  }] : []
+
+  aws_auth_users = local.is_role ? [] : [{
+    userarn  = local.caller_arn
+    username = "admin"
+    groups   = ["system:masters"]
+  }]
+}
+
+############################
 # EKS (managed node groups + IRSA)
 ############################
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.8"
@@ -56,12 +77,36 @@ module "eks" {
   enable_irsa                              = true
   enable_cluster_creator_admin_permissions = true
 
+  # v20+ way to grant access: EKS Access Entries
+  access_entries = {
+    # grant the current AWS principal full cluster-admin
+    current-admin = {
+      principal_arn = data.aws_caller_identity.current.arn
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:${data.aws_partition.current.partition}:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  }
+
   eks_managed_node_groups = {
-    default = {
+    node-1 = {
       instance_types = ["t3.medium"]
-      desired_size   = 2
+      desired_size   = 1
       min_size       = 1
-      max_size       = 3
+      max_size       = 2
+      tags           = var.tags
+    }
+
+    node-2 = {
+      instance_types = ["t3.medium"]
+      desired_size   = 1
+      min_size       = 1
+      max_size       = 2
       tags           = var.tags
     }
   }
@@ -70,24 +115,29 @@ module "eks" {
 }
 
 ############################
-# K8s/Helm providers (auth via token)
+# K8s/Helm providers (exec auth via aws eks get-token)
 ############################
-data "aws_eks_cluster_auth" "this" {
-  name       = module.eks.cluster_name
-  depends_on = [module.eks]
-}
-
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-  token                  = data.aws_eks_cluster_auth.this.token
+
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--region", var.region]
+  }
 }
 
 provider "helm" {
   kubernetes {
     host                   = module.eks.cluster_endpoint
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-    token                  = data.aws_eks_cluster_auth.this.token
+
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--region", var.region]
+    }
   }
 }
 

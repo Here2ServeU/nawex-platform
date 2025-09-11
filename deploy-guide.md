@@ -174,6 +174,7 @@ cd ../ecr         && terraform destroy -auto-approve
 
 ```bash
 chmod +x scripts/cleanup.sh
+export FORCE_TERMINATE_INSTANCES=true
 AWS_REGION=us-east-1 VPC_ID=vpc-0123456789abcdef0 bash scripts/cleanup.sh
 ```
 - Replace VPC_ID with the one you created and where you deployed your EKS infra
