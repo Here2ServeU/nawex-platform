@@ -78,20 +78,20 @@ module "eks" {
   enable_cluster_creator_admin_permissions = true
 
   # v20+ way to grant access: EKS Access Entries
-  access_entries = {
-    # grant the current AWS principal full cluster-admin
-    current-admin = {
-      principal_arn = data.aws_caller_identity.current.arn
-      policy_associations = {
-        admin = {
-          policy_arn = "arn:${data.aws_partition.current.partition}:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-          access_scope = {
-            type = "cluster"
-          }
-        }
-      }
-    }
-  }
+#  access_entries = {
+#     grant the current AWS principal full cluster-admin
+#      current-admin = {
+#      principal_arn = data.aws_caller_identity.current.arn
+#      policy_associations = {
+#        admin = {
+#         policy_arn = "arn:${data.aws_partition.current.partition}:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+#          access_scope = {
+#            type = "cluster"
+#          }
+#        }
+#      }
+#    }
+#  }
 
   eks_managed_node_groups = {
     node-1 = {

@@ -1,63 +1,20 @@
 # Beginner2Mastery — Express Web App → EKS with ALB (Dev-Ready, Prod-Style)
 
-This guide matches **your current repo layout** and uses the included scripts so you can go from zero → running quickly.
-
-```
-app/
-  Dockerfile
-  index.js
-  package.json
-  public/index.html
-deploy-guide.md
-k8s/
-  deployment.yaml
-  ingress.yaml
-  namespace.yaml
-  service.yaml
-scripts/
-  deploy_app.sh
-  get_url.sh
-  install_helm.sh
-  provision.sh
-  cleanup-igw.sh
-terraform/
-  backend/
-    main.tf
-    outputs.tf
-    terraform.tfstate
-    terraform.tfvars
-    variables.tf
-  ecr/
-    backend.tf
-    build_and_push.sh
-    main.tf
-    outputs.tf
-    terraform.tfvars
-    variables.tf
-  eks/
-    main.tf
-    policies/aws-load-balancer-controller.json
-    variables.tf
-    versions.tf
-```
+This guide shows how to deploy the full stack (VPC, ECR, EKS, ALB Controller, Ingress) **using Terraform only**.  
+By the end, your Dockerized Express.js app will run on AWS EKS, fronted by an AWS ALB.
 
 ---
 
 ## 0) Prereqs
 - **CLI tools:** `aws`, `kubectl`, `terraform >= 1.3`, `helm`, `docker`, `jq`, `git`
-- **AWS access:** Ability to create IAM, VPC, EKS, ECR, ALB
-- **Region:** defaults to `us-east-1` (make sure your ECR/EKS/ALB are all in the same region)
-
-> If you haven’t installed Helm on this machine yet:
-```bash
-bash scripts/install_helm.sh
-```
+- **AWS access:** IAM user/role with permissions for IAM, VPC, EKS, ECR, and ALB
+- **Region:** defaults to `us-east-1`  
 
 ---
 
 ## 1) Remote State (Terraform Backend)
 **Folder:** `terraform/backend`  
-This stack provisions (or references) the S3 bucket + DynamoDB table that your other Terraform stacks use.
+This module provisions (or references) the S3 bucket + DynamoDB table for Terraform remote state and locking.
 
 ```bash
 cd terraform/backend
@@ -65,100 +22,100 @@ terraform init
 terraform apply -auto-approve
 ```
 
-> If your `terraform/ecr` and `terraform/eks` already have `backend` blocks (they do), make sure their values match your S3 bucket, table, and region.
+> Make sure the same backend settings are used in `terraform/ecr` and `terraform/eks`.
 
 ---
 
-## 2) ECR Repository + Build & Push the Image
+## 2) ECR Repository + Push the Image
 **Folder:** `terraform/ecr`
 
-1) **Create/ensure ECR repo**
+1. Provision the ECR repository:
 ```bash
 cd ../../terraform/ecr
 terraform init
 terraform apply -auto-approve
-# Outputs include the repository URL
 ```
 
-2) **Build & Push** (uses `app/` Dockerfile)  
-The repo includes a helper: `build_and_push.sh`.
-
+2. Build & push the Docker image (uses `app/Dockerfile`):
 ```bash
-# from terraform/ecr
 bash build_and_push.sh
-# Copy the IMAGE_URI printed at the end, like:
-#  <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/express-web-app:<GIT_SHA>
+```
+
+This prints an image URI like:
+```
+<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/express-web-app:<TAG>
 ```
 
 ---
 
 ## 3) Provision the EKS Cluster + ALB Controller
-**Script:** `scripts/provision.sh`
+**Folder:** `terraform/eks`
+
+This module creates:
+- VPC with public/private subnets + NAT  
+- EKS cluster (managed node groups)  
+- IAM roles for service accounts (IRSA)  
+- AWS Load Balancer Controller via Helm  
+- (Optional) Ingress-NGINX via Helm  
 
 ```bash
-cd ../../..   # back to repo root
-bash scripts/provision.sh
+cd ../../terraform/eks
+terraform init
+terraform apply -auto-approve
+```
 
-# Sanity checks
+---
+
+## 4) Refresh kubeconfig for kubectl
+After Terraform finishes, update your kubeconfig so kubectl points to the right cluster:
+
+```bash
+aws eks update-kubeconfig --region us-east-1 --name t2s-eks --alias t2s-eks
+kubectl config use-context t2s-eks
+```
+
+Validate:
+```bash
+kubectl cluster-info
 kubectl get nodes
-kubectl -n kube-system get deploy aws-load-balancer-controller
 ```
-
-What this creates:
-- **VPC** with public/private subnets + NAT
-- **EKS** (1.29), managed node group
-- **IRSA** with least-privileged IAM for the ALB controller
-- ALB controller installed via **Helm**
 
 ---
 
-## 4) Deploy the App behind ALB
-**Script:** `scripts/deploy_app.sh`
+## 5) Deploy the App
+Update the image in `k8s/deployment.yaml` with your ECR image URI (from step 2). Then:
 
 ```bash
-# 1) Set IMAGE_URI from the ECR build step
-export IMAGE_URI=<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/express-web-app:<GIT_SHA>
-
-# 2) Deploy
-bash scripts/deploy_app.sh
-
-# 3) Get the ALB URL
-bash scripts/get_url.sh
-# → prints an http://<alb-dns>/ address
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl apply -f k8s/ingress.yaml
 ```
 
-> Health endpoint: the deployment uses `readinessProbe` on `/health` (port 3000). Make sure your `app/index.js` serves it.
+Check rollout:
+```bash
+kubectl -n apps get pods
+kubectl -n apps get svc
+kubectl -n ingress-nginx get svc
+```
 
 ---
 
-## 5) (Optional) HTTPS with ACM
-See the example `k8s/ingress-tls.yaml` in this guide for HTTPS with ACM.
+## 6) Get the ALB URL
+List the ALB hostname created by the ingress:
+```bash
+kubectl -n ingress-nginx get svc ingress-nginx-controller
+```
+
+Look for the `EXTERNAL-IP` (DNS name). Open it in your browser:
+```
+http://<alb-dns>
+```
 
 ---
 
-## 6) Day-2 Add-Ons (optional)
-- **cert-manager** for TLS automation  
-- **Kyverno** for policy enforcement  
-- **Falco** for runtime security  
-- **Kubecost** for cost visibility  
-
----
-
-## 7) CI/CD (optional)
-Use GitHub Actions → build, scan, push to ECR → update K8s deployment via GitHub OIDC.
-
----
-
-## 8) Troubleshooting
-- **Ingress has no ADDRESS** → ALB controller not ready, or subnet tags missing.  
-- **502/503** → check readinessProbe, service targetPort, and logs.  
-- **ImagePullBackOff** → ECR image/tag mismatch or IAM issue.  
-
----
-
-## 9) Cleanup
-
-1. Remove the app:
+## 7) Cleanup
+1. Delete Kubernetes resources:
 ```bash
 kubectl delete ns apps --ignore-not-found
 ```
@@ -170,32 +127,16 @@ cd ../ecr         && terraform destroy -auto-approve
 # usually keep terraform/backend state infra
 ```
 
-3. If Terraform fails with **DependencyViolation** errors (common with ALBs, ENIs, IGWs), run the helper:
-
+3. If Terraform destroy fails with **DependencyViolation** (common with ALBs, ENIs, IGWs), use:
 ```bash
 chmod +x scripts/cleanup.sh
 export FORCE_TERMINATE_INSTANCES=true
-AWS_REGION=us-east-1 VPC_ID=vpc-0123456789abcdef0 bash scripts/cleanup.sh
-```
-- Replace VPC_ID with the one you created and where you deployed your EKS infra
-
-This script:
-- Deletes leftover **ALBs/NLBs** and target groups  
-- Removes orphaned ENIs created by ELB/NLB  
-- Releases NAT EIPs  
-- Disables public IP auto-assign on subnets  
-- Detaches & deletes the **Internet Gateway**
-
-After that, re-run:
-
-```bash
-cd terraform/eks
-terraform destroy -auto-approve
+AWS_REGION=us-east-1 VPC_ID=<your-vpc-id> bash scripts/cleanup.sh
 ```
 
 ---
 
-With this flow you can go **Dockerfile → ECR → EKS → ALB → cleanup** fully using the repo scripts.  
+With this flow you can go **Dockerfile → ECR → EKS → ALB → cleanup** fully using Terraform + repo scripts.
 
 ---
 
