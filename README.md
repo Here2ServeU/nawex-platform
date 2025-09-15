@@ -17,7 +17,8 @@ By the end, your Dockerized Express.js app will run on AWS EKS, fronted by an AW
 This module provisions (or references) the S3 bucket + DynamoDB table for Terraform remote state and locking.
 
 ```bash
-cd terraform/backend
+git clone https://github.com/Here2ServeU/express-t2s-collection
+cd express-t2s-app-v5/terraform/backend
 terraform init
 terraform apply -auto-approve
 ```
