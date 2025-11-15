@@ -1,4 +1,4 @@
-# Case Study — Modernizing Express Web App v5 Using Terraform, EKS, Helm & GitOps
+# Case Study — Modernizing Express Web App v6 Using Terraform, EKS, Helm & GitOps
 
 ## Overview
 
