@@ -3,7 +3,7 @@ namespace: apps
 replicaCount: 2
 
 image:
-  repository: "780593603882.dkr.ecr.us-east-1.amazonaws.com/t2s-express-app"
+  repository: "730335276920.dkr.ecr.us-east-1.amazonaws.com/t2s-express-app"
   tag: "latest"
   pullPolicy: IfNotPresent
 

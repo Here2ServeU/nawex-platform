@@ -1,86 +1,82 @@
-# Case Study — Modernizing Express Web App v6 Using Terraform, EKS, Helm & GitOps
+# Case Study — Modernizing Express Web App v6 Using Terraform, EKS, Helm & GitOps (ArgoCD Integrated)
 
 ## Overview
 
-This case study documents how a legacy, manually deployed Express.js application was transformed into a scalable, observable, automated, and production-ready platform using AWS cloud-native services and modern DevOps practices.
+This case study documents how a legacy, manually deployed Express.js application was transformed into a scalable, observable, automated, and production‑ready platform using AWS cloud‑native services and modern DevOps practices.
 
-Using Terraform, EKS, Helm, and ArgoCD, the system was redesigned to support:
+By integrating Terraform, EKS, Helm, and **ArgoCD GitOps**, the environment now supports:
 
-- Infrastructure-as-Code (IaC)
-- Containerized builds and automated image pipelines
-- GitOps-driven deployments
-- Full observability and FinOps visibility
-- Production-grade networking using AWS ALB
-- Zero-downtime rollouts and safe cleanup procedures
+- Full Infrastructure‑as‑Code (IaC)
+- Automated container image pipelines (Docker → ECR)
+- GitOps‑driven deployments using Helm charts
+- Production‑grade networking via AWS ALB
+- Observability + FinOps tooling integration
+- Zero‑downtime rollouts and automated drift correction
 
-The result is a Dev-Ready / Prod-Style deployment model suitable for enterprises, engineers, and Beginner2Mastery (B2M) training.
+The final system reflects a **Dev‑Ready / Prod‑Style** approach used by leading enterprises and serves as a teaching reference for Beginner2Mastery (B2M) students.
 
 ---
 
 # 1. The Problem
 
-The original Express.js setup had major limitations:
+### 1.1 Manual Deployments & No IaC  
+Everything was deployed manually, causing drift, downtime, and slow delivery.
 
-### 1.1 Manual Deployments & No IaC
-Infra was deployed manually with no version control, causing drift, downtime, and slow delivery.
+### 1.2 No Containerization or CI/CD  
+Developers relied on inconsistent manual deployments with high risk of failure.
 
-### 1.2 No Containerization or CI/CD Pipelines
-Developers lacked consistent builds, and deployments required manual steps on VMs.
+### 1.3 No Kubernetes, No Auto‑Scaling  
+The app could not handle traffic spikes or failures.
 
-### 1.3 No Kubernetes, No Auto-Scaling, No Load Balancer
-The app could not handle traffic spikes and lacked resilience.
+### 1.4 No Observability or Cost Visibility  
+No metrics, dashboards, or cost reporting to help diagnose issues.
 
-### 1.4 No Observability or Cost Transparency
-No metrics, no logs, no dashboards, no cost allocation.
-
-### 1.5 No GitOps Workflow
-Different engineers deployed differently, causing instability and inconsistent environments.
+### 1.5 No GitOps Workflow  
+Different engineers performed deployments differently, causing instability.
 
 **Summary:**  
-The stack was unscalable, error‑prone, unobservable, and expensive.
+The application was unscalable, error‑prone, unobservable, and extremely difficult to maintain.
 
 ---
 
 # 2. The Solution
 
-We implemented a complete modernization using AWS and DevOps best practices:
+We redesigned the entire platform using:
 
-✔ Terraform for full infrastructure automation  
-✔ Amazon ECR for container image storage  
-✔ EKS for secure orchestration  
-✔ Helm chart replacing raw YAML  
-✔ AWS ALB Ingress Controller for production routing  
-✔ ArgoCD GitOps for auto-sync and drift detection  
-✔ Optional Observability stack (Prometheus, Grafana, Kubecost)  
+✔ Terraform for AWS IaC  
+✔ Docker + ECR for container build pipeline  
+✔ EKS for orchestration and scaling  
+✔ Helm chart to replace raw Kubernetes YAML  
+✔ ArgoCD GitOps for automatic deployments  
+✔ ALB Ingress Controller for production‑grade routing  
+✔ Optional Observability stack (Grafana, Prometheus, Kubecost)
 
-This ensures automated builds, automated deployments, automated scaling, and automated recovery.
+This enabled automated builds, deployments, scaling, and GitOps‑based governance.
 
 ---
 
 # 3. Architecture Summary
 
-### Key Components
+### Core Components
 
-- **Network Layer**: VPC, Subnets, NAT, IGW  
-- **Compute Layer**: EKS Managed Node Groups  
-- **Networking Layer**: AWS Load Balancer Controller + ALB  
-- **Container Layer**: Docker images pushed to ECR  
-- **Deployment Layer**: Helm charts via ArgoCD or CLI  
-- **Observability Layer**: Prometheus, Grafana, Kubecost  
+- **Network Layer:** VPC, Subnets, NAT, IGW  
+- **Compute Layer:** EKS managed node groups  
+- **Networking Layer:** AWS Load Balancer Controller + ALB Ingress  
+- **Container Layer:** Docker image stored in ECR  
+- **Deployment Layer:** Helm + ArgoCD GitOps  
+- **Observability Layer:** Prometheus, Grafana, Kubecost  
 
-This architecture mirrors what Fortune 500 companies deploy in production.
+This architecture mirrors real enterprise cloud environments.
 
 ---
 
 # 4. Implementation Steps
 
-Below are the exact steps performed to deliver the modernization.
-
 ---
 
 ## Step 0 — Prerequisites
 
-### CLI tools
+### Required CLI tools
 ```
 aws
 kubectl
@@ -92,19 +88,16 @@ git
 ```
 
 ### AWS permissions
-Access must allow:
-
-- ECR  
-- EKS  
-- VPC  
+Must allow:
 - IAM  
+- VPC  
+- EKS  
+- ECR  
 - ALB Controller  
 
 ---
 
 ## Step 1 — Terraform Remote State (S3 + DynamoDB)
-
-Folder: `terraform/backend`
 
 ```bash
 git clone https://github.com/Here2ServeU/express-t2s-collection
@@ -113,36 +106,25 @@ terraform init
 terraform apply -auto-approve
 ```
 
-Used for all Terraform stages to ensure consistency and locking.
-
 ---
 
 ## Step 2 — Build & Push Docker Image to ECR
 
-Folder: `terraform/ecr`
-
-Provision repository:
 ```bash
 cd ../../terraform/ecr
 terraform init
 terraform apply -auto-approve
-```
-
-Build & push:
-```bash
 bash build_and_push.sh
 ```
 
-Image URI looks like:
+Sample image URI:
 ```
-<ACCOUNT_ID>.dkr.ecr.us-east-east-1.amazonaws.com/express-web-app:<TAG>
+<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/express-web-app:<TAG>
 ```
 
 ---
 
 ## Step 3 — Provision EKS + ALB Controller
-
-Folder: `terraform/eks`
 
 ```bash
 cd ../../terraform/eks
@@ -151,7 +133,6 @@ terraform apply -auto-approve
 ```
 
 Creates:
-
 - VPC  
 - EKS cluster  
 - Node groups  
@@ -165,25 +146,15 @@ Creates:
 ```bash
 aws eks update-kubeconfig --region us-east-1 --name t2s-eks --alias t2s-eks
 kubectl config use-context t2s-eks
-```
-
-Validate:
-```bash
 kubectl cluster-info
 kubectl get nodes
 ```
 
 ---
 
-## Step 5 — Deploy Application via Helm (Replaces k8s/ Directory)
+## Step 5 — Deploy Application via Helm (Replaces old k8s/ directory)
 
-Your Helm chart is stored in:
-
-```
-charts/express-web-app/
-```
-
-### Edit values:
+### Update values in:
 ```
 charts/express-web-app/values.yaml
 ```
@@ -196,10 +167,10 @@ image:
 
 ### Deploy:
 ```bash
-helm upgrade --install express-web-app ./charts/express-web-app   --namespace apps --create-namespace
+helm upgrade --install express-web-app ./charts/express-web-app --namespace apps
 ```
 
-Validate:
+### Validate:
 ```bash
 kubectl -n apps get pods
 kubectl -n apps get svc
@@ -214,33 +185,134 @@ kubectl -n apps get ingress
 kubectl -n apps get ingress
 ```
 
-Open in browser:
+Open:
 ```
 http://<alb-dns>
 ```
 
 ---
 
-## Step 7 — Optional: GitOps Using ArgoCD
+# 7 — Install ArgoCD Using Helm (GitOps Enabled)
 
-Deploy ArgoCD application:
+### Create ArgoCD namespace
+```bash
+kubectl create namespace argocd
+```
 
+### Add Helm repository
+```bash
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update
+```
+
+### Install ArgoCD using Helm
+```bash
+helm upgrade --install argocd argo/argo-cd   --namespace argocd   --set server.service.type=ClusterIP
+```
+
+### Confirm installation
+```bash
+kubectl get pods -n argocd
+kubectl get svc -n argocd
+```
+
+---
+
+# 8 — Expose ArgoCD via ALB (Ingress)
+
+Create file:
+```
+argocd/argocd-ingress.yaml
+```
+
+Apply:
+```bash
+kubectl apply -f argocd/argocd-ingress.yaml
+```
+
+Verify:
+```bash
+kubectl get ingress -n argocd
+```
+
+---
+
+# 9 — Retrieve ArgoCD Admin Password
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode
+```
+
+---
+
+# 10 — Forward ArgoCD UI (optional local access)
+
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+Open:
+```
+https://localhost:8080
+```
+
+---
+
+# 11 — Deploy Express Web App via ArgoCD (GitOps)
+
+Create file:
+```
+argocd/express-web-app.yaml
+```
+
+Manifest:
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: express-web-app
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/Here2ServeU/express-t2s-collection
+    path: charts/express-web-app
+    targetRevision: main
+    helm:
+      releaseName: express-web-app
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: apps
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
+Apply:
 ```bash
 kubectl apply -f argocd/express-web-app.yaml
 ```
 
-ArgoCD ensures:
+Verify:
+```bash
+kubectl get ingress -n argocd
+```
 
-- Auto-sync to Git  
-- Drift detection  
-- Rollback and change history  
-- Immutable infrastructure deployments  
+ArgoCD now:
+- Auto-syncs deployments  
+- Detects drift  
+- Corrects configuration automatically  
+- Enables rollback history  
 
 ---
 
-## Step 8 — Cleanup
+# 12 — Cleanup
 
-### Remove Kubernetes resources:
+### Delete Kubernetes resources:
 ```bash
 helm uninstall express-web-app -n apps
 kubectl delete namespace apps --ignore-not-found
@@ -248,41 +320,29 @@ kubectl delete namespace apps --ignore-not-found
 
 ### Destroy infrastructure:
 ```bash
-cd terraform/eks  && terraform destroy -auto-approve
-cd ../ecr         && terraform destroy -auto-approve
+cd terraform/eks && terraform destroy -auto-approve
+cd ../ecr && terraform destroy -auto-approve
 ```
 
-### If DependencyViolation occurs:
-- Go to the root level (express-t2s-app-v6/)
+### If DependencyViolation errors occur:
 ```bash
 chmod +x scripts/cleanup.sh
 export FORCE_TERMINATE_INSTANCES=true
 AWS_REGION=us-east-1 VPC_ID=<your-vpc-id> bash scripts/cleanup.sh
 ```
 
-Run destroy again.
+Run destroy again afterward.
 
 ---
 
 # 5. Results & Impact
 
-### ✔ 99% automation achieved  
-Infrastructure, deployments, and updates are fully automated.
-
-### ✔ Zero-downtime deployments  
-Rolling updates delivered via EKS + Helm + ArgoCD.
-
-### ✔ Full observability and cost insights  
-Using Prometheus, Grafana, and Kubecost.
-
-### ✔ Scalable & resilient system  
-ALB + Kubernetes ensures rapid failover and auto-healing.
-
-### ✔ GitOps maturity  
-Drift-free, auditable, repeatable environments.
-
-### ✔ Enterprise-ready architecture  
-Matches AWS Well‑Architected and industry best practices.
+- ✔ **99% automation achieved**  
+- ✔ **Zero‑downtime rollouts** via Helm + ArgoCD  
+- ✔ **Scalable and resilient** architecture  
+- ✔ **Real-time observability & cost tracking**  
+- ✔ **100% drift-free GitOps environment**  
+- ✔ **Enterprise-ready deployment model**
 
 ---
 
@@ -290,7 +350,7 @@ Matches AWS Well‑Architected and industry best practices.
 
 **Emmanuel Naweji (2025)**  
 Cloud | DevOps | SRE | FinOps | AI Engineer  
-Building future-proof infrastructure and developing engineers into the top 1% using real-world automation-driven solutions.
+Building enterprise cloud platforms and training engineers into the top 1% through real‑world, automation-driven solutions.
 
 ![AWS Certified](https://img.shields.io/badge/AWS-Certified-blue?logo=amazonaws)
 ![Azure Solutions Architect](https://img.shields.io/badge/Azure-Solutions%20Architect-0078D4?logo=microsoftazure)
@@ -305,5 +365,4 @@ Building future-proof infrastructure and developing engineers into the top 1% us
 ![Linux](https://img.shields.io/badge/OS-Linux-black?logo=linux)
 ![FinOps](https://img.shields.io/badge/FinOps-Cost%20Optimization-green?logo=money)
 ![OpenAI](https://img.shields.io/badge/AI-OpenAI-ff9900?logo=openai)
-
 
