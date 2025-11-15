@@ -1,0 +1,23 @@
+namespace: apps
+
+replicaCount: 2
+
+image:
+  repository: "780593603882.dkr.ecr.us-east-1.amazonaws.com/t2s-express-app"
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 80
+  targetPort: 3000
+  type: ClusterIP
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - path: /
+      pathType: Prefix
+
+resources: {}
