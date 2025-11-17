@@ -1,0 +1,25 @@
+namespace: monitoring
+
+image:
+  repository: grafana/grafana
+  tag: "11.2.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - path: /grafana
+      pathType: Prefix
+
+admin:
+  user: admin
+  password: "T2S#Grafana123"
+
+datasource:
+  prometheusUrl: "http://prometheus.monitoring.svc.cluster.local:9090"

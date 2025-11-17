@@ -1,6 +1,6 @@
 name: Deploy to EKS
 
-#on:
+on:
   push:
     branches: [ "main" ]
     paths:

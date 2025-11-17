@@ -1,364 +1,510 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ============================================================
-# cleanup.sh — Force-clean a VPC and its dependencies
-# Includes:
-#   Fix-A: Aggressive ENI cleanup (detach/terminate if needed)
-#   Fix-B: Revoke Security Group references before deletion
-# Requirements: aws, jq, base64, bash
-# ============================================================
+#
+# cleanup_super.sh
+# Interactive cleanup for:
+#  - EKS clusters (if they exist)
+#  - VPCs (with full dependency cleanup)
+#
+# Requirements: aws, jq
+#
 
-need() { command -v "$1" >/dev/null 2>&1 || { echo "ERROR: '$1' is required"; exit 1; }; }
+# -------- Global arrays (must be defined before any use) --------
+CLUSTERS_TO_DELETE=()
+VPCS_TO_DELETE=()
+
+# -------- Helpers --------
+need() { command -v "$1" >/dev/null 2>&1 || { echo "ERROR: '$1' required"; exit 1; }; }
 need aws
 need jq
-need base64
 
-AWS_REGION="${AWS_REGION:-$(aws configure get region 2>/dev/null || echo 'us-east-1')}"
-VPC_ID="${VPC_ID:-}"
+line() { printf '%s\n' "=================================================="; }
 
-if [[ -z "$VPC_ID" ]]; then
-  echo "[INFO] VPC_ID not provided; attempting to detect default VPC in ${AWS_REGION}…"
-  VPC_ID="$(aws ec2 describe-vpcs --region "$AWS_REGION" \
-    --filters Name=isDefault,Values=true \
-    --query 'Vpcs[0].VpcId' --output text 2>/dev/null || true)"
-  [[ "$VPC_ID" == "None" ]] && VPC_ID=""
+# -------- Select region --------
+echo "Enter AWS region (default: us-east-1): "
+read -r AWS_REGION
+AWS_REGION="${AWS_REGION:-us-east-1}"
+
+echo
+echo "Using AWS region: $AWS_REGION"
+echo
+
+# -------- Detect EKS clusters --------
+echo "Detecting EKS clusters in region $AWS_REGION..."
+CLUSTERS_JSON="$(aws eks list-clusters --region "$AWS_REGION" --query 'clusters' --output json 2>/dev/null || echo '[]')"
+CLUSTERS_LIST="$(echo "$CLUSTERS_JSON" | jq -r '.[]?')"
+
+if [[ -z "${CLUSTERS_LIST}" ]]; then
+  echo "No EKS clusters found."
+else
+  echo "Found EKS clusters:"
+  echo "$CLUSTERS_LIST" | sed 's/^/ - /'
 fi
 
-if [[ -z "$VPC_ID" ]]; then
-  echo "ERROR: Could not determine VPC_ID. Set env VPC_ID or pass it explicitly: VPC_ID=vpc-xxxx AWS_REGION=us-east-1 bash cleanup.sh"
-  exit 1
-fi
+echo
+echo "Delete ALL detected EKS clusters? (yes/no)"
+read -r DELETE_ALL_CLUSTERS
 
-FORCE_TERMINATE_INSTANCES="${FORCE_TERMINATE_INSTANCES:-false}"
-MAX_RETRIES="${MAX_RETRIES:-30}"
-SLEEP_SECS="${SLEEP_SECS:-10}"
-
-echo "[START] Force cleanup for VPC: ${VPC_ID} in ${AWS_REGION}"
-aws ec2 describe-vpcs --region "$AWS_REGION" --vpc-ids "$VPC_ID" >/dev/null
-
-# 0) Helm/K8s best-effort (ignore failures)
-if command -v helm >/dev/null 2>&1; then
-  echo "[0] Helm best-effort uninstalls…"
-  helm -n ingress-nginx uninstall ingress-nginx || true
-  helm -n kube-system   uninstall aws-load-balancer-controller || true
-fi
-if command -v kubectl >/dev/null 2>&1; then
-  echo "[0] Deleting Services of type LoadBalancer…"
-  SVCs="$(kubectl get svc -A -o jsonpath='{range .items[?(@.spec.type=="LoadBalancer")]}{.metadata.namespace}{" "}{.metadata.name}{"\n"}{end}' 2>/dev/null || true)"
-  if [[ -n "$SVCs" ]]; then
-    while read -r ns name; do
-      [[ -z "$ns" || -z "$name" ]] && continue
-      echo "   - deleting svc $ns/$name"
-      kubectl -n "$ns" delete svc "$name" --wait=false || true
-    done <<< "$SVCs"
-  fi
-fi
-
-# 1) ELBv2 (ALB/NLB)
-echo "[1] Deleting ELBv2 (ALB/NLB) and listeners…"
-for _ in $(seq 1 "$MAX_RETRIES"); do
-  ARNS="$(aws elbv2 describe-load-balancers --region "$AWS_REGION" \
-    --query "LoadBalancers[?VpcId=='$VPC_ID'].LoadBalancerArn" --output text || true)"
-  if [[ -z "$ARNS" ]]; then echo "   No ELBv2 found (ok)."; break; fi
-  for arn in $ARNS; do
-    echo "   - deleting listeners for $arn"
-    LST="$(aws elbv2 describe-listeners --region "$AWS_REGION" --load-balancer-arn "$arn" \
-      --query 'Listeners[].ListenerArn' --output text 2>/dev/null || true)"
-    for l in $LST; do aws elbv2 delete-listener --region "$AWS_REGION" --listener-arn "$l" || true; done
-    echo "   - deleting load balancer $arn"
-    aws elbv2 delete-load-balancer --region "$AWS_REGION" --load-balancer-arn "$arn" || true
+if [[ "$DELETE_ALL_CLUSTERS" == "yes" && -n "${CLUSTERS_LIST}" ]]; then
+  for c in $CLUSTERS_LIST; do
+    CLUSTERS_TO_DELETE+=("$c")
   done
-  echo "   Waiting for ELBv2 to disappear…"; sleep "$SLEEP_SECS"
-done
+else
+  echo "Enter EKS cluster names to delete (space-separated), or press ENTER to skip:"
+  read -r CUSTOM_CLUSTERS
+  for c in $CUSTOM_CLUSTERS; do
+    CLUSTERS_TO_DELETE+=("$c")
+  done
+fi
 
-# 2) Classic ELBs
-echo "[2] Deleting Classic ELBs (if any) in VPC…"
-CLBS="$(aws elb describe-load-balancers --region "$AWS_REGION" \
-  --query 'LoadBalancerDescriptions[].{Name:LoadBalancerName,Subnets:Subnets}' \
-  --output json 2>/dev/null | jq -r '.[]? | @base64' || true)"
-if [[ -n "$CLBS" ]]; then
-  while read -r row; do
-    d() { echo "$row" | base64 --decode | jq -r "$1"; }
-    name="$(d '.Name')"
-    subnets_json="$(d '.Subnets')"
-    in_vpc=0
-    for s in $(echo "$subnets_json" | jq -r '.[]'); do
-      svpc="$(aws ec2 describe-subnets --region "$AWS_REGION" --subnet-ids "$s" \
-        --query 'Subnets[0].VpcId' --output text 2>/dev/null || true)"
-      [[ "$svpc" == "$VPC_ID" ]] && in_vpc=1
+# -------- Detect VPCs --------
+echo
+echo "Detecting VPCs in region $AWS_REGION..."
+VPCS_RAW="$(aws ec2 describe-vpcs --region "$AWS_REGION" --query 'Vpcs[].VpcId' --output text 2>/dev/null || true)"
+
+if [[ -z "${VPCS_RAW:-}" ]]; then
+  echo "No VPCs found."
+else
+  echo "Found VPCs:"
+  echo "$VPCS_RAW" | sed 's/^/ - /'
+fi
+
+echo
+echo "Delete ALL VPCs? (yes/no)"
+read -r DELETE_ALL_VPCS
+
+if [[ "$DELETE_ALL_VPCS" == "yes" && -n "${VPCS_RAW:-}" ]]; then
+  for v in $VPCS_RAW; do
+    VPCS_TO_DELETE+=("$v")
+  done
+else
+  echo "Enter VPC IDs to delete (space-separated), or press ENTER to skip:"
+  read -r CUSTOM_VPCS
+  for v in $CUSTOM_VPCS; do
+    VPCS_TO_DELETE+=("$v")
+  done
+fi
+
+# -------- Summary --------
+echo
+line
+echo " SUMMARY — RESOURCES MARKED FOR DELETION"
+line
+
+echo "Clusters:"
+if [[ ${#CLUSTERS_TO_DELETE[@]} -eq 0 ]]; then
+  echo " - none"
+else
+  printf ' - %s\n' "${CLUSTERS_TO_DELETE[@]}"
+fi
+
+echo
+echo "VPCs:"
+if [[ ${#VPCS_TO_DELETE[@]} -eq 0 ]]; then
+  echo " - none"
+else
+  printf ' - %s\n' "${VPCS_TO_DELETE[@]}"
+fi
+
+line
+echo "Proceed? Type YES to continue:"
+read -r CONFIRM
+if [[ "$CONFIRM" != "YES" ]]; then
+  echo "Cancelled."
+  exit 0
+fi
+
+# =====================================================================
+# FUNCTION: delete_cluster
+# - If cluster does not exist: skip immediately and DO NOT loop
+# - If it exists: delete nodegroups, Fargate, cluster
+# - Register its VPC for later VPC cleanup
+# =====================================================================
+delete_cluster() {
+  local CLUSTER_NAME="$1"
+
+  echo
+  line
+  echo " Deleting EKS cluster: $CLUSTER_NAME"
+  line
+
+  # Does the cluster still exist?
+  local STATUS
+  STATUS="$(aws eks describe-cluster \
+    --region "$AWS_REGION" \
+    --name "$CLUSTER_NAME" \
+    --query 'cluster.status' \
+    --output text 2>/dev/null || echo "NOT_FOUND")"
+
+  if [[ "$STATUS" == "NOT_FOUND" ]]; then
+    echo "Cluster $CLUSTER_NAME not found. Skipping."
+    return
+  fi
+
+  # Get its VPC and add to deletion list
+  local VPC_ID
+  VPC_ID="$(aws eks describe-cluster \
+    --region "$AWS_REGION" \
+    --name "$CLUSTER_NAME" \
+    --query 'cluster.resourcesVpcConfig.vpcId' \
+    --output text 2>/dev/null || echo "")"
+
+  if [[ -n "$VPC_ID" && "$VPC_ID" != "None" ]]; then
+    echo "Cluster uses VPC: $VPC_ID (will be scheduled for cleanup)."
+    VPCS_TO_DELETE+=("$VPC_ID")
+  else
+    echo "Cluster VPC not found or already removed."
+  fi
+
+  # Delete nodegroups
+  local NGS
+  NGS="$(aws eks list-nodegroups \
+    --region "$AWS_REGION" \
+    --cluster-name "$CLUSTER_NAME" \
+    --query 'nodegroups' \
+    --output json 2>/dev/null | jq -r '.[]?' || true)"
+
+  if [[ -n "$NGS" ]]; then
+    echo "Deleting nodegroups for $CLUSTER_NAME..."
+    for ng in $NGS; do
+      echo " - Deleting nodegroup: $ng"
+      aws eks delete-nodegroup \
+        --region "$AWS_REGION" \
+        --cluster-name "$CLUSTER_NAME" \
+        --nodegroup-name "$ng" >/dev/null 2>&1 || true
     done
-    if [[ "$in_vpc" == "1" ]]; then
-      echo "   - deleting Classic ELB $name"
-      aws elb delete-load-balancer --region "$AWS_REGION" --load-balancer-name "$name" || true
-    fi
-  done <<< "$CLBS"
-else
-  echo "   No Classic ELBs found (ok)."
-fi
-
-# 3) Orphaned Target Groups
-echo "[3] Deleting orphaned Target Groups…"
-TGS="$(aws elbv2 describe-target-groups --region "$AWS_REGION" \
-  --query "TargetGroups[?VpcId=='$VPC_ID'].TargetGroupArn" --output text || true)"
-for tg in $TGS; do aws elbv2 delete-target-group --region "$AWS_REGION" --target-group-arn "$tg" || true; done
-
-# 4) NAT + EIPs
-echo "[4] Deleting NAT Gateways and collecting EIPs…"
-declare -a NAT_EIPS=()
-NGWS="$(aws ec2 describe-nat-gateways --region "$AWS_REGION" \
-  --filter Name=vpc-id,Values="$VPC_ID" \
-  --query 'NatGateways[].NatGatewayId' --output text || true)"
-for ngw in $NGWS; do
-  ALLOCS="$(aws ec2 describe-nat-gateways --region "$AWS_REGION" --nat-gateway-ids "$ngw" \
-    --query 'NatGateways[0].NatGatewayAddresses[].AllocationId' --output text || true)"
-  for a in $ALLOCS; do [[ -n "$a" && "$a" != "None" ]] && NAT_EIPS+=("$a"); done
-  echo "   - deleting NAT Gateway $ngw"
-  aws ec2 delete-nat-gateway --region "$AWS_REGION" --nat-gateway-id "$ngw" || true
-done
-for _ in $(seq 1 "$MAX_RETRIES"); do
-  LEFT="$(aws ec2 describe-nat-gateways --region "$AWS_REGION" \
-    --filter Name=vpc-id,Values="$VPC_ID" Name=state,Values=pending,available,deleting \
-    --query 'NatGateways[].NatGatewayId' --output text || true)"
-  [[ -z "$LEFT" ]] && { echo "   NAT Gateways gone."; break; }
-  echo "   Waiting for NAT GW deletion…"; sleep "$SLEEP_SECS"
-done
-if [[ "${#NAT_EIPS[@]}" -gt 0 ]]; then
-  echo "[4b] Releasing NAT EIPs: ${NAT_EIPS[*]}"
-  for alloc in "${NAT_EIPS[@]}"; do
-    ASSOC="$(aws ec2 describe-addresses --region "$AWS_REGION" --allocation-ids "$alloc" \
-      --query 'Addresses[0].AssociationId' --output text 2>/dev/null || true)"
-    [[ "$ASSOC" != "None" && -n "$ASSOC" && "$ASSOC" != "null" ]] && \
-      aws ec2 disassociate-address --region "$AWS_REGION" --association-id "$ASSOC" || true
-    aws ec2 release-address --region "$AWS_REGION" --allocation-id "$alloc" || true
-  done
-fi
-
-# 5) VPC endpoints
-echo "[5] Deleting VPC Endpoints…"
-VPCE_IDS="$(aws ec2 describe-vpc-endpoints --region "$AWS_REGION" \
-  --filters Name=vpc-id,Values="$VPC_ID" \
-  --query 'VpcEndpoints[].VpcEndpointId' --output text || true)"
-[[ -n "$VPCE_IDS" ]] && aws ec2 delete-vpc-endpoints --region "$AWS_REGION" --vpc-endpoint-ids $VPCE_IDS || true
-
-# 6) Instances (optional)
-if [[ "$FORCE_TERMINATE_INSTANCES" == "true" ]]; then
-  echo "[6] Terminating EC2 instances in VPC…"
-  INSTANCE_IDS="$(aws ec2 describe-instances --region "$AWS_REGION" \
-    --filters Name=vpc-id,Values="$VPC_ID" Name=instance-state-name,Values=pending,running,stopping,stopped \
-    --query 'Reservations[].Instances[].InstanceId' --output text || true)"
-  if [[ -n "$INSTANCE_IDS" ]]; then
-    aws ec2 terminate-instances --region "$AWS_REGION" --instance-ids $INSTANCE_IDS || true
-    echo "   Waiting for instances to terminate…"
-    aws ec2 wait instance-terminated --region "$AWS_REGION" --instance-ids $INSTANCE_IDS || true
   fi
-else
-  echo "[6] Skipping EC2 termination (set FORCE_TERMINATE_INSTANCES=true to enable)."
-fi
 
-# Fix-A: Aggressive ENI cleanup
-echo "[Fix-A] Repeated ENI cleanup (detach/terminate if needed)…"
-for _ in $(seq 1 "$MAX_RETRIES"); do
+  # Delete Fargate profiles
+  local FPS
+  FPS="$(aws eks list-fargate-profiles \
+    --region "$AWS_REGION" \
+    --cluster-name "$CLUSTER_NAME" \
+    --query 'fargateProfileNames' \
+    --output json 2>/dev/null | jq -r '.[]?' || true)"
+
+  if [[ -n "$FPS" ]]; then
+    echo "Deleting Fargate profiles for $CLUSTER_NAME..."
+    for fp in $FPS; do
+      echo " - Deleting Fargate profile: $fp"
+      aws eks delete-fargate-profile \
+        --region "$AWS_REGION" \
+        --cluster-name "$CLUSTER_NAME" \
+        --fargate-profile-name "$fp" >/dev/null 2>&1 || true
+    done
+  fi
+
+  # Small wait and delete cluster
+  echo "Requesting EKS cluster deletion..."
+  aws eks delete-cluster \
+    --region "$AWS_REGION" \
+    --name "$CLUSTER_NAME" >/dev/null 2>&1 || true
+
+  # Poll a few times only (avoid noisy loops)
+  for i in {1..6}; do
+    STATUS="$(aws eks describe-cluster \
+      --region "$AWS_REGION" \
+      --name "$CLUSTER_NAME" \
+      --query 'cluster.status' \
+      --output text 2>/dev/null || echo "NOT_FOUND")"
+    if [[ "$STATUS" == "NOT_FOUND" ]]; then
+      echo "Cluster $CLUSTER_NAME deleted."
+      return
+    fi
+    echo "Cluster $CLUSTER_NAME deletion in progress (status=$STATUS). Checking again in 10 seconds..."
+    sleep 10
+  done
+
+  echo "Cluster $CLUSTER_NAME deletion is still in progress. Continuing with VPC cleanup."
+}
+
+# =====================================================================
+# FUNCTION: delete_vpc
+# - If VPC does not exist: skip
+# - If VPC still has EC2 instances: warn and skip (safety)
+# - Cleans ELBv2, Classic ELB, TGs, NATs/EIPs, endpoints, RTs, NACLs, SGs, IGWs, subnets, ENIs
+# - Finally deletes VPC
+# =====================================================================
+delete_vpc() {
+  local VPC_ID="$1"
+
+  echo
+  line
+  echo " Cleaning and deleting VPC: $VPC_ID"
+  line
+
+  # Does the VPC still exist?
+  local EXISTS
+  EXISTS="$(aws ec2 describe-vpcs \
+    --region "$AWS_REGION" \
+    --vpc-ids "$VPC_ID" \
+    --query 'Vpcs[0].VpcId' \
+    --output text 2>/dev/null || echo "NOT_FOUND")"
+
+  if [[ "$EXISTS" == "NOT_FOUND" || -z "$EXISTS" ]]; then
+    echo "VPC $VPC_ID does not exist. Skipping."
+    return
+  fi
+
+  # Check for instances inside VPC
+  local INSTANCES
+  INSTANCES="$(aws ec2 describe-instances --region "$AWS_REGION" \
+    --filters Name=vpc-id,Values="$VPC_ID" \
+              Name=instance-state-name,Values=pending,running,stopping,stopped \
+    --query 'Reservations[].Instances[].InstanceId' \
+    --output text 2>/dev/null || true)"
+
+  if [[ -n "$INSTANCES" ]]; then
+    echo "VPC $VPC_ID has EC2 instances:"
+    echo "$INSTANCES" | sed 's/^/ - /'
+    echo "For safety, this script will NOT terminate EC2 instances automatically."
+    echo "Skipping VPC $VPC_ID. Terminate instances first, then re-run."
+    return
+  fi
+
+  # 1) Delete ELBv2
+  echo "[1] Deleting ELBv2 load balancers in VPC $VPC_ID..."
+  local ARNS
+  ARNS="$(aws elbv2 describe-load-balancers --region "$AWS_REGION" \
+    --query "LoadBalancers[?VpcId=='$VPC_ID'].LoadBalancerArn" \
+    --output text 2>/dev/null || true)"
+  for arn in $ARNS; do
+    echo " - Deleting ELBv2: $arn"
+    aws elbv2 delete-load-balancer --region "$AWS_REGION" --load-balancer-arn "$arn" >/dev/null 2>&1 || true
+  done
+
+  # 2) Delete Classic ELBs
+  echo "[2] Deleting Classic ELBs associated with VPC (best-effort)..."
+  local CLB_JSON
+  CLB_JSON="$(aws elb describe-load-balancers --region "$AWS_REGION" \
+    --query 'LoadBalancerDescriptions' --output json 2>/dev/null || echo '[]')"
+
+  echo "$CLB_JSON" | jq -c '.[]?' | while read -r row; do
+    local name
+    name="$(echo "$row" | jq -r '.LoadBalancerName')"
+    local subnets
+    subnets="$(echo "$row" | jq -r '.Subnets[]?')"
+    local match=0
+    for s in $subnets; do
+      local svpc
+      svpc="$(aws ec2 describe-subnets --region "$AWS_REGION" \
+        --subnet-ids "$s" \
+        --query 'Subnets[0].VpcId' \
+        --output text 2>/dev/null || echo "")"
+      [[ "$svpc" == "$VPC_ID" ]] && match=1
+    done
+    if [[ $match -eq 1 ]]; then
+      echo " - Deleting Classic ELB: $name"
+      aws elb delete-load-balancer --region "$AWS_REGION" --load-balancer-name "$name" >/dev/null 2>&1 || true
+    fi
+  done
+
+  # 3) Delete Target Groups
+  echo "[3] Deleting target groups in VPC $VPC_ID..."
+  local TGS
+  TGS="$(aws elbv2 describe-target-groups --region "$AWS_REGION" \
+    --query "TargetGroups[?VpcId=='$VPC_ID'].TargetGroupArn" \
+    --output text 2>/dev/null || true)"
+  for tg in $TGS; do
+    echo " - Deleting target group: $tg"
+    aws elbv2 delete-target-group --region "$AWS_REGION" --target-group-arn "$tg" >/dev/null 2>&1 || true
+  done
+
+  # 4) NAT + EIPs
+  echo "[4] Deleting NAT Gateways and releasing EIPs..."
+  local NGWS
+  NGWS="$(aws ec2 describe-nat-gateways --region "$AWS_REGION" \
+    --filter Name=vpc-id,Values="$VPC_ID" \
+    --query 'NatGateways[].NatGatewayId' \
+    --output text 2>/dev/null || true)"
+  local NAT_EIPS=()
+
+  for ngw in $NGWS; do
+    local ALLOCS
+    ALLOCS="$(aws ec2 describe-nat-gateways --region "$AWS_REGION" \
+      --nat-gateway-ids "$ngw" \
+      --query 'NatGateways[0].NatGatewayAddresses[].AllocationId' \
+      --output text 2>/dev/null || true)"
+    for a in $ALLOCS; do
+      [[ -n "$a" && "$a" != "None" ]] && NAT_EIPS+=("$a")
+    done
+    echo " - Deleting NAT Gateway: $ngw"
+    aws ec2 delete-nat-gateway --region "$AWS_REGION" --nat-gateway-id "$ngw" >/dev/null 2>&1 || true
+  done
+
+  if [[ "${#NAT_EIPS[@]}" -gt 0 ]]; then
+    echo "Releasing NAT EIPs..."
+    for alloc in "${NAT_EIPS[@]}"; do
+      echo " - Releasing EIP allocation: $alloc"
+      aws ec2 release-address --region "$AWS_REGION" --allocation-id "$alloc" >/dev/null 2>&1 || true
+    done
+  fi
+
+  # 5) VPC Endpoints
+  echo "[5] Deleting VPC endpoints..."
+  local VPCE_IDS
+  VPCE_IDS="$(aws ec2 describe-vpc-endpoints --region "$AWS_REGION" \
+    --filters Name=vpc-id,Values="$VPC_ID" \
+    --query 'VpcEndpoints[].VpcEndpointId' \
+    --output text 2>/dev/null || true)"
+  if [[ -n "$VPCE_IDS" ]]; then
+    aws ec2 delete-vpc-endpoints --region "$AWS_REGION" --vpc-endpoint-ids $VPCE_IDS >/dev/null 2>&1 || true
+  fi
+
+  # 6) Route tables (non-main)
+  echo "[6] Deleting non-main route tables..."
+  local RTBS_JSON
+  RTBS_JSON="$(aws ec2 describe-route-tables --region "$AWS_REGION" \
+    --filters Name=vpc-id,Values="$VPC_ID" \
+    --output json 2>/dev/null || echo '{}')"
+
+  echo "$RTBS_JSON" | jq -c '.RouteTables[]?' | while read -r rt; do
+    local RT_ID
+    RT_ID="$(echo "$rt" | jq -r '.RouteTableId')"
+    local IS_MAIN
+    IS_MAIN="$(echo "$rt" | jq -r '.Associations[]? | select(.Main==true) | .Main' || echo '')"
+
+    if [[ "$IS_MAIN" == "true" ]]; then
+      echo " - Skipping main route table: $RT_ID"
+      continue
+    fi
+
+    # Disassociate first
+    echo "$rt" | jq -r '.Associations[]? | select(.Main!=true) | .RouteTableAssociationId' | while read -r a; do
+      [[ -n "$a" ]] && aws ec2 disassociate-route-table --region "$AWS_REGION" --association-id "$a" >/dev/null 2>&1 || true
+    done
+
+    echo " - Deleting RTB: $RT_ID"
+    aws ec2 delete-route-table --region "$AWS_REGION" --route-table-id "$RT_ID" >/dev/null 2>&1 || true
+  done
+
+  # 7) NACLs
+  echo "[7] Deleting non-default NACLs..."
+  local NACLS
+  NACLS="$(aws ec2 describe-network-acls --region "$AWS_REGION" \
+    --filters Name=vpc-id,Values="$VPC_ID" Name=isDefault,Values=false \
+    --query 'NetworkAcls[].NetworkAclId' \
+    --output text 2>/dev/null || true)"
+  for n in $NACLS; do
+    echo " - Deleting NACL: $n"
+    aws ec2 delete-network-acl --region "$AWS_REGION" --network-acl-id "$n" >/dev/null 2>&1 || true
+  done
+
+  # 8) Security groups
+  echo "[8] Deleting non-default security groups..."
+  local ALL_SGS
+  ALL_SGS="$(aws ec2 describe-security-groups --region "$AWS_REGION" \
+    --filters Name=vpc-id,Values="$VPC_ID" \
+    --query 'SecurityGroups[?GroupName!=`default`].GroupId' \
+    --output text 2>/dev/null || true)"
+
+  for SG in $ALL_SGS; do
+    echo " - Clearing rules and deleting SG: $SG"
+    local IN_JSON
+    IN_JSON="$(aws ec2 describe-security-groups --region "$AWS_REGION" --group-ids "$SG" \
+      --query 'SecurityGroups[0].IpPermissions' \
+      --output json 2>/dev/null || echo '[]')"
+    if [[ "$(echo "$IN_JSON" | jq 'length')" -gt 0 ]]; then
+      aws ec2 revoke-security-group-ingress --region "$AWS_REGION" --group-id "$SG" \
+        --ip-permissions "$IN_JSON" >/dev/null 2>&1 || true
+    fi
+    local OUT_JSON
+    OUT_JSON="$(aws ec2 describe-security-groups --region "$AWS_REGION" --group-ids "$SG" \
+      --query 'SecurityGroups[0].IpPermissionsEgress' \
+      --output json 2>/dev/null || echo '[]')"
+    if [[ "$(echo "$OUT_JSON" | jq 'length')" -gt 0 ]]; then
+      aws ec2 revoke-security-group-egress --region "$AWS_REGION" --group-id "$SG" \
+        --ip-permissions "$OUT_JSON" >/dev/null 2>&1 || true
+    fi
+    aws ec2 delete-security-group --region "$AWS_REGION" --group-id "$SG" >/dev/null 2>&1 || true
+  done
+
+  # 9) Internet Gateway
+  echo "[9] Detaching and deleting Internet Gateway..."
+  local IGW_ID
+  IGW_ID="$(aws ec2 describe-internet-gateways --region "$AWS_REGION" \
+    --filters Name=attachment.vpc-id,Values="$VPC_ID" \
+    --query 'InternetGateways[0].InternetGatewayId' \
+    --output text 2>/dev/null || echo 'None')"
+  if [[ "$IGW_ID" != "None" && -n "$IGW_ID" ]]; then
+    echo " - Detaching IGW: $IGW_ID"
+    aws ec2 detach-internet-gateway --region "$AWS_REGION" --internet-gateway-id "$IGW_ID" --vpc-id "$VPC_ID" >/dev/null 2>&1 || true
+    echo " - Deleting IGW: $IGW_ID"
+    aws ec2 delete-internet-gateway --region "$AWS_REGION" --internet-gateway-id "$IGW_ID" >/dev/null 2>&1 || true
+  fi
+
+  # 10) Subnets
+  echo "[10] Deleting subnets..."
+  local SUBNETS
+  SUBNETS="$(aws ec2 describe-subnets --region "$AWS_REGION" \
+    --filters Name=vpc-id,Values="$VPC_ID" \
+    --query 'Subnets[].SubnetId' \
+    --output text 2>/dev/null || true)"
+  for s in $SUBNETS; do
+    echo " - Deleting subnet: $s"
+    aws ec2 delete-subnet --region "$AWS_REGION" --subnet-id "$s" >/dev/null 2>&1 || true
+  done
+
+  # 11) ENIs (available only)
+  echo "[11] Deleting 'available' ENIs..."
+  local ENI_JSON
   ENI_JSON="$(aws ec2 describe-network-interfaces --region "$AWS_REGION" \
     --filters Name=vpc-id,Values="$VPC_ID" \
-    --query 'NetworkInterfaces[].{Id:NetworkInterfaceId,Status:Status,IfType:InterfaceType,Desc:Description,Att:Attachment,Groups:Groups[*].GroupId}' \
-    --output json || echo '[]')"
-  ENI_COUNT="$(echo "$ENI_JSON" | jq 'length')"
-  [[ "$ENI_COUNT" -eq 0 ]] && { echo "   No ENIs left."; break; }
-
-  echo "   Remaining ENIs: $ENI_COUNT"
-  echo "$ENI_JSON" | jq -c '.[]' | while read -r eni; do
-    ID="$(echo "$eni" | jq -r '.Id')"
-    STATUS="$(echo "$eni" | jq -r '.Status')"
-    IFTYPE="$(echo "$eni" | jq -r '.IfType')"
-    DESC="$(echo "$eni" | jq -r '.Desc')"
-    ATT_ID="$(echo "$eni" | jq -r '.Att.AttachmentId // empty')"
-    INST_ID="$(echo "$eni" | jq -r '.Att.InstanceId // empty')"
-
-    if [[ "$STATUS" == "available" ]]; then
-      echo "     - deleting available ENI $ID"
-      aws ec2 delete-network-interface --region "$AWS_REGION" --network-interface-id "$ID" || true
-      continue
+    --query 'NetworkInterfaces[].{Id:NetworkInterfaceId,Status:Status}' \
+    --output json 2>/dev/null || echo '[]')"
+  echo "$ENI_JSON" | jq -c '.[]?' | while read -r eni; do
+    local EID EST
+    EID="$(echo "$eni" | jq -r '.Id')"
+    EST="$(echo "$eni" | jq -r '.Status')"
+    if [[ "$EST" == "available" ]]; then
+      echo " - Deleting ENI: $EID"
+      aws ec2 delete-network-interface --region "$AWS_REGION" --network-interface-id "$EID" >/dev/null 2>&1 || true
     fi
-    if [[ -n "$INST_ID" ]]; then
-      if [[ "$FORCE_TERMINATE_INSTANCES" == "true" ]]; then
-        echo "     - ENI $ID attached to $INST_ID → terminating instance"
-        aws ec2 terminate-instances --region "$AWS_REGION" --instance-ids "$INST_ID" || true
-      else
-        if [[ -n "$ATT_ID" ]]; then
-          echo "     - detaching ENI $ID (attachment $ATT_ID) from $INST_ID"
-          aws ec2 detach-network-interface --region "$AWS_REGION" --attachment-id "$ATT_ID" || true
-        else
-          echo "     - ENI $ID appears primary on $INST_ID; set FORCE_TERMINATE_INSTANCES=true to kill instance"
-        fi
-      fi
-      continue
-    fi
-    if [[ "$IFTYPE" == "interface" && "$DESC" == *"VPC Endpoint"* ]]; then
-      echo "     - ENI $ID looks like a VPC Endpoint ENI → re-running VPC endpoint deletion"
-      VPCE_IDS="$(aws ec2 describe-vpc-endpoints --region "$AWS_REGION" \
-        --filters Name=vpc-id,Values="$VPC_ID" --query 'VpcEndpoints[].VpcEndpointId' --output text || true)"
-      [[ -n "$VPCE_IDS" ]] && aws ec2 delete-vpc-endpoints --region "$AWS_REGION" --vpc-endpoint-ids $VPCE_IDS || true
-      continue
-    fi
-    echo "     - ENI $ID is $STATUS ($IFTYPE: $DESC) – will retry…"
   done
-  echo "   waiting $SLEEP_SECS s for ENIs to settle…"; sleep "$SLEEP_SECS"
-done
 
-# Fix-B: Revoke SG references and delete SGs
-echo "[Fix-B] Revoke SG references and delete non-default SGs…"
-ALL_SGS="$(aws ec2 describe-security-groups --region "$AWS_REGION" \
-  --filters Name=vpc-id,Values="$VPC_ID" \
-  --query "SecurityGroups[?GroupName!='default'].GroupId" --output text || true)"
+  # 12) Final: delete VPC
+  echo "[FINAL] Deleting VPC $VPC_ID..."
+  aws ec2 delete-vpc --region "$AWS_REGION" --vpc-id "$VPC_ID" >/dev/null 2>&1 || true
+  echo "VPC $VPC_ID deletion attempted. If it still exists, check for remaining dependencies."
+}
 
-# (1) Revoke each SG's own ingress/egress rules
-for SG in $ALL_SGS; do
-  IN_JSON="$(aws ec2 describe-security-groups --region "$AWS_REGION" --group-ids "$SG" \
-    --query 'SecurityGroups[0].IpPermissions' --output json)"
-  [[ "$(echo "$IN_JSON" | jq 'length')" -gt 0 ]] && \
-    aws ec2 revoke-security-group-ingress --region "$AWS_REGION" --group-id "$SG" --ip-permissions "$IN_JSON" || true
+# =====================================================================
+# EXECUTION
+# =====================================================================
 
-  OUT_JSON="$(aws ec2 describe-security-groups --region "$AWS_REGION" --group-ids "$SG" \
-    --query 'SecurityGroups[0].IpPermissionsEgress' --output json)"
-  [[ "$(echo "$OUT_JSON" | jq 'length')" -gt 0 ]] && \
-    aws ec2 revoke-security-group-egress --region "$AWS_REGION" --group-id "$SG" --ip-permissions "$OUT_JSON" || true
-done
-
-# (2) Revoke rules in other SGs that reference these SGs
-if [[ -n "$ALL_SGS" ]]; then
-  REFS_JSON="$(printf '%s\n' $ALL_SGS | jq -R . | jq -s .)"
-  CANDIDATES="$(aws ec2 describe-security-groups --region "$AWS_REGION" \
-    --filters Name=vpc-id,Values="$VPC_ID" --output json)"
-  echo "$CANDIDATES" | jq -c '.SecurityGroups[]' | while read -r ROW; do
-    GID="$(echo "$ROW" | jq -r '.GroupId')"
-
-    IN_REF="$(echo "$ROW" | jq --argjson refs "$REFS_JSON" \
-      '{IpPermissions: [.IpPermissions[]? as $p |
-        ($p.UserIdGroupPairs // []) as $pairs |
-        if ($pairs | map(.GroupId) | inside($refs)) then $p else empty end ]}')"
-    [[ "$(echo "$IN_REF" | jq '.IpPermissions | length')" -gt 0 ]] && \
-      aws ec2 revoke-security-group-ingress --region "$AWS_REGION" \
-        --group-id "$GID" --ip-permissions "$(echo "$IN_REF" | jq -c '.IpPermissions')" || true
-
-    OUT_REF="$(echo "$ROW" | jq --argjson refs "$REFS_JSON" \
-      '{IpPermissions: [.IpPermissionsEgress[]? as $p |
-        ($p.UserIdGroupPairs // []) as $pairs |
-        if ($pairs | map(.GroupId) | inside($refs)) then $p else empty end ]}')"
-    [[ "$(echo "$OUT_REF" | jq '.IpPermissions | length')" -gt 0 ]] && \
-      aws ec2 revoke-security-group-egress --region "$AWS_REGION" \
-        --group-id "$GID" --ip-permissions "$(echo "$OUT_REF" | jq -c '.IpPermissions')" || true
+# 1) Delete clusters (if any)
+if [[ ${#CLUSTERS_TO_DELETE[@]} -gt 0 ]]; then
+  for C in "${CLUSTERS_TO_DELETE[@]}"; do
+    delete_cluster "$C"
   done
 fi
 
-# (3) One more ENI pass
-echo "[Fix-B] Re-run ENI cleanup once more…"
-ENI_IDS="$(aws ec2 describe-network-interfaces --region "$AWS_REGION" \
-  --filters Name=vpc-id,Values="$VPC_ID" \
-  --query 'NetworkInterfaces[].NetworkInterfaceId' --output text || true)"
-if [[ -n "$ENI_IDS" ]]; then
-  for eni in $ENI_IDS; do
-    STATUS="$(aws ec2 describe-network-interfaces --region "$AWS_REGION" \
-      --network-interface-ids "$eni" --query 'NetworkInterfaces[0].Status' --output text || true)"
-    [[ "$STATUS" == "available" ]] && \
-      aws ec2 delete-network-interface --region "$AWS_REGION" --network-interface-id "$eni" || true
+# 2) Deduplicate VPC list (clusters may have added their VPCs)
+# POSIX safe dedupe (no mapfile)
+if [[ ${#VPCS_TO_DELETE[@]} -gt 0 ]]; then
+  UNIQUE_VPCS=""
+  for v in "${VPCS_TO_DELETE[@]}"; do
+    case " $UNIQUE_VPCS " in
+      *" $v "*) ;; # skip duplicates
+      *) UNIQUE_VPCS="$UNIQUE_VPCS $v" ;;
+    esac
+  done
+
+  VPCS_TO_DELETE=()
+  for v in $UNIQUE_VPCS; do
+    VPCS_TO_DELETE+=("$v")
   done
 fi
 
-# (4) Now delete non-default SGs
-for SG in $ALL_SGS; do
-  echo "   - delete SG $SG"
-  aws ec2 delete-security-group --region "$AWS_REGION" --group-id "$SG" || true
-done
-
-# 8) Disable mapPublicIpOnLaunch (best-effort)
-echo "[8] Disabling mapPublicIpOnLaunch on public subnets…"
-PUBS="$(aws ec2 describe-subnets --region "$AWS_REGION" \
-  --filters Name=vpc-id,Values="$VPC_ID" Name=tag:kubernetes.io/role/elb,Values=1 \
-  --query 'Subnets[].SubnetId' --output text || true)"
-for s in $PUBS; do
-  aws ec2 modify-subnet-attribute --region "$AWS_REGION" --subnet-id "$s" --no-map-public-ip-on-launch || true
-done
-
-# 9) IGW
-echo "[9] Detach & delete IGW (if any)…"
-IGW_ID="$(aws ec2 describe-internet-gateways --region "$AWS_REGION" \
-  --filters Name=attachment.vpc-id,Values="$VPC_ID" \
-  --query 'InternetGateways[0].InternetGatewayId' --output text 2>/dev/null || true)"
-if [[ -n "$IGW_ID" && "$IGW_ID" != "None" ]]; then
-  aws ec2 detach-internet-gateway --region "$AWS_REGION" --internet-gateway-id "$IGW_ID" --vpc-id "$VPC_ID" || true
-  aws ec2 delete-internet-gateway  --region "$AWS_REGION" --internet-gateway-id "$IGW_ID" || true
-else
-  echo "   No IGW attached (ok)."
+# 3) Delete VPCs
+if [[ ${#VPCS_TO_DELETE[@]} -gt 0 ]]; then
+  for V in "${VPCS_TO_DELETE[@]}"; do
+    delete_vpc "$V"
+  done
 fi
 
-# 10) Route tables
-echo "[10] Deleting non-main route tables…"
-RTBS="$(aws ec2 describe-route-tables --region "$AWS_REGION" \
-  --filters Name=vpc-id,Values="$VPC_ID" \
-  --query 'RouteTables[].{Id:RouteTableId,Assoc:Associations}' --output json)"
-echo "$RTBS" | jq -c '.[]' | while read -r item; do
-  RT_ID="$(echo "$item" | jq -r '.Id')"
-  MAIN="$(echo "$item" | jq -r '.Assoc[]? | select(.Main==true) | .Main' || echo "")"
-  if [[ "$MAIN" == "true" ]]; then
-    echo "   - skipping main route table $RT_ID"
-    continue
-  fi
-  ASSOC_IDS="$(echo "$item" | jq -r '.Assoc[]? | select(.Main!=true) | .RouteTableAssociationId')"
-  for a in $ASSOC_IDS; do
-    echo "   - disassociate $a"
-    aws ec2 disassociate-route-table --region "$AWS_REGION" --association-id "$a" || true
-  done
-  echo "   - delete RTB $RT_ID"
-  aws ec2 delete-route-table --region "$AWS_REGION" --route-table-id "$RT_ID" || true
-done
-
-# 11) NACLs
-echo "[11] Deleting non-default NACLs…"
-NACLS="$(aws ec2 describe-network-acls --region "$AWS_REGION" \
-  --filters Name=vpc-id,Values="$VPC_ID" \
-  --query 'NetworkAcls[?IsDefault==`false`].NetworkAclId' --output text || true)"
-for n in $NACLS; do
-  echo "   - delete NACL $n"
-  aws ec2 delete-network-acl --region "$AWS_REGION" --network-acl-id "$n" || true
-done
-
-# 12) Subnets
-echo "[12] Deleting Subnets…"
-SUBNETS="$(aws ec2 describe-subnets --region "$AWS_REGION" \
-  --filters Name=vpc-id,Values="$VPC_ID" \
-  --query 'Subnets[].SubnetId' --output text || true)"
-for subnet in $SUBNETS; do
-  echo "   - delete subnet $subnet"
-  aws ec2 delete-subnet --region "$AWS_REGION" --subnet-id "$subnet" || true
-done
-
-# 13) DHCP options
-echo "[13] Reset & delete custom DHCP options (best-effort)…"
-DOPT_ID="$(aws ec2 describe-vpcs --region "$AWS_REGION" --vpc-ids "$VPC_ID" \
-  --query 'Vpcs[0].DhcpOptionsId' --output text 2>/dev/null || echo 'None')"
-if [[ -n "$DOPT_ID" && "$DOPT_ID" != "default" && "$DOPT_ID" != "None" ]]; then
-  echo "   VPC had DHCP options: $DOPT_ID"
-  for V in $(aws ec2 describe-vpcs --region "$AWS_REGION" \
-      --filters Name=dhcp-options-id,Values="$DOPT_ID" \
-      --query 'Vpcs[].VpcId' --output text); do
-    aws ec2 associate-dhcp-options --region "$AWS_REGION" --vpc-id "$V" --dhcp-options-id default || true
-  done
-  for _ in $(seq 1 12); do
-    USING="$(aws ec2 describe-vpcs --region "$AWS_REGION" \
-      --filters Name=dhcp-options-id,Values="$DOPT_ID" --query 'length(Vpcs)')"
-    if [[ "$USING" == "0" ]]; then
-      echo "   Deleting DHCP options $DOPT_ID"
-      aws ec2 delete-dhcp-options --region "$AWS_REGION" --dhcp-options-id "$DOPT_ID" || true
-      break
-    fi
-    echo "   DHCP options still associated; sleeping 10s…"; sleep 10
-  done
-else
-  echo "   No custom DHCP options to clean (ok)."
-fi
-
-# FINAL: VPC
-echo "[FINAL] Deleting VPC ${VPC_ID}…"
-aws ec2 delete-vpc --region "$AWS_REGION" --vpc-id "$VPC_ID" || true
-echo "[DONE] VPC ${VPC_ID} removal attempted. If it still fails with DependencyViolation, wait a minute and re-run."
+echo
+line
+echo " CLEANUP COMPLETE"
+line
