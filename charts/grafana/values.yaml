@@ -23,3 +23,9 @@ admin:
 
 datasource:
   prometheusUrl: "http://prometheus.monitoring.svc.cluster.local:9090"
+
+dashboards:
+  default:
+    express-web-app:
+      json: |
+        {{ .Files.Get "dashboards/express-web-app.json" | nindent 8 }}

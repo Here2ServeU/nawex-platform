@@ -308,6 +308,13 @@ chmod +x scripts/cleanup.sh
 export FORCE_TERMINATE_INSTANCES=true
 AWS_REGION=us-east-1 VPC_ID=<your-vpc-id> bash scripts/cleanup.sh
 cd /terraform/eks
+
+terraform destroy -auto-approve
+
+cd ../..
+export FORCE_TERMINATE_INSTANCES=true
+AWS_REGION=us-east-1 VPC_ID=<your-vpc-id> bash scripts/cleanup.sh
+
 terraform destroy -auto-approve
 ```
 
