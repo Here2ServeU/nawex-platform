@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: aiops-api
-  namespace: {{ .Values.namespace }}
   labels:
     app: aiops-api
 spec:
@@ -14,18 +13,15 @@ spec:
     metadata:
       labels:
         app: aiops-api
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "{{ .Values.service.port }}"
     spec:
       containers:
         - name: aiops-api
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - containerPort: {{ .Values.container.port }}
           env:
-            - name: PORT
-              value: "{{ .Values.service.port }}"
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- range .Values.container.env }}
+            - name: {{ .name }}
+              value: "{{ .value }}"
+            {{- end }}

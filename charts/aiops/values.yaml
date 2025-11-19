@@ -1,7 +1,7 @@
 image:
-  repository: "730335276920.dkr.ecr.us-east-1.amazonaws.com/t2s-aiops"
+  repository: "730335276920.dkr.ecr.us-east-1.amazonaws.com/aiops-api"
   tag: "latest"
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 replicaCount: 1
 

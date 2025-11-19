@@ -178,6 +178,15 @@ kubectl get nodes
 ---
 
 ## **STEP 5 — Deploy Express App Using Helm**
+- Before deploying the App, we will first install kube-prometheus-stack first so that we also auto-install all CRDs. 
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+  -n monitoring --create-namespace
+```
+- Now, let's deploy the Express App:
 ```bash
 helm upgrade --install express-web-app ./charts/express-web-app   -n apps --create-namespace
 ```
@@ -212,11 +221,17 @@ kubectl --namespace monitoring port-forward svc/kube-prometheus-stack-grafana 30
 ---
 
 # Deploy AIOps Engine
+
+- Build, tag and push the AIOps image to ECR
+```bash
+chmod +x scripts/build_and_push_aiops.sh
+bash scripts/build_and_push_aiops.sh
+```
+- Deploy the AIOps App
 ```bash
 helm upgrade --install aiops ./charts/aiops -n aiops --create-namespace
 ```
-
-Port-forward dashboard:
+- Port-forward dashboard:
 ```bash
 bash scripts/port-forward-aiops.sh
 ```
@@ -304,11 +319,17 @@ Scans:
 
 # Cleanup (Safe VPC + EKS Teardown)
 ```bash
+kubectl delete deployment aiops-api -n aiops
+kubectl delete service aiops-api -n aiops
+kubectl delete configmap aiops-api-config -n aiops --ignore-not-found
+kubectl delete serviceaccount aiops-sa -n aiops --ignore-not-found
+kubectl delete pod -l app=aiops-api -n aiops --ignore-not-found
+
 chmod +x scripts/cleanup.sh
 export FORCE_TERMINATE_INSTANCES=true
 AWS_REGION=us-east-1 VPC_ID=<your-vpc-id> bash scripts/cleanup.sh
-cd /terraform/eks
 
+cd /terraform/eks
 terraform destroy -auto-approve
 
 cd ../..

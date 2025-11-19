@@ -1,56 +1,118 @@
 #!/usr/bin/env sh
 set -eu
 
-# -------- Config (env or args) --------
+###############################################
+# Multi-Image Builder for:
+#   1. Express Web App  (Node.js)
+#   2. AIOps API        (FastAPI/Python)
+#
+# Uses SAME build + push workflow for both images.
+###############################################
+
 AWS_REGION="${AWS_REGION:-us-east-1}"
-REPO_NAME="${REPO_NAME:-t2s-express-app}"
-APP_DIR="${APP_DIR:-$(cd "$(dirname "$0")"/../../app && pwd)}"
-PLATFORM="${PLATFORM:-linux/amd64}"   # single platform only
-TAG="latest"                          # always latest
+PLATFORM="${PLATFORM:-linux/amd64}"   # EKS nodes are amd64
+TAG="latest"
 
-# Optional positional args: REGION REPO_NAME
+# FOLDERS
+EXPRESS_DIR="${EXPRESS_DIR:-$(cd "$(dirname "$0")"/../../app && pwd)}"
+AIOPS_DIR="${AIOPS_DIR:-$(cd "$(dirname "$0")"/../../aiops-service && pwd)}"
+
+# REPO NAMES
+EXPRESS_REPO="${EXPRESS_REPO:-t2s-express-app}"
+AIOPS_REPO="${AIOPS_REPO:-aiops-api}"
+
+# Optional overrides
 [ "${1:-}" ] && AWS_REGION="$1"
-[ "${2:-}" ] && REPO_NAME="$2"
 
-# -------- Checks --------
-command -v aws >/dev/null 2>&1 || { echo "aws CLI not found"; exit 1; }
-command -v docker >/dev/null 2>&1 || { echo "docker not found"; exit 1; }
-[ -d "$APP_DIR" ] || { echo "APP_DIR not found: $APP_DIR"; exit 1; }
+# ---- Checks ----
+command -v aws >/dev/null || { echo "aws CLI missing"; exit 1; }
+command -v docker >/dev/null || { echo "docker missing"; exit 1; }
 
-# -------- Resolve account/ECR --------
+[ -d "$EXPRESS_DIR" ] || { echo "Express directory not found: $EXPRESS_DIR"; exit 1; }
+[ -d "$AIOPS_DIR" ]   || { echo "AIOps directory not found: $AIOPS_DIR"; exit 1; }
+
+# ---- AWS Account ----
 ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
-ECR_DOMAIN="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-ECR_URI="${ECR_DOMAIN}/${REPO_NAME}"
+ECR="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-echo "Account:  $ACCOUNT_ID"
-echo "Region:   $AWS_REGION"
-echo "Repo:     $ECR_URI"
-echo "Platform: $PLATFORM"
-echo "Tag:      $TAG"
-echo "App dir:  $APP_DIR"
+echo "=============================================="
+echo "   MULTI-IMAGE BUILD & PUSH TO AWS ECR"
+echo "=============================================="
+echo "AWS Account:  $ACCOUNT_ID"
+echo "Region:       $AWS_REGION"
+echo "Platform:     $PLATFORM"
+echo
 
-# -------- Ensure repo --------
-if ! aws ecr describe-repositories --repository-names "$REPO_NAME" --region "$AWS_REGION" >/dev/null 2>&1; then
-  echo "Creating ECR repository: ${REPO_NAME}"
-  aws ecr create-repository --repository-name "$REPO_NAME" --region "$AWS_REGION" >/dev/null
-fi
+# ---- Ensure ECR repositories ----
+ensure_repo() {
+  REPO="$1"
+  if ! aws ecr describe-repositories --repository-names "$REPO" --region "$AWS_REGION" >/dev/null 2>&1; then
+    echo "Creating ECR repo: $REPO"
+    aws ecr create-repository --repository-name "$REPO" --region "$AWS_REGION" >/dev/null
+  else
+    echo "Repo exists: $REPO"
+  fi
+}
 
-# -------- Login --------
-echo "Logging in to ECR"
-aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$ECR_DOMAIN"
+ensure_repo "$EXPRESS_REPO"
+ensure_repo "$AIOPS_REPO"
 
-# -------- Build & push --------
-echo "Building and pushing $ECR_URI:$TAG"
+# ---- Login ----
+echo "Logging in to ECR..."
+aws ecr get-login-password --region "$AWS_REGION" \
+  | docker login --username AWS --password-stdin "$ECR"
+
+# Enable buildx
 docker buildx create --use >/dev/null 2>&1 || true
+
+###############################################
+# 1) BUILD & PUSH EXPRESS WEB APP
+###############################################
+echo
+echo "----------------------------------------------"
+echo "Building Express Web App → $EXPRESS_REPO:$TAG"
+echo "----------------------------------------------"
+
 docker buildx build \
   --platform "$PLATFORM" \
-  -t "$ECR_URI:$TAG" \
-  --push "$APP_DIR"
+  -t "$ECR/$EXPRESS_REPO:$TAG" \
+  --push \
+  "$EXPRESS_DIR"
 
-echo "Pushed: $ECR_URI:$TAG"
+echo "Pushed Express: $ECR/$EXPRESS_REPO:$TAG"
 
-# -------- Tips --------
+###############################################
+# 2) BUILD & PUSH AIOPS API
+###############################################
+echo
+echo "----------------------------------------------"
+echo "Building AIOps API → $AIOPS_REPO:$TAG"
+echo "----------------------------------------------"
+
+docker buildx build \
+  --platform "$PLATFORM" \
+  -t "$ECR/$AIOPS_REPO:$TAG" \
+  --push \
+  "$AIOPS_DIR"
+
+echo "Pushed AIOps API: $ECR/$AIOPS_REPO:$TAG"
+
+###############################################
+# DONE
+###############################################
+echo
+echo "===================================================="
+echo "SUCCESS! Both images pushed:"
+echo "  Express → $ECR/$EXPRESS_REPO:$TAG"
+echo "  AIOps   → $ECR/$AIOPS_REPO:$TAG"
+echo "===================================================="
+
 echo
 echo "Next steps:"
-echo "  kubectl -n apps set image deploy/express-t2s app=$ECR_URI:$TAG"
-echo "  kubectl -n apps rollout status deploy/express-t2s"
+echo "  # Express redeploy"
+echo "  helm upgrade --install express-web-app ./charts/express-web-app -n apps"
+
+echo
+echo "  # AIOps redeploy"
+echo "  helm upgrade --install aiops ./charts/aiops -n aiops --create-namespace"
+echo
