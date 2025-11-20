@@ -1,4 +1,4 @@
-bucket_name   = "emmanuel-tf-state-11192025"
+bucket_name   = "emmanuel-tf-state-11202025"
 lock_table    = "terraform-locks"
 aws_region    = "us-east-1"
 environment   = "dev"
