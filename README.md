@@ -167,6 +167,12 @@ terraform init
 terraform apply -auto-approve
 ```
 
+## **Optional: Use scripts/deploy-apps.sh**
+```bash
+chmod +x scripts/deploy-apps.sh
+bash scripts/deploy-apps.sh
+```
+
 ---
 
 ## **STEP 4 — Configure kubectl**
@@ -180,6 +186,8 @@ kubectl get nodes
 ## **STEP 5 — Deploy Express App Using Helm**
 - Before deploying the App, we will first install kube-prometheus-stack first so that we also auto-install all CRDs. 
 ```bash
+cd ../..
+
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 
