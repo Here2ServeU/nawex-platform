@@ -167,12 +167,6 @@ terraform init
 terraform apply -auto-approve
 ```
 
-## **Optional: Use scripts/deploy-apps.sh**
-```bash
-chmod +x scripts/deploy-apps.sh
-bash scripts/deploy-apps.sh
-```
-
 ---
 
 ## **STEP 4 — Configure kubectl**
@@ -225,6 +219,9 @@ kubectl --namespace monitoring get secrets kube-prometheus-stack-grafana   -o js
 ```bash
 kubectl --namespace monitoring port-forward svc/kube-prometheus-stack-grafana 3000:80
 ```
+
+## **Create a custom Grafana Dashboard**
+- 
 
 ---
 
