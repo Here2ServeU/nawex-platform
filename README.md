@@ -263,14 +263,19 @@ helm repo update
 helm upgrade --install argocd argo/argo-cd   -n argocd --set server.service.type=ClusterIP
 ```
 
-### **Get Admin Password**
-```bash
-kubectl -n argocd get secret argocd-initial-admin-secret   -o jsonpath="{.data.password}" | base64 -d
-```
-
 ### **Deploy GitOps App**
 ```bash
 kubectl apply -f argocd/express-web-app.yaml
+```
+
+### **Access ArgoCD over the Browser**
+```bash
+kubectl --namespace argocd port-forward svc/argocd-server 8080:443
+```
+
+### **Get Admin Password**
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret   -o jsonpath="{.data.password}" | base64 -d
 ```
 
 ArgoCD now:
