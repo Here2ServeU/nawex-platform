@@ -327,6 +327,170 @@ Scans:
 
 ---
 
+## 7. Root-level `README.md` (Full Case Study)
+
+Here is a **complete root README** you can use to replace or upgrade your existing one.
+
+```md
+# Express Web App – Version 7  
+## SRE Consultancy Edition for Fortune 500 & FAANG-Scale Systems
+
+This repository combines a production-style Express application with cloud-native infrastructure and a full SRE toolkit. Version 7 is designed as a **case study** of how a modern Fortune 500 or FAANG company can:
+
+- Ship features quickly.
+- Maintain high reliability.
+- Reduce incident impact.
+- Introduce AIOps and automation.
+- Align engineering with business outcomes through SLOs.
+
+It is built to function both as:
+- A working reference implementation.
+- An SRE consulting and training artifact.
+
+---
+
+## 1. Business Problem This Repo Solves
+
+Large organizations typically struggle with:
+
+- **Fragmented reliability practices:** Every team has different dashboards, alert thresholds, and deployment workflows.
+- **Reactive firefighting:** Incidents are discovered by customers or executives before observability tools.
+- **Alert noise:** Thousands of low-value alerts with no clear tie to user experience.
+- **Manual runbooks:** No automation for common incident patterns.
+- **No continuous validation:** DR plans and failover designs are rarely tested.
+- **Limited AIOps:** Capacity and reliability decisions are still manual and anecdotal.
+
+This repo demonstrates how to address these issues using a **cohesive SRE operating model** integrated into a real application stack.
+
+---
+
+## 2. High-Level Architecture
+
+Core components:
+
+- **App:** Express-based web service and frontend under `app/`.
+- **Platform:** Kubernetes (EKS or equivalent) with manifests in `k8s/` and `charts/`.
+- **Infrastructure:** Terraform modules and scripts in `infra/` for:
+  - EKS cluster provisioning.
+  - ECR repositories.
+  - Networking and IAM.
+- **GitOps / CI/CD:** GitHub Actions and ArgoCD-based workflows under `scripts/` and `argocd/`.
+- **SRE Toolkit:** Scripts and playbooks under `sre/` for:
+  - Chaos engineering.
+  - Observability.
+  - SLO/error-budget enforcement.
+  - Incident simulation.
+  - AIOps forecasting and anomaly detection.
+  - Security and RBAC governance.
+
+---
+
+## 3. SRE Toolkit Overview (`sre/`)
+
+The `sre/` folder is the heart of the Version 7 consultancy layer.
+
+### 3.1 AIOps (`sre/aiops`)
+
+Python utilities to:
+- Detect anomalies in metrics.
+- Forecast usage or demand (e.g., traffic, CPU).
+- Recommend autoscaling changes.
+- Cluster logs into patterns to reduce alert noise.
+
+These can be wired into:
+- CI/CD quality checks.
+- Capacity planning sessions.
+- Continuous reliability reviews.
+
+### 3.2 Chaos Engineering (`sre/chaos`)
+
+Shell scripts to:
+- Kill pods and drain nodes.
+- Inject network latency or packet loss.
+- Simulate dependency failures.
+- Test region failover via DNS or traffic routing.
+
+These scripts let you **prove** resilience rather than just believing in diagrams.
+
+### 3.3 Observability (`sre/observability`)
+
+Scripts and docs to:
+- Install Datadog agents.
+- Configure synthetic tests.
+- Enable OpenTelemetry collectors.
+- Design log correlation between traces and logs.
+
+This is the observability standard you can apply across multiple teams.
+
+### 3.4 Reliability Governance (`sre/reliability`)
+
+Tools and docs to:
+- Define SLOs and SLIs.
+- Check SLO burn rates via API.
+- Simulate error-budget consumption.
+- Create practice incidents and run through scenario playbooks.
+- Describe the reliability architecture and how it maps to business goals.
+
+This is what you take into leadership discussions to align reliability with strategy.
+
+### 3.5 Security and Access (`sre/security`)
+
+Okta-based scripts and docs to:
+- Enforce MFA for production access.
+- Automate SCIM provisioning.
+- Define RBAC for SRE roles in Kubernetes.
+- Document SSO integration options.
+
+This helps move from “trust by default” to **least-privilege, identity-centric** operations.
+
+---
+
+## 4. How Fortune 500 / FAANG Teams Can Use This
+
+### 4.1 As a Reference Implementation
+
+Architecture, scripts, and SRE workflows here can be adapted into:
+- Centralized SRE platforms.
+- Internal golden paths for teams.
+- Training material for new engineers.
+
+### 4.2 As a Consulting Blueprint
+
+For SRE / DevOps consultants:
+- Use the repo to demonstrate your approach to reliability.
+- Map a client’s environment to this structure (gap analysis).
+- Propose phased adoption: observability → SLOs → chaos → AIOps.
+
+### 4.3 As an Internal Enablement Kit
+
+Engineering orgs can:
+- Run internal workshops around the `sre/` scripts.
+- Use `sre/reliability` as a pattern for defining SLOs.
+- Integrate `sre/chaos` tests into staging environments.
+- Leverage `sre/aiops` for forecasting and anomaly detection prototypes.
+
+---
+
+## 5. Getting Started
+
+### Prerequisites
+
+- Node.js and npm.
+- Docker.
+- Access to a Kubernetes cluster (EKS recommended).
+- Terraform CLI if you are provisioning infra.
+- (Optional) Datadog account + API keys.
+- (Optional) Okta tenant for SSO/MFA demos.
+
+### 5.1 Run App Locally
+
+```bash
+cd app
+npm install
+npm start
+
+---
+
 # Cleanup (Safe VPC + EKS Teardown)
 ```bash
 kubectl delete deployment aiops-api -n aiops
