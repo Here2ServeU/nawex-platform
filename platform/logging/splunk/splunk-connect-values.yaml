@@ -1,0 +1,19 @@
+global:
+  splunk:
+    hec:
+      protocol: https
+      host: <SPLUNK_VM_PUBLIC_IP>
+      token: "<HEC_TOKEN>"
+      port: 8088
+
+splunk-kubernetes-logging:
+  splunk:
+    index: k8s_logs
+
+splunk-kubernetes-metrics:
+  splunk:
+    index: k8s_metrics
+
+splunk-kubernetes-objects:
+  splunk:
+    index: k8s_objects
