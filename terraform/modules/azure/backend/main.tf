@@ -1,1 +1,1 @@
-# See multicloud_azure_gcp_oci_modules pack - Azure backend implementation
+# main.tf for azure backend

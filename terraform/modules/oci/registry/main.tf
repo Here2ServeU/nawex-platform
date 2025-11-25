@@ -1,1 +1,1 @@
-# See multicloud_azure_gcp_oci_modules pack - OCIR implementation
+# main.tf for oci registry

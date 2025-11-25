@@ -1,5 +1,0 @@
-hec:
-  enabled: true
-  token: YOUR_SPLUNK_HEC_TOKEN
-  port: 8088
-  index: main
