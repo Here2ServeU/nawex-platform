@@ -34,15 +34,7 @@ In an era where downtime costs $9,000 per minute, traditional CI/CD is insuffici
 
 Nexus treats the entire cloud estate as a software problem. The system is composed of four distinct domains:
 
-graph TD
-    A[Prometheus/OTel Metrics] -->|Ingest| B(Nexus AI Brain)
-    B -->|Anomaly Detected| C{Decision Engine}
-    C -->|Scale Up| D[Terraform/K8s Autoscaler]
-    C -->|Heal Pod| E[Remediation Scripts]
-    C -->|Cost Alert| F[FinOps Agent]
-    F -->|Optimize| G[Spot Instance Rebalancing]
-    style B fill:#f9f,stroke:#333,stroke-width:2px
-    style C fill:#bbf,stroke:#333,stroke-width:2px
+. ├── ai/ # [The Brain] AIOps & Cognitive Services │ ├── agents/ # Autonomous agents (LogAnalyzer, CostGuard) │ ├── models/ # Pre-trained LSTM/Isolation Forest models │ └── remediation/ # Python/Go scripts for self-healing triggers ├── app/ # [The Workload] Reference Microservice Architecture │ └── src/ # Instrumented Express.js (OpenTelemetry) ├── gitops/ # [The Source of Truth] ArgoCD & Flux Configuration │ ├── argocd/ # App-of-Apps Pattern │ └── flux/ # Bootstrap logic ├── k8s/ # [The Orchestrator] Manifest abstractions ├── ops/ # [The Human Interface] SRE Runbooks & Disaster Recovery │ ├── dr/ # Region Failover Scripts │ └── rbac/ # Least-Privilege Identity Management └── terraform/ # [The Foundation] Multi-Cloud IaC ├── live/ # Environment Instantiation (AWS/Azure/GCP) └── modules/ # Versioned Infrastructure Blocks
 
 
 Core Capabilities
