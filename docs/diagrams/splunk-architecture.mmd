@@ -1,0 +1,28 @@
+graph LR
+  subgraph Cloud_VMs
+    AWS_EC2[Splunk EC2]
+    AZ_VM[Splunk Azure VM]
+    GCP_VM[Splunk GCE VM]
+    OCI_VM[Splunk OCI VM]
+  end
+
+  subgraph K8s_Clusters
+    EKS[(EKS)]
+    AKS[(AKS)]
+    GKE[(GKE)]
+    OKE[(OKE)]
+  end
+
+  EKS --> |logs via DaemonSet| Splunk_HEC
+  AKS --> |logs via DaemonSet| Splunk_HEC
+  GKE --> |logs via DaemonSet| Splunk_HEC
+  OKE --> |logs via DaemonSet| Splunk_HEC
+
+  AWS_EC2 --> Splunk_HEC[(Splunk HEC)]
+  AZ_VM --> Splunk_HEC
+  GCP_VM --> Splunk_HEC
+  OCI_VM --> Splunk_HEC
+
+  Splunk_HEC --> Splunk_UI[Splunk Dashboards & Searches]
+
+  GitOps[ArgoCD/FluxCD] --> |deploys Helm chart| K8s_Clusters

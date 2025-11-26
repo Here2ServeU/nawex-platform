@@ -1,13 +1,10 @@
-from prophet import Prophet
-import pandas as pd
+from ai.models.tcn_model import TCNModel
+import torch
 
-df = pd.read_csv("metrics.csv")
-df = df.rename(columns={"timestamp": "ds", "value": "y"})
+model = TCNModel()
+model.load_state_dict(torch.load("models/tcn_latency.pt"))
+model.eval()
 
-model = Prophet()
-model.fit(df)
-
-future = model.make_future_dataframe(periods=1440, freq="min")
-forecast = model.predict(future)
-
-forecast[['ds','yhat','yhat_lower','yhat_upper']].to_csv("forecast.csv", index=False)
+x = torch.randn(1, 100)
+y = model(x).item()
+print("Predicted latency:", y)

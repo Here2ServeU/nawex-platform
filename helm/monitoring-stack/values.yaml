@@ -1,0 +1,20 @@
+prometheus:
+  image: prom/prometheus:v2.55.0
+  retention: "24h"
+  scrapeInterval: "15s"
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+
+grafana:
+  image: grafana/grafana:11.0.0
+  adminUser: admin
+  adminPassword: admin123
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+
+service:
+  type: ClusterIP
+  prometheusPort: 9090
+  grafanaPort: 3000

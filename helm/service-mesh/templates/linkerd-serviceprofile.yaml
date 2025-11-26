@@ -1,0 +1,13 @@
+{{- if and .Values.enabled (eq .Values.meshType "linkerd") .Values.linkerd.serviceProfile.enabled }}
+apiVersion: linkerd.io/v1alpha2
+kind: ServiceProfile
+metadata:
+  name: {{ .Values.linkerd.serviceProfile.serviceName }}
+  namespace: {{ .Values.namespace.name }}
+spec:
+  routes:
+    - name: GET /
+      condition:
+        method: GET
+        pathRegex: /
+{{- end }}

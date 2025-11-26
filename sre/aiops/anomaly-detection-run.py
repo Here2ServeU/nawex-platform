@@ -1,13 +1,6 @@
-import numpy as np
-from sklearn.ensemble import IsolationForest
+from ai.pipelines.detect_anomalies import detect_anomalies
+from ai.pipelines.data_loader import load_sli_data
 
-# Load metrics
-latency = np.loadtxt("latency.csv")
-
-model = IsolationForest(contamination=0.02)
-model.fit(latency.reshape(-1, 1))
-
-pred = model.predict(latency.reshape(-1, 1))
-
-anomalies = np.where(pred == -1)[0]
-print("Anomalies detected at indexes:", anomalies)
+df = load_sli_data("latency")
+anomalies = detect_anomalies(df)
+print("Anomalies found:", anomalies.head())

@@ -1,0 +1,23 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: splunk-forwarder
+  namespace: logging
+spec:
+  interval: 1m
+  releaseName: splunk-forwarder
+  chart:
+    spec:
+      chart: ./helm/splunk-forwarder
+      sourceRef:
+        kind: GitRepository
+        name: express-platform
+        namespace: flux-system
+      interval: 1m
+  install:
+    createNamespace: true
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+  values: {}

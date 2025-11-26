@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: splunk-forwarder
+  namespace: argocd
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/Here2ServeU/express-t2s-app-v7
+    targetRevision: main
+    path: helm/splunk-forwarder
+    helm:
+      releaseName: splunk-forwarder
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: logging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true

@@ -1,3 +1,2 @@
 #!/bin/bash
-kubectl apply -f https://raw.githubusercontent.com/open-telemetry/opentelemetry-collector/main/examples/k8s/otel-collector.yaml
-echo "OpenTelemetry collector deployed."
+kubectl apply -f helm/otel-collector/templates/deployment.yaml

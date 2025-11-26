@@ -1,0 +1,6 @@
+agents:
+  observer: {}
+  analyzer: {}
+  planner: {}
+  executor:
+    mode: dry_run

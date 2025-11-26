@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: splunk-forwarder
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: splunk-forwarder
+spec:
+  selector:
+    matchLabels:
+      app: splunk-forwarder
+  template:
+    metadata:
+      labels:
+        app: splunk-forwarder
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: fluent-bit
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+          env:
+            - name: SPLUNK_HEC_ENDPOINT
+              value: {{ .Values.splunk.hecEndpoint | quote }}
+            - name: SPLUNK_HEC_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: splunk-hec-secret
+                  key: hec_token
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+            - name: config
+              mountPath: /fluent-bit/etc/
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: config
+          configMap:
+            name: splunk-forwarder-config

@@ -1,12 +1,11 @@
-import pandas as pd
+from ai.models.lstm_model import LSTMSLIPredictor
+import torch
 
-df = pd.read_csv("metrics.csv")
+model = LSTMSLIPredictor()
+model.load_state_dict(torch.load("models/lstm_latency.pt"))
+model.eval()
 
-avg_cpu = df["cpu"].mean()
-
-if avg_cpu > 70:
-    print("Recommended: Increase replicas by +2")
-elif avg_cpu < 30:
-    print("Recommended: Decrease replicas by -1")
-else:
-    print("No change needed")
+# Hypothetical inference call
+x = torch.randn(1, 30, 1)
+y = model(x).item()
+print("Recommended autoscale target:", max(1, round(y / 40)))

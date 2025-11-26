@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kafka-zookeeper.fullname" . }}-kafka
+  labels:
+    app: kafka
+spec:
+  replicas: {{ .Values.kafka.replicaCount }}
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: {{ .Values.kafka.image }}
+          env:
+            - name: KAFKA_CFG_ZOOKEEPER_CONNECT
+              value: "{{ include "kafka-zookeeper.fullname" . }}-zookeeper:{{ .Values.zookeeper.clientPort }}"
+            - name: ALLOW_PLAINTEXT_LISTENER
+              value: "yes"
+          ports:
+            - containerPort: {{ .Values.kafka.brokerPort }}

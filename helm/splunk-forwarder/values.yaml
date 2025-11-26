@@ -1,0 +1,19 @@
+namespace: logging
+
+splunk:
+  hecEndpoint: "http://SPLUNK_HEC_HOST:8088/services/collector"
+  hecToken: "CHANGE_ME"
+  tls: false
+
+image:
+  repository: fluent/fluent-bit
+  tag: "2.2.0"
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

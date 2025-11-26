@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: splunk-forwarder-config
+  namespace: {{ .Values.namespace }}
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush        1
+        Daemon       Off
+        Log_Level    info
+
+    [INPUT]
+        Name tail
+        Path /var/log/*.log
+        Tag  host.*
+
+    [OUTPUT]
+        Name        splunk
+        Match       host.*
+        Host        ${SPLUNK_HEC_ENDPOINT}
+        Port        8088
+        Splunk_Token ${SPLUNK_HEC_TOKEN}
+        Splunk_Send_Raw On
+        tls         {{ ternary "On" "Off" .Values.splunk.tls }}
