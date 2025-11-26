@@ -365,7 +365,7 @@ For consulting, training, enterprise builds, or collaboration.
 
 # About Me - Emmanuel Naweji (2025)
 
-Cloud • DevOps • SRE • FinOps • AI Engineer | PhD Candidate in Computer Science (AI/ML in Healthcare)
+**Cloud • DevOps • SRE • FinOps • AI Engineer | PhD Candidate in Computer Science (AI/ML in Healthcare)**
 
 I architect and automate enterprise-grade cloud platforms across AWS, Azure, GCP, and OCI—specializing in intelligent, self-healing infrastructure that integrates DevOps, SRE, FinOps, and AI at scale. My work helps organizations build reliable, secure, cost-efficient systems while training engineers to operate at a top 1% industry standard through real-world, automation-driven projects.
 
