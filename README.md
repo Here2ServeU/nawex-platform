@@ -376,4 +376,4 @@ AWS Certified | Azure Solutions Architect | CKA | Terraform | Kubernetes | GitHu
 As a PhD Candidate in Computer Science, my research focuses on AI and Machine Learning for healthcare systems, predictive reliability, and cloud-native automation.
 
 My mission is simple:
-Build world-class platforms. Empower world-class engineers. Deliver world-class impact.
+**Build world-class platforms. Empower world-class engineers. Deliver world-class impact.**
