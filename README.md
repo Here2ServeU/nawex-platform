@@ -363,7 +363,8 @@ For consulting, training, enterprise builds, or collaboration.
 
 ---
 
-# About Me - Emmanuel Naweji (2025)
+### About Me
+#### Emmanuel Naweji - 2025
 
 **Cloud • DevOps • SRE • FinOps • AI Engineer | PhD Candidate in Computer Science (AI/ML in Healthcare)**
 
