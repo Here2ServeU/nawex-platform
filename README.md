@@ -1,50 +1,36 @@
-NEXUS: The Cognitive Control Plane
+# NEXUS: The Cognitive Control Plane
 
-The Naweji Specification for 4th-Generation Cloud Architecture
+**The Naweji Specification for 4th-Generation Cloud Architecture**
 
-Architect: Emmanuel Naweji
-Status: Production-Ready
-Mission: Business Continuity via Cognitive Infrastructure.
+> Architect: Emmanuel Naweji
+> Status: Production-Ready
+> Mission: Business Continuity via Cognitive Infrastructure.
 
-1. Executive Summary
+## 1. Executive Summary
 
 Nexus is not a DevOps script. It is a Self-Healing Multi-Cloud Operating System.
 
 In an era where downtime costs $9,000 per minute, traditional CI/CD is insufficient. Nexus bridges the gap between static infrastructure and dynamic intelligence. It utilizes an AIOps Control Plane to predict outages before they occur, automatically remediate incidents, and enforce financial and security governance without human intervention.
 
-The Value Proposition
+### The Value Proposition
+- Metric
+- Impact
+- Mechanism
+- Availability: 99.99%
 
-Metric
+### Multi-Cloud Geo-Redundancy (AWS/Azure/GCP/OCI)
 
-Impact
+- Efficiency -60% MTTR
+- AI-Driven Auto-Remediation (Self-Healing)
+- Security
+- Zero Trust
+- Automated Compliance (SOC2/HIPAA) via Policy-as-Code
 
-Mechanism
+### FinOps
+- 30% OpEx
+- Spot Instance Orchestration & Cost Guardrails
 
-Availability
-
-99.99%
-
-Multi-Cloud Geo-Redundancy (AWS/Azure/GCP/OCI)
-
-Efficiency
-
--60% MTTR
-
-AI-Driven Auto-Remediation (Self-Healing)
-
-Security
-
-Zero Trust
-
-Automated Compliance (SOC2/HIPAA) via Policy-as-Code
-
-FinOps
-
--30% OpEx
-
-Spot Instance Orchestration & Cost Guardrails
-
-2. High-Level Architecture
+## 2. High-Level Architecture
 
 Nexus treats the entire cloud estate as a software problem. The system is composed of four distinct domains:
 
@@ -55,6 +41,8 @@ graph TD
     C -->|Heal Pod| E[Remediation Scripts]
     C -->|Cost Alert| F[FinOps Agent]
     F -->|Optimize| G[Spot Instance Rebalancing]
+    style B fill:#f9f,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
 
 
 Core Capabilities
@@ -145,7 +133,7 @@ python ai/pipelines/deploy_model.py --model=lstm-v4
 
 RPO (Recovery Point Objective): < 5 Minutes (Cross-Region Async Replication).
 
-RTO (Recovery Time Objective): < 15 Minutes (Automated DNS Failover).
+RTO (Recovery Time Objective): < 15 Minutes (Automated DNS falloff).
 
 Audit Readiness: The ops/checklists folder contains automated scripts to generate evidence for SOC2 Type II and HIPAA audits.
 
@@ -154,9 +142,9 @@ Contact
 Emmanuel Naweji
 Principal Platform Architect | AI Infrastructure Specialist
 
-Email: info@transformed2succeed.com 
+Email: info@transformed2succeed.com
 
-LinkedIn: https://www.linkedin.com/in/ready2assist/ 
+LinkedIn: linkedin.com/in/ready2assist
 
 Status: Open to Principal/Staff-level opportunities involving large-scale architecture and AIOps transformation.
 
