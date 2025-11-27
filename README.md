@@ -171,8 +171,9 @@ By offering a modular, highly disciplined, and predictive blueprint, the Express
 
 ---
 
-#### **About the Author**
-**Emmanuel Naweji is an architect with extensive experience at companies like IBM, Comcast, and Octo, where he focused on infrastructure, enterprise cloud maturity, SRE, and compliance governance. He is a Ph.D. Candidate specializing in the application of AI and Machine Learning for predictive modeling in the healthcare domain, which directly informs the AIOps engine of this platform.
-View my profile on LinkedIn: https://www.linkedin.com/in/ready2assist/**
+#### **About Me**
+Emmanuel Naweji is an architect with extensive experience at companies like IBM, Comcast, and Octo, where he focused on infrastructure, enterprise cloud maturity, SRE, and compliance governance. He is a Ph.D. Candidate specializing in the application of AI and Machine Learning for predictive modeling in the healthcare domain, which directly informs the AIOps engine of this platform.
+
+**View my profile on LinkedIn:** https://www.linkedin.com/in/ready2assist. 
 
 
