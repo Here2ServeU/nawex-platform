@@ -1,6 +1,6 @@
 # **Express AI-Driven Multi-Cloud Resilience Platform**
 
-## 🚀 Enterprise-Grade SRE • AIOps • GitOps • FinOps
+## Enterprise-Grade SRE • AIOps • GitOps • FinOps
 
 This repository contains the complete, production-grade blueprint for a **self-healing, predictive multi-cloud architecture** designed for high-traffic, mission-critical services. It moves operational teams from reactive firefighting to proactive, automated reliability engineering.
 
