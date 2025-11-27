@@ -17,8 +17,8 @@ variable "tags" {
   description = "Global Resource Tags for FinOps and Governance."
   type        = map(string)
   default = {
-    Project     = "Nexus"
-    Environment = "Production"
+    Project     = "Express-Web-App"
+    Environment = "Dev"
     Owner       = "PlatformEngineering"
     ManagedBy   = "Terraform"
     CostCenter  = "AI-Infrastructure-101" # Critical for billing allocation
