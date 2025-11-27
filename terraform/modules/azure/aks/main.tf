@@ -1,62 +1,73 @@
 # ------------------------------------------------------------------------------
-# EXPRESS WEB AWS DEV - MAIN ENTRY POINT
+# EXPRESS WEB AZURE DEV - MAIN ENTRY POINT
 # ------------------------------------------------------------------------------
 # Architect: Emmanuel Naweji
-# Description: Instantiates the AWS Dev environment.
-# Strategy:    Single NAT Gateway (Cost Savings) + Spot Instances.
+# Description: Instantiates the Dev environment using the cost-optimized AKS module.
+# Strategy:    East US 2 (Cheaper region), Spot Instances, Free Tier Control Plane.
 # ------------------------------------------------------------------------------
 
 terraform {
   required_version = ">= 1.5.0"
   
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.90"
     }
   }
-}
 
-provider "aws" {
-  region = "us-east-1"
-  default_tags {
-    tags = var.tags
-  }
-}
-
-# 1. Network Layer (Cost Optimized)
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "5.1.0"
-
-  name = "express-web-dev-vpc"
-  cidr = "10.0.0.0/16"
-
-  azs             = ["us-east-1a", "us-east-1b"] # Only 2 AZs for Dev
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
-  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
-
-  # Principal FinOps: Single NAT Gateway saves ~$30/month per AZ
-  enable_nat_gateway = true
-  single_nat_gateway = true 
-  enable_vpn_gateway = false
-}
-
-# 2. Compute Layer (EKS)
-module "eks" {
-  source = "../../../modules/compute/aws-eks"
-
-  cluster_name    = "express-web-dev-eks-01"
-  vpc_id          = module.vpc.vpc_id
-  subnet_ids      = module.vpc.private_subnets
-  cluster_version = "1.29"
-
-  # Principal FinOps: Passing strict Spot configuration
-  # We assume the module supports a `node_groups` map variable
-  # node_groups = {
-  #   dev_spot = {
-  #     capacity_type = "SPOT"
-  #     instance_types = ["t3.medium"]
-  #   }
+  # Principal Note: Remote State is mandatory for team collaboration.
+  # backend "azurerm" {
+  #   resource_group_name  = "express-web-tfstate-rg"
+  #   storage_account_name = "ewtfstate"
+  #   container_name       = "tfstate-dev"
+  #   key                  = "express-web.dev.terraform.tfstate"
   # }
+}
+
+provider "azurerm" {
+  features {}
+}
+
+# 1. Governance Container (Resource Group)
+resource "azurerm_resource_group" "dev" {
+  name     = "express-web-dev-rg"
+  location = var.location
+  tags     = var.tags
+}
+
+# 2. Network Layer (VNet)
+# We use a smaller CIDR for Dev to save IP space.
+module "vnet" {
+  source  = "Azure/vnet/azurerm"
+  version = "4.1.0"
+
+  resource_group_name = azurerm_resource_group.dev.name
+  vnet_name           = "express-web-dev-vnet"
+  vnet_location       = azurerm_resource_group.dev.location
+  use_for_each        = true
+
+  address_space       = ["10.10.0.0/16"]
+  subnet_prefixes     = ["10.10.1.0/24"]
+  subnet_names        = ["aks-subnet"]
+
+  tags = var.tags
+}
+
+# 3. Compute Layer (AKS Cluster)
+# Consuming the Cost-Optimized Module
+module "aks_cluster" {
+  source = "../../../modules/compute/azure-aks"
+
+  cluster_name        = "express-web-dev-aks-01"
+  resource_group_name = azurerm_resource_group.dev.name
+  location            = azurerm_resource_group.dev.location
+  
+  # Networking
+  vnet_subnet_id = module.vnet.vnet_subnets[0]
+  
+  # Principal FinOps: Explicitly enabling Spot instances for Dev
+  enable_spot_instances = true
+
+  tags = var.tags
 }
