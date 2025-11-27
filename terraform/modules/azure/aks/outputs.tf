@@ -1,13 +1,22 @@
 # ------------------------------------------------------------------------------
-# EXPRESS WEB AWS DEV OUTPUTS
+# EXPRESS WEB AZURE DEV OUTPUTS
 # ------------------------------------------------------------------------------
 
-output "cluster_endpoint" {
-  value = module.eks.cluster_endpoint
+output "aks_resource_group" {
+  value = azurerm_resource_group.dev.name
 }
 
-# Principal Touch: One-liner for dev access
+output "aks_cluster_name" {
+  value = "express-web-dev-aks-01"
+}
+
+# Principal Touch: The exact command needed to start working
 output "connect_command" {
-  description = "Run this to configure kubectl"
-  value       = "aws eks update-kubeconfig --region us-east-1 --name express-web-dev-eks-01"
+  description = "Developer Onboarding Command"
+  value       = "az aks get-credentials --resource-group express-web-dev-rg --name express-web-dev-aks-01 --overwrite-existing"
+}
+
+output "oidc_issuer_url" {
+  description = "Required for setting up GitHub Actions OIDC"
+  value       = module.aks_cluster.oidc_issuer_url
 }
