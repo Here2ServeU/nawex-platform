@@ -1,74 +1,49 @@
-# AIOps System (/ai)
+# AIOps & Predictive Resilience Engine (/ai)
 
-This directory implements the AI-driven operations (AIOps) layer for the **Express AI-Driven Multi-Cloud Resilience Platform**.
+**The Nervous System of the Express Platform**
 
-## Structure
+This directory contains the **Autonomous Reliability Agents** and **Deep Learning Models** that power the platform's self-healing capabilities. It transforms raw telemetry into actionable remediation plans using a continuous *Observe-Analyze-Plan-Execute* control loop.
 
-- `notebooks/`  
-  Jupyter notebooks for SLI/SLO analysis, anomaly detection experiments, and model exploration.
+---
 
-- `pipelines/`  
-  Python data pipelines for:
-  - Loading metrics and SLO data
-  - Engineering time-series features
-  - Detecting anomalies
-  - Training predictive models (LSTM, TCN)
+## 🧠 Autonomous Agent Architecture
 
-- `models/`  
-  PyTorch implementations of:
-  - LSTMSLIPredictor
-  - TCN (Temporal Convolutional Network)
+The system is composed of four decoupled agents, coordinated by a central **Orchestrator** (`orchestrator.py`).
 
-- `remediation/`  
-  - Declarative remediation rules (`remediation_rules.yaml`)
-  - A remediation engine that can call `kubectl` or traffic-management tools.
+| Agent | Role | Logic & Responsibilities |
+| :--- | :--- | :--- |
+| **Observer** | **The Eyes** | Collects real-time telemetry (Latency, CPU, Error Rates). Supports simulated noise generation for testing and pluggable adapters for **Prometheus/CloudWatch**. |
+| **Analyzer** | **The Brain** | Detects anomalies using a hybrid approach:<br>1. **Deterministic:** Static thresholds (e.g., Latency > 200ms) defined in `agent_config.yaml`.<br>2. **Predictive:** PyTorch **LSTM & TCN models** that forecast SLI violations before they occur. |
+| **Planner** | **The Logic** | Maps identified risks to remediation strategies. Uses a **Rule-Based Engine** to select the best action (e.g., "High Latency" $\to$ "Scale Up") and generates an audit trail (`plan_id`, `reasoning`). |
+| **Executor** | **The Hands** | Safely applies changes to the infrastructure.<br>• **Dry Run Mode:** Simulates actions for safety.<br>• **Active Mode:** Executes real Kubernetes/Terraform commands.<br>• **Safety Rails:** Prevents cascading failures with strict action limits. |
 
-- `agents/`  
-  Multi-agent AIOps orchestrator:
-  - ObserverAgent (collects metrics)
-  - AnalyzerAgent (evaluates risk & anomalies)
-  - PlannerAgent (maps conditions to remediation rules)
-  - ExecutorAgent (applies actions)
-  - `orchestrator.py` chaining them together.
+---
 
-## Quickstart
+## 🛠️ Predictive Modeling (PyTorch)
 
-### 1. Install dependencies
+We utilize custom deep learning models to predict Service Level Objective (SLO) violations.
 
-Create a venv and install:
+* **LSTM (Long Short-Term Memory):** Specialized for detecting temporal dependencies in sequential log data.
+* **TCN (Temporal Convolutional Network):** Uses dilated convolutions to capture long-range patterns with parallelized training efficiency.
 
-```bash
-pip install pandas numpy torch pyyaml
-```
+**Locations:**
+* `models/lstm_model.py`: PyTorch LSTM implementation with persistence.
+* `models/tcn_model.py`: TCN implementation with causal padding.
 
-(And `jupyter` if you want to run notebooks.)
+---
 
-### 2. Train models
+## ⚡ Remediation Engine
 
-From the repo root:
+The remediation logic is **declarative** and **dynamic**. You can define new self-healing rules without changing Python code.
 
-```bash
-cd ai
-python pipelines/train_lstm.py
-python pipelines/train_tcn.py
-```
+**Configuration:** `remediation/remediation_rules.yaml`
 
-This will:
-- Generate synthetic SLI/SLO data
-- Build rolling-window features
-- Train an LSTM and TCN for latency prediction
-
-### 3. Run the AIOps orchestrator
-
-```bash
-cd ai
-python agents/orchestrator.py
-```
-
-By default the executor runs in **dry_run** mode (no real `kubectl` changes).  
-Switch to `live` in `agents/agent_config.yaml` to enable actual remediation commands.
-
-Use this directory as:
-- A **teaching lab** for AIOps concepts
-- A **demo** in interviews
-- A **POC** starting point for client environments
+```yaml
+rules:
+  - id: "rule-001"
+    trigger: "latency_risk"
+    level: "high"
+    action: "scale_up_replicas"
+    params:
+      target: "frontend-service"
+      replicas: 5
