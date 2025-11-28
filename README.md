@@ -1,6 +1,7 @@
 # Express AI-Driven Multi-Cloud Resilience Platform
 **Enterprise-Grade Site Reliability Engineering (SRE) • AIOps • GitOps • FinOps**
-![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Infrastructure: Terraform] ![Orchestration: Kubernetes](https://img.shields.io/badge/Orchestration-Kubernetes-326ce5) ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-success)
+
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Infrastructure: Terraform](https://img-shields.io/badge/Infrastructure-Terraform-purple) ![Orchestration: Kubernetes](https://img.shields.io/badge/Orchestration-Kubernetes-326ce5) ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-success)
 
 ---
 
