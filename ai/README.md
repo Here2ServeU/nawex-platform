@@ -6,7 +6,7 @@ This directory contains the **Autonomous Reliability Agents** and **Deep Learnin
 
 ---
 
-## 🧠 Autonomous Agent Architecture
+## Autonomous Agent Architecture
 
 The system is composed of four decoupled agents, coordinated by a central **Orchestrator** (`orchestrator.py`).
 
@@ -19,7 +19,7 @@ The system is composed of four decoupled agents, coordinated by a central **Orch
 
 ---
 
-## 🛠️ Predictive Modeling (PyTorch)
+## Predictive Modeling (PyTorch)
 
 We utilize custom deep learning models to predict Service Level Objective (SLO) violations.
 
