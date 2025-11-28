@@ -3,7 +3,17 @@ kind: ClusterRole
 metadata:
   name: readonly-observer
 rules:
-  - apiGroups: ["", "apps", "batch", "extensions"]
+  - apiGroups:
+      [
+        "",
+        "apps",
+        "batch",
+        "autoscaling",
+        "networking.k8s.io",
+        "policy",
+        "storage.k8s.io",
+        "metrics.k8s.io"
+      ]
     resources: ["*"]
     verbs: ["get", "list", "watch"]
 ---
