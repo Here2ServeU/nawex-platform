@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-NAMESPACE="aiops"
-APP_LABEL="aiops-api"
-LOCAL_PORT=8081
+# Configuration can be overridden via environment variables:
+# e.g., LOCAL_PORT=8082 ./port-forward-aiops.sh
+NAMESPACE="${NAMESPACE:-aiops}"
+APP_LABEL="${APP_LABEL:-aiops-api}"
+LOCAL_PORT="${LOCAL_PORT:-8081}"
 CONTAINER_PORT=8080
 
+echo "=================================================="
 echo "[INFO] Looking for pod with label app=${APP_LABEL} in namespace ${NAMESPACE}..."
+echo "=================================================="
 
 POD=$(kubectl get pod -n "${NAMESPACE}" \
   -l "app=${APP_LABEL}" \
@@ -19,4 +23,4 @@ fi
 
 echo "[INFO] Found pod: ${POD}"
 echo "[INFO] Port-forwarding ${POD} ➜ localhost:${LOCAL_PORT}"
-kubectl port-forward -n "${NAMESPACE}" "${POD}" ${LOCAL_PORT}:${CONTAINER_PORT}
+kubectl port-forward -n "${NAMESPACE}" "${POD}" "${LOCAL_PORT}":${CONTAINER_PORT}
