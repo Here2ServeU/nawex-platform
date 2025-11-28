@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP_URL=${APP_URL:-"http://$(kubectl get svc express-web-app -n apps -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')"}
+# Default URL points to the external Ingress hostname for the Express Web App
+# NOTE: For local testing, override with: export APP_URL="http://127.0.0.1:8080"
+APP_URL=${APP_URL:-"http://express-web-app.express-t2s.com"}
 CONCURRENCY=${CONCURRENCY:-50}
 REQUESTS=${REQUESTS:-20000}
 
-echo "[INFO] Generating traffic to ${APP_URL} ..."
+echo "=================================================="
+echo "[INFO] Generating traffic to Express Web App: ${APP_URL} ..."
+echo "[INFO] Concurrency: ${CONCURRENCY}, Requests: ${REQUESTS}"
+echo "=================================================="
 echo "[INFO] Using hey if installed, otherwise curl in a loop."
 
 if command -v hey >/dev/null 2>&1; then
@@ -19,5 +24,4 @@ else
   done
   wait
 fi
-
 echo "[INFO] Traffic generation complete."
