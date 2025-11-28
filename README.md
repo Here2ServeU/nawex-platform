@@ -106,3 +106,22 @@ Deploy the immutable cloud foundation using the cloud-agnostic Terraform layer.
 cd terraform/live/aws/eks
 terraform init
 terraform apply -auto-approve
+
+---
+
+## About Me
+
+**Emmanuel Naweji**
+*Ph.D. Candidate (AI/ML) | Cloud & DevOps Solutions Architect | SRE*
+
+I am a **Ph.D. Candidate specializing in Artificial Intelligence and Machine Learning**, passionate about applying advanced research to solve real-world operational challenges in healthcare and finance.
+
+With over 10 years of experience engineering resilience for major enterprises like **IBM**, **Comcast**, and **Octo**, I built the *Express Platform* to eliminate "Cloud Chaos" by bridging the gap between predictive AI and enterprise infrastructure.
+
+* **Focus Areas:** AIOps, Custom ML Models (LSTM/TCN), Multi-Cloud Architecture, GitOps, and Regulatory Compliance (HIPAA, SOC 2).
+
+---
+
+### Let's Connect
+* **LinkedIn:** [linkedin.com/in/ready2assist](https://www.linkedin.com/in/ready2assist/)
+* **Medium Blog:** [medium.com/@here2serveyou](https://medium.com/@here2serveyou)
