@@ -1,0 +1,28 @@
+# Dependency directories
+node_modules
+npm-debug.log
+
+# Version control
+.git
+.gitignore
+
+# Environment variables (Security risk!)
+.env
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Test coverage results
+coverage/
+
+# Documentation
+docs/
+README.md
+
+# IDE settings
+.vscode/
+.idea/
+
+# Docker
+Dockerfile
