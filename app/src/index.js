@@ -1,62 +1,45 @@
-// =========================
-// Express App + Prometheus Metrics + Static Website
-// =========================
+/**
+ * WEB APP WORKLOAD - ENTRY POINT
+ * Version: v7.0.0 (AI-Ready)
+ * -----------------------------------------------------------------------------
+ * This file bootstraps the Express application and starts the HTTP server.
+ * It separates server configuration (port, listeners) from app logic.
+ */
 
-const express = require('express');
-const path = require('path');
-const client = require('prom-client');
+const app = require('./app');
+const http = require('http');
 
-const app = express();
-
-// 1) Serve your static website from /public
-app.use(express.static(path.join(__dirname, 'public')));
-
-// 2) Collect default Node.js metrics
-client.collectDefaultMetrics();
-
-// 3) Request duration histogram
-const httpRequestDuration = new client.Histogram({
-  name: 'express_http_request_duration_seconds',
-  help: 'Duration of HTTP requests in seconds',
-  labelNames: ['method', 'route', 'status'],
-  buckets: [0.1, 0.3, 0.5, 1, 2, 5]
-});
-
-// 4) Middleware to measure request timing
-app.use((req, res, next) => {
-  const end = httpRequestDuration.startTimer();
-  res.on('finish', () => {
-    end({
-      method: req.method,
-      route: req.route?.path || req.path,
-      status: res.statusCode
-    });
-  });
-  next();
-});
-
-// 5) Serve index.html explicitly for '/'
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// 6) Kubernetes health probe
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
-
-// 7) Prometheus metrics endpoint
-app.get('/metrics', async (req, res) => {
-  try {
-    res.set('Content-Type', client.register.contentType);
-    res.end(await client.register.metrics());
-  } catch (err) {
-    res.status(500).end(err.toString());
-  }
-});
-
-// 8) Start server
+// Configuration
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Express Web App running on port ${PORT}`);
+const SERVICE_NAME = "Web App Workload";
+
+// Create HTTP Server
+const server = http.createServer(app);
+
+// Start Listener
+server.listen(PORT, () => {
+    console.log(`===========================================================`);
+    console.log(`${SERVICE_NAME} v7.0.0 is running!`);
+    console.log(`Listening on PORT: ${PORT}`);
+    console.log(`AI Observability: http://localhost:${PORT}/metrics`);
+    console.log(`Chaos Injection:  Enabled`);
+    console.log(`===========================================================`);
+});
+
+// Graceful Shutdown Logic (Critical for Kubernetes/SRE)
+// Ensures the app finishes current requests before dying when K8s scales it down.
+process.on('SIGTERM', () => {
+    console.info('SIGTERM signal received. Closing HTTP server...');
+    server.close(() => {
+        console.log('HTTP server closed.');
+        process.exit(0);
+    });
+});
+
+process.on('SIGINT', () => {
+    console.info('SIGINT signal received. Closing HTTP server...');
+    server.close(() => {
+        console.log('HTTP server closed.');
+        process.exit(0);
+    });
 });
