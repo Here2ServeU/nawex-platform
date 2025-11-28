@@ -1,6 +1,39 @@
+system:
+  environment: production
+  log_level: INFO
+  version: "1.0.0"
+
 agents:
-  observer: {}
-  analyzer: {}
-  planner: {}
+  # Observer Agent: The "Eyes"
+  observer:
+    observability:
+      source: simulated  # Options: simulated, prometheus, cloudwatch
+      collection_interval_seconds: 10
+      regions:
+        - us-east-1
+        - eu-west-1
+
+  # Analyzer Agent: The "Brain" (Detection)
+  analyzer:
+    thresholds:
+      latency_ms: 200
+      error_rate_percent: 1.0
+      cpu_usage_percent: 80.0
+      memory_usage_percent: 85.0
+    features:
+      enable_ml_analysis: false  # Set to true once LSTM models are trained
+    models:
+      lstm_path: "ai/models/lstm_v1.h5"
+
+  # Planner Agent: The "Logic" (Remediation Strategy)
+  planner:
+    strategy: rule_based
+    auto_remediation_enabled: true
+    fallback_behavior: manual_review_required
+
+  # Executor Agent: The "Hands" (Action)
   executor:
-    mode: dry_run
+    mode: dry_run  # Options: dry_run (safe), active (live changes)
+    safety:
+      max_actions_per_batch: 3
+      require_human_approval_for_critical: true
