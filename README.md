@@ -106,6 +106,7 @@ Deploy the immutable cloud foundation using the cloud-agnostic Terraform layer.
 cd terraform/live/aws/eks
 terraform init
 terraform apply -auto-approve
+```
 
 ---
 
