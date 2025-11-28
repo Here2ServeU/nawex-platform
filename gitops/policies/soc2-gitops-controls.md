@@ -1,50 +1,49 @@
-# SOC 2–Aligned GitOps Controls
+# SOC 2 Compliant GitOps Controls
 
-This repository is intentionally structured to support **SOC 2, ISO 27001, and general auditability** using GitOps.
+**Security, Compliance, and Auditability Framework**
 
-## 1. Change Management
+This repository is strictly architected to support **SOC 2 Type II** and **ISO 27001** compliance. By utilizing GitOps as the single source of truth, we enforce a strict separation of duties and maintain an immutable audit trail for all infrastructure changes.
 
-- All changes to production infrastructure and applications are:
-  - Proposed as Pull Requests
-  - Reviewed and approved before merge
-  - Logged with:
-    - Author
-    - Timestamp
-    - Diff
-    - Associated ticket / work item
+---
 
-This provides a **blame-free, fully traceable change history**.
+## 1. Change Management & Peer Review
+
+All modifications to the production environment—whether infrastructure or application code—must follow a strict lifecycle:
+
+* **Pull Request Requirement:** Direct pushes to the `main` branch are disabled. All changes must originate from a feature branch submitted via Pull Request (PR).
+* **Mandatory Review:** A minimum of one peer review (Code Owner) is required before merging.
+* **Traceability:** Every commit represents a signed, timestamped record containing:
+    * **Author:** Who made the change.
+    * **Context:** Why the change was made (linked to Jira/Ticket ID).
+    * **Diff:** Exactly what lines of configuration were altered.
 
 ## 2. Least Privilege & Separation of Duties
 
-- ArgoCD / Flux controllers have:
-  - Service accounts with scoped RBAC permissions.
-  - Write access to cluster resources
-  - Read-only access to the Git repository
-- Engineers interact with the cluster mostly through Git, not via direct admin access.
+We enforce a strict boundary between human operators and the production cluster.
 
-## 3. Audit Logging
+* **No Direct Write Access:** Engineers do not have `kubectl write` or `admin` permissions in the production cluster.
+* **Machine Automation:** Only the **ArgoCD** and **Flux** controllers possess the necessary Service Account permissions to apply changes.
+* **Read-Only Repository:** The cluster controllers have read-only access to this Git repository, preventing tampering from the compromised cluster side.
 
-- Every change is visible in:
-  - Git history (who/what/when/why)
-  - ArgoCD or Flux reconcile logs/events
-- Rollbacks are simple:
-  - Revert PRs
-  - Controllers reconcile the previous known-good state.
+## 3. Continuous Audit Logging
 
-## 4. Configuration as Code
+Compliance is not a snapshot; it is a continuous state maintained by the Git history.
 
-- Application + platform config is stored under:
-  - `/helm` – Helm charts
-  - `/gitops` – GitOps orchestration (ArgoCD + Flux)
-- No manual, undocumented changes to production are required.
+* **Immutable History:** The Git log serves as the legal record of all changes. History cannot be rewritten on protected branches.
+* **Reconciliation Logs:** ArgoCD and Flux provide a secondary audit log confirming that the cluster state successfully converged with the Git state.
+* **Drift Remediation:** Any unauthorized manual change to the cluster is immediately detected and overwritten by the automated controllers, ensuring the "Code is Law" principle.
 
-## 5. Demonstrating to Auditors
+## 4. Disaster Recovery & Rollbacks
 
-When talking to auditors or enterprise clients, you can show:
+In the event of a failure, the GitOps workflow provides an instant, tested recovery mechanism.
 
-- Git log + PR reviews for specific changes
-- ArgoCD Application history / Flux Kustomization events
-- Evidence that:
-  - No change goes live without a commit
-  - Drift is auto-corrected back to the Git source of truth
+* **Instant Rollback:** Reverting a PR in Git triggers the controllers to immediately restore the previous known-good state in the cluster.
+* **Mean Time to Recovery (MTTR):** Remediation times are measured in minutes, determined solely by the reconciliation interval (approx. 60 seconds).
+
+## 5. Auditor Evidence Strategy
+
+When demonstrating compliance to external auditors, use the following artifacts:
+
+1.  **Change Log:** Export the Git commit history for the audit period.
+2.  **Access Review:** Show GitHub/GitLab permission settings to prove branch protection and PR requirements.
+3.  **Drift Proof:** Demonstrate the "Drift Detection" policy by manually modifying a resource and showing its automatic correction.
