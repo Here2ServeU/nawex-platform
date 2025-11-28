@@ -1,9 +1,13 @@
-# Post-Deployment Checklist
+# Post-Deployment Checklist for Express T2S Platform
 
-- [ ] Deployment completed via GitOps (ArgoCD/Flux healthy).
-- [ ] Application health checks passing.
-- [ ] No increase in error rate or latency beyond SLO thresholds.
-- [ ] Logs and traces confirm normal behavior.
-- [ ] No abnormal alerts in the first 30–60 minutes.
-- [ ] Observability dashboards updated (if needed).
-- [ ] Ticket updated with deployment outcome.
+- [ ] **GitOps Status:** Deployment completed successfully via ArgoCD/Flux and reconciliation is healthy.
+- [ ] **Infrastructure:** All sub-chart dependencies (e.g., PostgreSQL) are stable and healthy.
+- [ ] **App Config:** New ConfigMap (app-config.yaml) successfully mounted and accessible by Backstage container.
+- [ ] **Ingress/Connectivity:** Application is accessible via Ingress (`backstage.express-t2s.com`) and TLS certificate is valid.
+- [ ] **Health Probes:** Backstage Deployment Liveness and Readiness probes are passing consistently.
+- [ ] **Backstage Catalog:** Catalog Processor successfully ingested all entities and no errors are present on the Catalog page.
+- [ ] **SLOs/Telemetry:** No immediate increase in error rate or latency beyond defined SLO thresholds.
+- [ ] **Monitoring:** Logs and traces confirm normal service behavior; synthetic checks are passing.
+- [ ] **Alerting:** No abnormal alerts or warnings in the first 30–60 minutes.
+- [ ] **Documentation:** Observability dashboards and runbooks are updated (if needed).
+- [ ] **Handover:** Relevant ticket/issue is updated with deployment outcome and metrics summary.
