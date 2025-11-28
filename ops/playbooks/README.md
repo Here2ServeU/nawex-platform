@@ -1,8 +1,12 @@
-# Operational Playbooks
+# Operational Playbooks for Express T2S Platform
 
-This directory contains tactical procedures for common operational tasks.
+This directory contains tactical, step-by-step procedures (**Playbooks**) designed to standardize routine and emergency operational tasks across the Express T2S microservices and Backstage IDP infrastructure. Adherence to these playbooks minimizes operational risk and ensures predictable outcomes.
 
-- `db_failover_postgres.md` – Postgres failover (primary to replica).
-- `cache_warmup_redis.md` – Redis cache warm-up strategy.
-- `queue_drain_kafka.md` – Kafka consumer drain during deployments.
-- `deployment_rollback_gitops.md` – Safe rollback using GitOps.
+## Available Playbooks
+
+| Playbook File | Operational Task | Applies To |
+| :--- | :--- | :--- |
+| [db_failover_postgres.md](./db_failover_postgres.md) | Executing a controlled failover from the primary PostgreSQL instance to a synchronous replica. | Backstage IDP, Core Microservices |
+| [cache_warmup_redis.md](./cache_warmup_redis.md) | Standardized procedure for pre-filling critical application caches after deployment or service restart. | Microservices using Redis |
+| [queue_drain_kafka.md](./queue_drain_kafka.md) | Safely stopping Kafka consumers during maintenance or deployment to prevent data loss or duplicate processing. | Async Microservices (Kafka) |
+| [deployment_rollback_gitops.md](./deployment_rollback_gitops.md) | Executing a verified, safe rollback to a known-good state using GitOps tooling (ArgoCD/Flux). | All Application Deployments |
