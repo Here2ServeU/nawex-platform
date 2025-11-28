@@ -1,10 +1,13 @@
-# Pre-Deployment Checklist
+# Pre-Deployment Checklist for Express T2S Platform
 
-- [ ] Change request / ticket approved.
-- [ ] Code merged to main branch.
-- [ ] CI pipeline green (tests, linting, security scans).
-- [ ] Image scanned (Trivy/Snyk) and pushed to registry.
-- [ ] Helm chart version bumped and committed.
-- [ ] SLO impact reviewed; error budget available.
-- [ ] Runbooks updated if new failure modes introduced.
-- [ ] Rollback plan documented.
+- [ ] **Change Approval:** Change request / ticket approved by required stakeholders.
+- [ ] **Code Readiness:** Code merged to main branch and meets code standards.
+- [ ] **CI Pipeline:** CI pipeline green (all unit/integration tests, linting, security scans passed).
+- [ ] **Image Security:** Image scanned (Trivy/Snyk) and pushed to container registry; no critical vulnerabilities found.
+- [ ] **Helm Integrity:** Helm chart version bumped and committed; `helm lint` and `helm template --dry-run` are successful.
+- [ ] **Config Validation:** New configuration in `values.yaml` reviewed and validated against environment-specific secrets.
+- [ ] **Infrastructure Capacity:** Kubernetes cluster quota and node capacity verified (resource limits available).
+- [ ] **Secret Management:** New/rotated secrets (e.g., PostgreSQL credentials) verified in Secret Manager.
+- [ ] **SLO Impact:** SLO impact reviewed; error budget available for potential deployment issues.
+- [ ] **Runbooks:** Runbooks updated if new failure modes or service dependencies were introduced.
+- [ ] **Rollback Plan:** Rollback plan clearly documented and tested (revert to previous stable tag).
