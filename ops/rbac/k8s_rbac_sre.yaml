@@ -3,9 +3,21 @@ kind: ClusterRole
 metadata:
   name: sre-operator
 rules:
-  - apiGroups: ["", "apps", "batch", "extensions"]
-    resources: ["pods", "deployments", "statefulsets", "daemonsets", "jobs", "cronjobs", "services", "configmaps", "secrets"]
-    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups:
+      [
+        "",
+        "apps",
+        "batch",
+        "autoscaling",
+        "networking.k8s.io",
+        "policy",
+        "storage.k8s.io"
+      ]
+    resources: ["*"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/exec", "pods/log"]
+    verbs: ["get", "create"]
   - apiGroups: ["metrics.k8s.io"]
     resources: ["pods", "nodes"]
     verbs: ["get", "list", "watch"]
