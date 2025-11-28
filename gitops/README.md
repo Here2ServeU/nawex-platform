@@ -1,75 +1,79 @@
-# /gitops — ArgoCD & FluxCD GitOps Layer
+# GitOps Control Plane
 
-This directory defines the GitOps control plane for the **Express AI-Driven Multi-Cloud Resilience Platform** using **ArgoCD** and **FluxCD**.
+**Automated Configuration Management for the Express AI-Driven Platform**
 
-It provides:
+This directory defines the GitOps control plane, utilizing **ArgoCD** and **Flux** to manage the lifecycle of the Web App Workload, Observability Stack, and Platform Infrastructure. It enforces a "Code is Law" philosophy, ensuring that the desired state defined in Git is always reflected in the cluster.
 
-- Application manifests (ArgoCD Applications, Flux HelmReleases/Kustomizations)
-- References to the `/helm` charts in this repo
-- Cluster add-ons (ArgoCD / Flux bootstrap)
-- Drift detection (auto-sync & self-heal)
-- SOC 2–friendly, blame-free audit trail via Git history and GitOps events
+---
 
-## Layout
+## Directory Layout
 
-- `argocd/`
-  - `namespace.yaml` – installs `argocd` namespace
-  - `project-platform.yaml` – ArgoCD Project for platform apps
-  - `app-express-app.yaml` – ArgoCD Application for the Express app (v7)
-  - `app-monitoring-stack.yaml` – ArgoCD Application for Prometheus + Grafana
-  - `app-backstage.yaml` – ArgoCD Application for Backstage IDP
-  - `app-kafka-zookeeper.yaml` – ArgoCD Application for Kafka + Zookeeper
+### 1. ArgoCD (Application Layer)
+Located in `argocd/`. Manages high-level applications and ensuring continuous synchronization.
 
-- `flux/`
-  - `namespace.yaml` – `flux-system` namespace
-  - `gitrepository-platform.yaml` – Flux source pointing to this Git repo
-  - `kustomization-platform.yaml` – Top-level Kustomization for all apps
-  - `apps/express-app-helmrelease.yaml` – Flux HelmRelease for Express app
-  - `apps/monitoring-helmrelease.yaml` – Flux HelmRelease for monitoring
+* `namespace.yaml`: Bootstraps the `argocd` namespace.
+* `project-platform.yaml`: Defines the ArgoCD Project with restricted source/destination policies.
+* `app-express-app.yaml`: Deploys the **Web App Workload** (Node.js/Express).
+* `app-splunk-forwarder.yaml`: Deploys the Splunk Universal Forwarder DaemonSet.
+* `app-monitoring-stack.yaml`: Deploys Prometheus and Grafana for metrics.
+* `app-kafka-zookeeper.yaml`: Deploys the event streaming backbone.
 
-- `policies/`
-  - `soc2-gitops-controls.md` – Explains how GitOps supports SOC 2 controls
-  - `drift-detection.md` – How ArgoCD/Flux detect & self-heal drift
+### 2. Flux (Infrastructure Layer)
+Located in `flux/`. Manages low-level cluster resources and automated reconciliation.
 
-## Usage (ArgoCD)
+* `namespace.yaml`: Bootstraps the `flux-system` namespace.
+* `gitrepository-platform.yaml`: Defines the source connection to this repository.
+* `kustomization-platform.yaml`: The top-level entry point for infrastructure reconciliation.
+* `apps/express-app-helmrelease.yaml`: HelmRelease definition for the Web App.
+* `apps/resources/splunk-forwarder-helmrelease.yaml`: HelmRelease for Splunk logging.
 
-1. Install ArgoCD into the cluster (e.g., via upstream manifests):
+### 3. Policies (Compliance & Security)
+Located in `policies/`. Documentation on how this architecture satisfies regulatory controls.
 
-```bash
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-kubectl apply -f gitops/argocd/namespace.yaml
-kubectl apply -f gitops/argocd/project-platform.yaml
-kubectl apply -f gitops/argocd/app-express-app.yaml
-kubectl apply -f gitops/argocd/app-monitoring-stack.yaml
-kubectl apply -f gitops/argocd/app-backstage.yaml
-kubectl apply -f gitops/argocd/app-kafka-zookeeper.yaml
-```
+* `drift-detection.md`: Explains the auto-sync and self-heal mechanisms.
+* `soc2-gitops-controls.md`: Details how GitOps meets SOC 2 Type II requirements (Change Management, Audit Trails).
 
-2. ArgoCD will:
-   - Continuously watch this Git repository
-   - Detect drift between live & desired state
-   - Auto-sync & self-heal when `syncPolicy.automated` is enabled
+---
 
-## Usage (FluxCD)
+## Usage Guide: ArgoCD
 
-1. Install Flux CLI & controllers:
+To bootstrap the Application Layer using ArgoCD:
 
-```bash
-kubectl create namespace flux-system
-flux install --namespace flux-system
-```
+1.  **Install ArgoCD** (if not already present):
+    ```bash
+    kubectl apply -n argocd -f [https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml](https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml)
+    ```
 
-2. Apply the Git source + Kustomization and HelmReleases:
+2.  **Apply Platform Manifests**:
+    ```bash
+    kubectl apply -f gitops/argocd/namespace.yaml
+    kubectl apply -f gitops/argocd/project-platform.yaml
+    ```
 
-```bash
-kubectl apply -f gitops/flux/namespace.yaml
-kubectl apply -f gitops/flux/gitrepository-platform.yaml
-kubectl apply -f gitops/flux/kustomization-platform.yaml
-kubectl apply -f gitops/flux/apps/express-app-helmrelease.yaml
-kubectl apply -f gitops/flux/apps/monitoring-helmrelease.yaml
-```
+3.  **Deploy Applications**:
+    ```bash
+    kubectl apply -f gitops/argocd/app-express-app.yaml
+    kubectl apply -f gitops/argocd/app-splunk-forwarder.yaml
+    ```
 
-Flux will then:
-- Reconcile on a schedule (e.g., every minute)
-- Detect drift & reconcile back from Git
-- Provide a clear event history for audits
+**Result:** ArgoCD will begin synchronizing the Web App and Splunk Forwarder immediately.
+
+---
+
+## Usage Guide: Flux
+
+To bootstrap the Infrastructure Layer using Flux:
+
+1.  **Install Flux CLI & Controllers**:
+    ```bash
+    flux install --namespace flux-system
+    ```
+
+2.  **Apply Source & Kustomization**:
+    ```bash
+    kubectl apply -f gitops/flux/namespace.yaml
+    kubectl apply -f gitops/flux/gitrepository-platform.yaml
+    kubectl apply -f gitops/flux/kustomization-platform.yaml
+    ```
+
+**Result:** Flux will enter a continuous reconciliation loop (1-minute interval), ensuring that any drift in the `helm/` charts is instantly corrected.
