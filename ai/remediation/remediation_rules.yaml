@@ -1,1 +1,35 @@
-rules: []
+rules:
+  # Rule 1: High Latency -> Scale Up
+  - id: "rule-001"
+    trigger: "latency_risk"
+    level: "high"
+    action: "scale_up_replicas"
+    params:
+      target: "frontend-service"
+      replicas: 5
+
+  # Rule 2: Critical Error Rate -> Restart Service
+  - id: "rule-002"
+    trigger: "error_risk"
+    level: "critical"
+    action: "restart_service"
+    params:
+      target: "backend-api"
+      strategy: "rolling_update"
+
+  # Rule 3: Wasted Resources -> Optimize (FinOps)
+  - id: "rule-003"
+    trigger: "efficiency_risk"
+    level: "low"
+    action: "optimize_resources"
+    params:
+      target: "data-processor"
+      cpu_limit: "500m"
+
+  # Rule 4: Memory Leak -> Restart
+  - id: "rule-004"
+    trigger: "memory_risk"
+    level: "critical"
+    action: "restart_service"
+    params:
+      target: "cache-layer"
