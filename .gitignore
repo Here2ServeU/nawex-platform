@@ -1,55 +1,43 @@
-# -------------------------------------------------------------
-# Node.js
-# -------------------------------------------------------------
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-pnpm-debug.log*
-lerna-debug.log*
+# ---------------------------------------------------------------------------------------
+# COMPREHENSIVE GIT IGNORE FILE
+# Generated for multi-cloud, multi-tooling (Node, Terraform, Helm, Kubernetes) environment
+# ---------------------------------------------------------------------------------------
 
-# Dependency directories
+# -------------------------------------------------------------
+# 1. NODE / NPM
+# -------------------------------------------------------------
 node_modules/
-
-# Production-specific
-npm-shrinkwrap.json
-yarn-error.log
-
-# Optional files
-.nyc_output/
-coverage/
-.lint/
-
-# Environment files
+/npm-debug.log
+.npm/
+.eslintcache
+/pids
+/logs
+# Runtime and environment data
 .env
+.env.local
 .env.development.local
 .env.test.local
 .env.production.local
-.env.local
-
-# TypeScript
-*.tsbuildinfo
+/coverage
+/dist
 
 # -------------------------------------------------------------
-# Terraform (ignore state, cache, sensitive files)
+# 2. OS / IDE EXCLUSIONS
 # -------------------------------------------------------------
-terraform/backend/.terraform/
-terraform/backend/.terraform.lock.hcl
-terraform/backend/terraform.tfstate*
-terraform/backend/terraform.tfstate.backup
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
 
-terraform/ecr/.terraform/
-terraform/ecr/.terraform.lock.hcl
-terraform/ecr/terraform.tfstate*
-terraform/ecr/terraform.tfstate.backup
+# -------------------------------------------------------------
+# 3. TERRAFORM (Updated for multi-dir structure and cache)
+# -------------------------------------------------------------
+# Ignore all local Terraform working directories (cache in any subdirectory)
+**/.terraform/
+**/.terraform.lock.hcl
 
-terraform/eks/.terraform/
-terraform/eks/.terraform.lock.hcl
-terraform/eks/terraform.tfstate*
-terraform/eks/terraform.tfstate.backup
-
-# Ignore all .tfstate files globally
+# Ignore state files globally (ensures secrets and current state are not committed)
 **/*.tfstate
 **/*.tfstate.backup
 
@@ -57,30 +45,37 @@ terraform/eks/terraform.tfstate.backup
 crash.log
 crash.*.log
 
-# Terraform variable files (local secrets)
+# Terraform variable files (sensitive local secrets)
 *.tfvars
 *.tfvars.json
 
-# -------------------------------------------------------------
-# Docker and Containers
-# -------------------------------------------------------------
-# Docker image build context
-# (Use .dockerignore for exclusions specific to image builds)
-
-# Docker temp dirs
-.docker/
+# Terraform CLI config history
+.terraformrc
 
 # -------------------------------------------------------------
-# General IDE and OS files
+# 4. HELM AND KUBERNETES TOOLING
 # -------------------------------------------------------------
-# Visual Studio Code
-.vscode/
+# Helm Chart dependency cache (e.g., helm/backstage/charts/)
+**/charts/
+**/*.tgz
+# Kustomize build output
+kustomize/
+# Kubernetes configuration files (local secrets)
+kubeconfig
+.kube/
 
-# Intellij
-.idea/
-
-# Mac OS
-.DS_Store
-
-# Windows
-Thumbs.db
+# -------------------------------------------------------------
+# 5. BINARY, SCRIPT & BUILD ARTIFACTS
+# -------------------------------------------------------------
+# General compiled files
+*.exe
+*.dll
+*.so
+*.o
+*.a
+*.obj
+# Go binaries and build directories
+*.bin
+/pkg/
+# Custom temporary files from scripts
+tmp/
