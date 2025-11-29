@@ -1,11 +1,10 @@
 # ------------------------------------------------------------------------------
-# EXPRESS WEB GCP DEV - MAIN ENTRY POINT
+# WEB-APP GCP DEV - MAIN ENTRY POINT
 # ------------------------------------------------------------------------------
 # Architect: Emmanuel Naweji
-# Description: Instantiates the GCP footprint (GKE + VPC) for the Express Web App.
+# Description: Instantiates the GCP footprint (GKE + VPC) for the web-app.
 # Strategy:    Zonal GKE for Cost Efficiency (Dev). VPC-Native for Performance.
 # ------------------------------------------------------------------------------
-
 terraform {
   required_providers {
     google = {
@@ -16,9 +15,8 @@ terraform {
 }
 
 provider "google" {
-  project = var.project_id
-  region  = var.region
-  
+  project        = var.project_id
+  region         = var.region
   # Principal Note: Standardizing labels at the provider level for full coverage
   default_labels = var.labels
 }
@@ -28,11 +26,9 @@ provider "google" {
 module "vpc" {
   source  = "terraform-google-modules/network/google"
   version = "~> 9.0"
-
   project_id   = var.project_id
-  network_name = "express-web-dev-vpc"
+  network_name = "web-app-dev-vpc"
   routing_mode = "GLOBAL"
-
   subnets = [
     {
       subnet_name   = "gke-subnet"
@@ -40,7 +36,6 @@ module "vpc" {
       subnet_region = var.region
     }
   ]
-
   # Secondary ranges are REQUIRED for VPC-Native GKE (Pod & Service IPs)
   secondary_ranges = {
     "gke-subnet" = [
@@ -59,23 +54,20 @@ module "vpc" {
 # 2. Compute Layer (GKE Cluster)
 # Consuming our proprietary internal module
 module "gke_cluster" {
-  source = "../../../modules/compute/gcp-gke"
-
-  cluster_name = "express-web-dev-gke-01"
+  source       = "../../../modules/compute/gcp-gke"
+  cluster_name = "web-app-dev-gke-01"
   project_id   = var.project_id
   region       = var.region
-  
   # Principal FinOps: Use Zonal for Dev to save ~$70/mo on control plane fees
   # and reduce cross-zone traffic costs.
-  zones        = ["us-central1-a"] 
-
-  network    = module.vpc.network_name
-  subnetwork = module.vpc.subnets_names[0]
-
+  zones        = ["us-central1-a"]
+  network      = module.vpc.network_name
+  subnetwork   = module.vpc.subnets_names[0]
+  
   # Networking
   ip_range_pods     = "gke-pods"
   ip_range_services = "gke-services"
-  
+
   # Identity
   enable_workload_identity = true # The modern standard replacing Service Account keys
   
@@ -83,7 +75,7 @@ module "gke_cluster" {
   # We use Preemptible VMs (Google's Spot equivalent) for the Dev workload
   node_pools = [
     {
-      name         = "express-web-pool"
+      name         = "web-app-dev-pool"
       machine_type = "e2-medium"
       min_count    = 1
       max_count    = 3
