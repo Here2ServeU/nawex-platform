@@ -1,5 +1,25 @@
 {
+  "name": "express-t2s-microservice",
+  "version": "1.0.0",
+  "description": "Core Express microservice for the Express T2S Platform, integrated with OpenTelemetry and Prometheus.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "microservice",
+    "sre",
+    "opentelemetry"
+  ],
+  "author": "Express Platform Team",
+  "license": "MIT",
   "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "express": "^4.19.2",
+    "pino": "^9.2.0",
     "prom-client": "^15.1.3"
   }
 }
