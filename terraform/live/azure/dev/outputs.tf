@@ -1,14 +1,13 @@
 # ------------------------------------------------------------------------------
 # Purpose: Operational hand-off data.
 # ------------------------------------------------------------------------------
-
 output "resource_group_name" {
   description = "The logical container for billing aggregation"
   value       = azurerm_resource_group.main.name
 }
 
 output "aks_cluster_name" {
-  value = "express-web-aks-01"
+  value = "web-app-dev-aks-01"
 }
 
 output "aks_host" {
@@ -20,7 +19,7 @@ output "aks_host" {
 # --- The "Principal" Touch ---
 output "connect_command" {
   description = "Copy/Paste this to access the cluster"
-  value       = "az aks get-credentials --resource-group nexus-prod-rg --name nexus-prod-aks-01 --overwrite-existing"
+  value       = "az aks get-credentials --resource-group ${azurerm_resource_group.main.name} --name web-app-dev-aks-01 --overwrite-existing"
 }
 
 output "oidc_issuer_url" {
