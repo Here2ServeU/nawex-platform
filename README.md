@@ -2,7 +2,7 @@
 
 **Project Portfolio Showcase: Solving Enterprise Operational Fragility**
 
-**Presenter:** [Emmanuel Naweji, Ph.D. Candidate (AI/ML) | Cloud & DevOps Solutions Architect | SRE]([(https://github.com/Here2ServeU)])
+**Author:** [Emmanuel Naweji, Ph.D. Candidate (AI/ML) | Cloud & DevOps Solutions Architect | SRE]([(https://github.com/Here2ServeU)])
 
 ---
 
