@@ -26,8 +26,11 @@ I structured this platform into distinct functional domains, each engineered to 
 
 #### 1. Predictive AIOps Engine (`ai/`)
 *The Nervous System of Self-Healing*
-![OpenTelemetry Trace View](./assets/images/opentelemetry-trace.png)
-*Figure 1: End-to-end distributed tracing visualization.*
+<div align="center">
+  <img src="./assets/images/aiops-selfhealing-pipeline.png" alt="AIOps Self-Healing Pipeline" width="650"/>
+  <p><em>Figure 1: The Predictive AIOps & Self-Healing closed-loop pipeline.</em></p>
+</div>
+<br>
 
 * **Problem:** Traditional monitoring is *reactive*, alerting *after* a failure impacts customers.
 * **Solution:** Custom **LSTM** and **TCN** machine learning models trained on telemetry to forecast resource exhaustion and latency spikes *before* they manifest.
