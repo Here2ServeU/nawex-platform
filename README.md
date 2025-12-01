@@ -24,7 +24,7 @@ Developed with insights from my **Ph.D. candidacy in AI/ML** combined with **ove
 
 I structured this platform into distinct functional domains, each engineered to resolve a specific operational challenge and deliver a measurable business result.
 
-#### 1. Predictive AIOps Engine (`ai/`)
+#### 1. Predictive AIOps Engine (`ai/`) - The Brain
 *The Nervous System of Self-Healing*
 <div align="center">
   <img src="./assets/images/aiops-selfhealing-pipeline.png" alt="AIOps Self-Healing Pipeline" width="650"/>
@@ -36,7 +36,7 @@ I structured this platform into distinct functional domains, each engineered to 
 * **Solution:** Custom **LSTM** and **TCN** machine learning models trained on telemetry to forecast resource exhaustion and latency spikes *before* they manifest.
 * **Result:** Predicts critical incidents up to 30 minutes in advance, enabling auto-remediation to *prevent 85% of potential outages*.
 
-#### 2. Infrastructure as Code (`terraform/`)
+#### 2. Infrastructure as Code (`terraform/`) - The Foundation 
 *The Foundation of Deterministic Infrastructure*
 <div align="center">
   <img src="./assets/images/architecture-diagram.png" alt="Multi-Cloud Architecture Diagram" width="650"/>
@@ -48,7 +48,7 @@ I structured this platform into distinct functional domains, each engineered to 
 * **Solution:** Modular, cloud-agnostic Terraform code that abstracts **EKS, AKS, and GKE** complexities into standardized, repeatable modules.
 * **Result:** Reduces environment provisioning time *from days to minutes* and eliminates *$100\%$ of configuration inconsistencies* between Staging and Production.
 
-#### 3. Continuous Governance (`gitops/`)
+#### 3. Continuous Governance (`gitops/`) - The Guardrails
 *The Single Source of Truth*
 <div align="center">
   <img src="./assets/images/gitops-workflow.png" alt="GitOps Workflow" width="650"/>
@@ -60,7 +60,7 @@ I structured this platform into distinct functional domains, each engineered to 
 * **Solution:** Utilizing **ArgoCD and Flux** to enforce a "Code-is-Law" policy. The cluster state is constantly synchronized with Git; unauthorized manual changes are *automatically detected and reverted instantly*.
 * **Result:** Achieves **zero configuration drift** and provides an immutable audit trail for every change, simplifying **SOC 2 and ISO 27001 compliance**.
 
-#### 4. Site Reliability Engineering (`sre/`)
+#### 4. Site Reliability Engineering (`sre/`) - The Metric
 *Reliability as a Mathematical Metric*
 
 * **Problem:** "Reliability" is often vague, leading to misalignment between Product (velocity) and Engineering (uptime).
