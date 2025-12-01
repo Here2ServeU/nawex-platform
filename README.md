@@ -62,6 +62,11 @@ I structured this platform into distinct functional domains, each engineered to 
 
 #### 4. Site Reliability Engineering (`sre/`) - The Metric
 *Reliability as a Mathematical Metric*
+<div align="center">
+  <img src="./assets/images/opentelemetry-trace.png" alt="OpenTelemetry Trace View" width="650"/>
+  <p><em>Figure 1: End-to-end distributed tracing visualization for latency analysis.</em></p>
+</div>
+<br>
 
 * **Problem:** "Reliability" is often vague, leading to misalignment between Product (velocity) and Engineering (uptime).
 * **Solution:** Defined mathematical **Service Level Objectives (SLOs)** and **Error Budgets**. Includes formalized **Chaos Engineering** experiments and Post-Mortem templates.
