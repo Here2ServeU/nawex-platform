@@ -1,4 +1,4 @@
-# The Express AI-Driven Multi-Cloud Resilience Platform
+# The Express Reliability AIOps Platform
 
 **Project Portfolio Showcase: Solving Enterprise Operational Fragility**
 
