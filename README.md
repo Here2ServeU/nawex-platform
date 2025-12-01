@@ -38,8 +38,11 @@ I structured this platform into distinct functional domains, each engineered to 
 
 #### 2. Infrastructure as Code (`terraform/`)
 *The Foundation of Deterministic Infrastructure*
-![High-Level Architecture](./assets/images/architecture-diagram.png)
-*Figure 2: Multi-Cloud Architecture Blueprint (AWS EKS, Azure AKS, GCP GKE).*
+<div align="center">
+  <img src="./assets/images/architecture-diagram.png" alt="Multi-Cloud Architecture Diagram" width="650"/>
+  <p><em>Figure 2: Multi-Cloud Architecture Blueprint ensuring high availability across AWS, Azure, and GCP.</em></p>
+</div>
+<br>
 
 * **Problem:** Manual provisioning leads to "Snowflake Servers," which are inconsistent, unrepeatable, and prone to error.
 * **Solution:** Modular, cloud-agnostic Terraform code that abstracts **EKS, AKS, and GKE** complexities into standardized, repeatable modules.
@@ -47,8 +50,11 @@ I structured this platform into distinct functional domains, each engineered to 
 
 #### 3. Continuous Governance (`gitops/`)
 *The Single Source of Truth*
-![GitOps Workflow](./assets/images/gitops-workflow.png)
-*Figure 3: Automated GitOps pipeline flow ensuring zero configuration drift.*
+<div align="center">
+  <img src="./assets/images/gitops-workflow.png" alt="GitOps Workflow" width="650"/>
+  <p><em>Figure 3: Automated GitOps pipeline flow ensuring zero configuration drift.</em></p>
+</div>
+<br>
 
 * **Problem:** "Configuration Drift" from manual changes causes impossible-to-debug outages and fails compliance audits.
 * **Solution:** Utilizing **ArgoCD and Flux** to enforce a "Code-is-Law" policy. The cluster state is constantly synchronized with Git; unauthorized manual changes are *automatically detected and reverted instantly*.
