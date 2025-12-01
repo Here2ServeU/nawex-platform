@@ -26,6 +26,8 @@ I structured this platform into distinct functional domains, each engineered to 
 
 #### 1. Predictive AIOps Engine (`ai/`)
 *The Nervous System of Self-Healing*
+![OpenTelemetry Trace View](./assets/images/opentelemetry-trace.png)
+*Figure 1: End-to-end distributed tracing visualization.*
 
 * **Problem:** Traditional monitoring is *reactive*, alerting *after* a failure impacts customers.
 * **Solution:** Custom **LSTM** and **TCN** machine learning models trained on telemetry to forecast resource exhaustion and latency spikes *before* they manifest.
@@ -33,6 +35,8 @@ I structured this platform into distinct functional domains, each engineered to 
 
 #### 2. Infrastructure as Code (`terraform/`)
 *The Foundation of Deterministic Infrastructure*
+![High-Level Architecture](./assets/images/architecture-diagram.png)
+*Figure 2: Multi-Cloud Architecture Blueprint (AWS EKS, Azure AKS, GCP GKE).*
 
 * **Problem:** Manual provisioning leads to "Snowflake Servers," which are inconsistent, unrepeatable, and prone to error.
 * **Solution:** Modular, cloud-agnostic Terraform code that abstracts **EKS, AKS, and GKE** complexities into standardized, repeatable modules.
@@ -40,6 +44,8 @@ I structured this platform into distinct functional domains, each engineered to 
 
 #### 3. Continuous Governance (`gitops/`)
 *The Single Source of Truth*
+![GitOps Workflow](./assets/images/gitops-workflow.png)
+*Figure 3: Automated GitOps pipeline flow ensuring zero configuration drift.*
 
 * **Problem:** "Configuration Drift" from manual changes causes impossible-to-debug outages and fails compliance audits.
 * **Solution:** Utilizing **ArgoCD and Flux** to enforce a "Code-is-Law" policy. The cluster state is constantly synchronized with Git; unauthorized manual changes are *automatically detected and reverted instantly*.
