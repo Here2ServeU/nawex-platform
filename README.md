@@ -45,7 +45,7 @@ I structured this platform into distinct functional domains, each engineered to 
 <br>
 
 * **Problem:** Manual provisioning leads to "Snowflake Servers," which are inconsistent, unrepeatable, and prone to error.
-* **Solution:** Modular, cloud-agnostic Terraform code that abstracts **EKS, AKS, and GKE** complexities into standardized, repeatable modules.
+* **Solution:** Modular, cloud-agnostic Terraform code that abstracts **EKS, AKS, GKE and OKE** complexities into standardized, repeatable modules.
 * **Result:** Reduces environment provisioning time *from days to minutes* and eliminates **100%** of configuration inconsistencies between Staging and Production.
 
 #### 3. Continuous Governance (`gitops/`) - The Guardrails
