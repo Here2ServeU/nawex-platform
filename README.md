@@ -16,7 +16,7 @@ Developed with insights from my **Ph.D. candidacy in AI/ML** combined with **ove
 | :--- | :--- | :--- |
 | **Startup / Scale-up** | **Lean Velocity** (Rapid, standardized single-cloud deployment). | Accelerates **Time-to-Market by 60%**. |
 | **Mid-Market** | **Automated Compliance** (AIOps/GitOps for governance). | Reduces engineering toil by **40%** and ensures **continuous SOC 2 readiness**. |
-| **Enterprise** | **Multi-Cloud Resilience** (Active-active deployment with automated failover). | Guarantees **$99.999\%$ availability** and vendor neutrality. |
+| **Enterprise** | **Multi-Cloud Resilience** (Active-active deployment with automated failover). | Guarantees **99.999% availability** and vendor neutrality. |
 
 ---
 
@@ -86,7 +86,7 @@ I can bring an environment from zero to operational in minutes by following this
     * *Proficiency:* Kubernetes orchestration, Helm packaging, and GitOps adoption for zero-downtime deployments.
 3.  **Phase 3: Access and Observability** (`app/` & `scripts/`):
     * *Action:* Using the fully instrumented **OpenTelemetry** reference application and traffic generation scripts to validate metrics.
-    * *Proficiency:* Implementing and validating full **$100% visibility** (distributed tracing, structured logging) to reduce time-to-diagnose latency bottlenecks.
+    * *Proficiency:* Implementing and validating full **100% visibility** (distributed tracing, structured logging) to reduce time-to-diagnose latency bottlenecks.
 
 ---
 
