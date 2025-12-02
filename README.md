@@ -10,7 +10,7 @@
 
 The modern enterprise is crippled by "Cloud Chaos": costly downtime, compliance risks, and unpredictable cloud spend. The **Express Platform** is my solution, a comprehensive, battle-tested operational blueprint that transitions organizations from reactive firefighting to **proactive, autonomous reliability engineering**.
 
-Developed with insights from my **Ph.D. candidacy in AI/ML** combined with **over 10 years of experience as a DevOps and Cloud Engineer**, this platform is a unified control plane that integrates predictive **Artificial Intelligence** with deterministic **GitOps** workflows, ensuring **$99.999\%$ availability** across multi-cloud environments (AWS, Azure, GCP, OCI) and supporting **HIPAA/SOC 2 compliance**.
+Developed with insights from my **Ph.D. candidacy in AI/ML** combined with **over 10 years of experience as a DevOps and Cloud Engineer**, this platform is a unified control plane that integrates predictive **Artificial Intelligence** with deterministic **GitOps** workflows, ensuring **99.999% availability** across multi-cloud environments (AWS, Azure, GCP, OCI) and supporting **HIPAA/SOC 2 compliance**.
 
 | Target Audience | Operational Strategy | Measurable Value Delivered |
 | :--- | :--- | :--- |
