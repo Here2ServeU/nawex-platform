@@ -86,7 +86,7 @@ I can bring an environment from zero to operational in minutes by following this
     * *Proficiency:* Kubernetes orchestration, Helm packaging, and GitOps adoption for zero-downtime deployments.
 3.  **Phase 3: Access and Observability** (`app/` & `scripts/`):
     * *Action:* Using the fully instrumented **OpenTelemetry** reference application and traffic generation scripts to validate metrics.
-    * *Proficiency:* Implementing and validating full **$100\%$ visibility** (distributed tracing, structured logging) to reduce time-to-diagnose latency bottlenecks.
+    * *Proficiency:* Implementing and validating full **$100% visibility** (distributed tracing, structured logging) to reduce time-to-diagnose latency bottlenecks.
 
 ---
 
