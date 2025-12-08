@@ -40,9 +40,6 @@ These documents detail the implementation strategies for our observability backe
 
 ### 2\. `docs/splunk-observability.md`
 
-*Create this file. This was the missing piece you requested.*
-
-```markdown
 # Splunk Log Aggregation Strategy
 
 ## Overview
@@ -69,7 +66,6 @@ This document details our **Hybrid Log Aggregation** strategy using Splunk. We t
 ### 4. Data Retention & Lifecycle
 * **Policy:** "Hot" storage for 7 days (NVMe SSD) for fast searching, moving to "Cold" storage (S3-backed) for long-term compliance.
 * **Impact:** Balances search performance with storage costs.
-```
 
 -----
 
