@@ -25,7 +25,11 @@ These documents detail the implementation strategies for our observability backe
     * **Focus:** **AI-Driven Root Cause Analysis.**
     * **Key Decisions:** OneAgent Operator deployment, Davis AI integration for automated problem detection, and "PurePath" distributed tracing.
 
+-----
+
 ### 2. Diagrammatic Source Code (`diagrams/`)
+
+```markdown
 * **Focus:** **Visual Architecture.**
 * **Content:** Contains the *source code* for system diagrams, primarily using **Mermaid.js** (`.mmd`).
 * **Why Code?** Unlike static PNGs, these text-based diagrams can be edited, versioned, and rendered dynamically.
