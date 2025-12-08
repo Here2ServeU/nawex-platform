@@ -51,4 +51,4 @@ helm install aiops-bus ./kafka-zookeeper -f values.yaml
   * `aiops.alerts.processed` (Compacted)
 
 ### Interview Talking Point:
-"I included Kafka in my architecture because at scale, **synchronous logging is a death sentence**. I use this Kafka chart to decouple my services from my analysis tools. It acts as a durable buffer—if my AIOps engine goes down for maintenance, Kafka holds all the data until it comes back up. No data is ever lost."
+> I included Kafka in my architecture because at scale, **synchronous logging is a death sentence**. I use this Kafka chart to decouple my services from my analysis tools. It acts as a durable buffer—if my AIOps engine goes down for maintenance, Kafka holds all the data until it comes back up. No data is ever lost.
