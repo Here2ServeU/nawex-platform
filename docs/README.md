@@ -38,7 +38,9 @@ These documents detail the implementation strategies for our observability backe
 
 -----
 
-### 2\. New File: `docs/prometheus-grafana.md`
+### 2\. Create New File: `docs/prometheus-grafana.md`
+
+*Action: Create this file in the `docs/` folder.*
 
 ```markdown
 # Prometheus & Grafana Architecture
@@ -66,7 +68,9 @@ Unlike the "Push" model used by Datadog/Splunk agents, Prometheus **scrapes** me
 
 -----
 
-### 3\. New File: `docs/datadog-observability.md`
+### 3\. Create New File: `docs/datadog-observability.md`
+
+*Action: Create this file in the `docs/` folder.*
 
 ```markdown
 # Datadog Unified Observability
@@ -95,7 +99,9 @@ This document details the integration of **Datadog** as our primary SaaS observa
 
 -----
 
-### 4\. New File: `docs/dynatrace-intelligence.md`
+### 4\. Create New File: `docs/dynatrace-intelligence.md`
+
+*Action: Create this file in the `docs/` folder.*
 
 ```markdown
 # Dynatrace & Davis AI Integration
@@ -121,4 +127,4 @@ This document covers the **Dynatrace** implementation, specifically focusing on 
 
 ### Interview Talking Point
 
-> I documented all four major platforms (Splunk, Prometheus, Datadog, Dynatrace) in my `docs/` folder to demonstrate **Tool Agnosticism**. In my experience, large organizations rarely have just one tool—they might use Prometheus for cheap metrics, Splunk for security logs, and Dynatrace for AI Ops. As a Senior SRE, my job isn't to be a fanboy of one tool, but to architect a platform that can integrate *any* of them based on business cost/value requirements.
+> "I documented all four major platforms (Splunk, Prometheus, Datadog, Dynatrace) in my `docs/` folder to demonstrate **Tool Agnosticism**. In my experience, large organizations rarely have just one tool—they might use Prometheus for cheap metrics, Splunk for security logs, and Dynatrace for AIOps. As a Senior SRE, my job isn't to be a fanboy of one tool, but to architect a platform that can integrate *any* of them based on business cost/value requirements."
