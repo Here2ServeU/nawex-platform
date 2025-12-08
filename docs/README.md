@@ -42,7 +42,7 @@ These documents detail the implementation strategies for our observability backe
 
 *Action: Create this file in the `docs/` folder.*
 
-```markdown
+```markdown 
 # Prometheus & Grafana Architecture
 
 ## Overview
