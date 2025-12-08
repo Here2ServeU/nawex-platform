@@ -35,9 +35,7 @@ These documents detail the implementation strategies for our observability backe
 2. **Living Artifacts:** Every PR that changes the stack must update these docs.
 3. **Incident Readiness:** Written for the "3 AM On-Call Engineer."
 
-Based on your request to standardize the format, here is the `docs/splunk-observability.md` file block rewritten to match the "Create New File" style of the others.
-
-### Create New File: `docs/splunk-observability.md`
+### 1\. Create New File: `docs/splunk-observability.md`
 
 *Action: Create this file in the `docs/` folder.*
 
@@ -69,3 +67,97 @@ This document details our **Hybrid Log Aggregation** strategy using Splunk. We t
 * **Policy:** "Hot" storage for 7 days (NVMe SSD) for fast searching, moving to "Cold" storage (S3-backed) for long-term compliance.
 * **Impact:** Balances search performance with storage costs.
 ```
+
+-----
+
+### 2\. Create: `docs/prometheus-grafana.md`
+
+*Action: Create this new file in the `docs/` folder.*
+
+```markdown
+# Prometheus & Grafana Architecture
+
+## Overview
+This document outlines the **Metrics-First** observability strategy using the cloud-native Prometheus stack. While Splunk handles logs, Prometheus provides the high-speed, real-time "heartbeat" of the cluster.
+
+## Architecture Decisions
+
+### The "Pull" Model
+Unlike the "Push" model used by Datadog/Splunk agents, Prometheus **scrapes** metrics from targets.
+* **Decision:** We use the `ServiceMonitor` Custom Resource Definition (CRD).
+* **Why:** It allows development teams to define *how* their app should be scraped (port, path, interval) alongside their application code, adhering to self-service principles.
+
+### High Availability (Thanos Integration)
+* **Challenge:** Prometheus is stateful and difficult to scale horizontally.
+* **Solution:** We deploy **Thanos Sidecars** to upload old metric blocks to Object Storage (S3/GCS).
+* **Impact:** Enables unlimited retention and a global query view across multiple clusters without bloating local disk.
+
+### Dashboards as Code
+* **Policy:** No manual edits in the Grafana UI.
+* **Workflow:** Dashboards are defined as JSON in the `helm/monitoring-stack/dashboards` folder.
+* **Automation:** A sidecar container watches that folder and calls the Grafana API to reload changes instantly.
+```
+
+-----
+
+### 3\. Create: `docs/datadog-observability.md`
+
+*Action: Create this new file in the `docs/` folder.*
+
+```markdown
+# Datadog Unified Observability
+
+## Overview
+This document details the integration of **Datadog** as our primary SaaS observability platform for Application Performance Monitoring (APM) and Infrastructure correlation.
+
+## Architecture Decisions
+
+### The Unified Agent (DaemonSet)
+* **Decision:** We deploy the Datadog Agent as a DaemonSet on every node.
+* **Why:** It automatically collects host-level metrics (CPU/Mem), container logs, and network traces without sidecars.
+* **Config:** Managed via the `helm/datadog` chart using `values.yaml` overrides for different environments.
+
+### APM & Trace Sampling
+* **Challenge:** Ingesting 100% of traces is cost-prohibitive.
+* **Strategy:** We utilize **Tail-Based Sampling** logic.
+    * **Keep:** All traces with `error=true` or `latency > 2s`.
+    * **Drop:** 99% of successful health checks (`200 OK`).
+
+### Tagging Strategy (Unified Service Tagging)
+* **Policy:** Every resource must possess three standard tags: `env`, `service`, and `version`.
+* **Enforcement:** Validated by the OPA Gatekeeper policy in the `gitops/policies` directory.
+* **Value:** Enables "Pivot" navigation in Datadog (jumping from Logs -> Metrics -> Traces for a specific version).
+```
+
+-----
+
+### 4\. Create: `docs/dynatrace-intelligence.md`
+
+*Action: Create this new file in the `docs/` folder.*
+
+```markdown
+# Dynatrace & Davis AI Integration
+
+## Overview
+This document covers the **Dynatrace** implementation, specifically focusing on its use for **Automated Root Cause Analysis (RCA)** via the Davis AI engine.
+
+## Architecture Decisions
+
+### Operator-Based Injection
+* **Decision:** We use the Dynatrace Operator (`dynatrace-operator`) rather than manual OneAgent installation.
+* **Why:** It utilizes a MutatingWebhook to automatically inject the OneAgent loader into application pods at runtime.
+* **Impact:** Zero-touch instrumentation. Developers do not need to add libraries to their Dockerfiles.
+
+### PurePath Distributed Tracing
+* **Concept:** Dynatrace captures 100% of transactions (PurePaths) without sampling at the agent level.
+* **Usage:** Used primarily for deep-dive debugging of complex microservice interactions that span hybrid clouds (e.g., On-Prem Database -> GKE Microservice).
+
+### Problem Detection Profiles
+* **Config:** Custom alerting profiles are defined in `helm/dynatrace/profiles`.
+* **Tuning:** We have tuned Davis AI to ignore "frequent but harmless" warnings (like transient high CPU during startup) to reduce alert fatigue.
+```
+
+-----
+
+#### Interview Talking Point
+"I documented all four major platforms (Splunk, Prometheus, Datadog, Dynatrace) in my docs/ folder to demonstrate Tool Agnosticism. In my experience, large organizations rarely have just one tool—they might use Prometheus for cheap metrics, Splunk for security logs, and Dynatrace for AIOps. As a Senior SRE, my job isn't to be a fanboy of one tool, but to architect a platform that can integrate any of them based on business cost/value requirements."
