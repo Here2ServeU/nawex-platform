@@ -6,12 +6,12 @@ These manifests act as the binding layer between the Git repository and the Kube
 
 ## Directory Structure
 
-* **`app-splunk-forwarder.yaml`**: An ArgoCD `Application` resource that points to the `helm/splunk-forwarder` chart. It defines:
-    * **Source:** The Git repo URL and the specific revision (`HEAD` or a tag).
-    * **Destination:** The target cluster and namespace (`monitoring`).
-    * **Sync Policy:** Configuration for automated self-healing.
+* **`app-splunk-forwarder.yaml`**: ArgoCD definition for the Splunk Universal Forwarder (Log Shipping).
+* **`app-monitoring-stack.yaml`**: ArgoCD definition for the Prometheus & Grafana stack (Metrics & Dashboards).
+* **`app-datadog.yaml`**: ArgoCD definition for the Datadog Agent (Unified Observability).
+* **`app-dynatrace.yaml`**: ArgoCD definition for the Dynatrace Operator (Full-Stack Intelligence).
 
-*(Future Application manifests for other services like `express-app` or `kafka` will reside here as well, following the same pattern.)*
+*(All manifests follow the standard "App of Apps" pattern, pointing to their respective charts in `helm/`.)*
 
 ## Core Capabilities & SRE Value
 
@@ -26,7 +26,7 @@ These manifests act as the binding layer between the Git repository and the Kube
 * **Impact:** **One-Click Disaster Recovery.** We can spin up a brand new production cluster in a new region by applying a single manifest.
 
 ### 3. Progressive Delivery Control
-* **Problem:** deploying a broken config to all environments simultaneously.
+* **Problem:** Deploying a broken config to all environments simultaneously.
 * **Solution:** These manifests allow us to override `values.yaml` for specific environments (e.g., setting `replicaCount: 1` for Staging vs `replicaCount: 50` for Prod) without changing the underlying Helm chart.
 * **Impact:** **Safe Rollouts.** We can test changes in Staging using the exact same artifacts that will go to Production.
 
@@ -38,7 +38,7 @@ These manifests act as the binding layer between the Git repository and the Kube
 3. Point the `source.path` to your Helm chart (e.g., `helm/my-service`).
 4. Commit to Git. ArgoCD will automatically pick it up and deploy it.
 
-**Example Manifest:**
+**Example Manifest (Splunk):**
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -60,5 +60,6 @@ spec:
       selfHeal: true
 ````
 
-### Interview Talking Point:
-> I organize my `gitops/argocd` folder to separate the *definition* of the app from the *deployment* of the app. By keeping these manifests distinct from the Helm charts, I can manage multi-cluster deployments easily—for example, I can have an `app-prod.yaml` and `app-stage.yaml` that both point to the same chart but apply different sync policies.
+### Talking Point
+
+> I organize my `gitops/argocd` folder to separate the *definition* of the app from the *deployment* of the app. By keeping these manifests distinct from the Helm charts, I can manage multi-cluster deployments easily. For example, I can have an `app-prod.yaml` and `app-stage.yaml` that both point to the same chart but apply different sync policies or environment variables.
