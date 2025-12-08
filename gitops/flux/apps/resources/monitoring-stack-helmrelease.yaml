@@ -1,0 +1,19 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: monitoring-stack
+  namespace: flux-system # The namespace where the HelmRelease CR lives
+spec:
+  targetNamespace: monitoring # Where the actual pods will go
+  interval: 5m
+  chart:
+    spec:
+      chart: ./helm/monitoring-stack
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    # Overrides for specific environments can go here
+    grafana:
+      adminPassword: "change-me-in-production"
