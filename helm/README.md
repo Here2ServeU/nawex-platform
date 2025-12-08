@@ -1,6 +1,6 @@
 # Helm Chart Repository & Service Catalog
 
-This directory acts as the **Internal Service Catalog** for the platform. It contains the custom Helm charts used to deploy the core infrastructure and applications to Kubernetes (GKE).
+This directory acts as the **Internal Service Catalog** for the platform. It contains the custom Helm charts used to deploy the core infrastructure and applications to Kubernetes (EKS, AKS, GKE, or OKE).
 
 These charts are designed to be **immutable blueprints**, ensuring that every deployment—whether in Staging or Production—adheres to the same reliability, security, and observability standards.
 
