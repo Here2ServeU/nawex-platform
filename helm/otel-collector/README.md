@@ -48,5 +48,5 @@ Developers simply point their application SDKs to the local node:
   * **Endpoint:** `otel-collector.monitoring.svc.cluster.local:4317`
   * **Protocol:** OTLP (gRPC)
 
-### Interview Talking Point:
+### Talking Point:
 > I implemented the **OpenTelemetry Collector** because I believe in **'Instrumentation once, send anywhere.'** In my previous roles, I saw how painful it was to rip out proprietary agents when contracts changed. By using this OTel chart, I've future-proofed the platform—we can switch from AWS X-Ray to Jaeger to Honeycomb just by changing a few lines of YAML in this chart, without bothering a single developer.
