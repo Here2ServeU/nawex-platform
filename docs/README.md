@@ -6,7 +6,7 @@ Following the **"Docs-as-Code"** methodology, all documentation is version-contr
 
 ## Directory Structure
 
-### 1. Architectural Deep Dives
+### Architectural Deep Dives
 These documents detail the implementation strategies for our observability backends.
 
 * **File:** [`splunk-observability.md`](./splunk-observability.md)
@@ -25,28 +25,59 @@ These documents detail the implementation strategies for our observability backe
     * **Focus:** **AI-Driven Root Cause Analysis.**
     * **Key Decisions:** OneAgent Operator deployment, Davis AI integration for automated problem detection, and "PurePath" distributed tracing.
 
------
-
-### 2. Diagrammatic Source Code (`diagrams/`)
-
-```markdown
+### Diagrammatic Source Code (`diagrams/`)
 * **Focus:** **Visual Architecture.**
 * **Content:** Contains the *source code* for system diagrams, primarily using **Mermaid.js** (`.mmd`).
 * **Why Code?** Unlike static PNGs, these text-based diagrams can be edited, versioned, and rendered dynamically.
 
 ## Documentation Standards
-**1. Context over Config:** We explain the *why*, not just the *what*.
-**2. Living Artifacts:** Every PR that changes the stack must update these docs.
-**3. Incident Readiness:** Written for the "3 AM On-Call Engineer."
+1. **Context over Config:** We explain the *why*, not just the *what*.
+2. **Living Artifacts:** Every PR that changes the stack must update these docs.
+3. **Incident Readiness:** Written for the "3 AM On-Call Engineer."
 ```
 
 -----
 
-### 2\. Create New File: `docs/prometheus-grafana.md`
+### 2\. `docs/splunk-observability.md`
 
-*Action: Create this file in the `docs/` folder.*
+*Create this file. This was the missing piece you requested.*
 
-```markdown 
+```markdown
+# Splunk Log Aggregation Strategy
+
+## Overview
+This document details our **Hybrid Log Aggregation** strategy using Splunk. We treat logs as our "Source of Truth" for forensic analysis and security auditing, prioritizing 100% data retention and tamper-proof storage.
+
+## Architecture Decisions
+
+### 1. Universal Forwarder (DaemonSet)
+* **Decision:** We deploy the Splunk Universal Forwarder (UF) as a DaemonSet on every Kubernetes node.
+* **Why:** This provides the most resource-efficient way to capture standard container logs (`stdout`/`stderr`). A single agent per node handles all pod traffic, preventing the "sidecar bloat" that occurs when running logging agents inside every pod.
+* **Config:** The UF monitors `/var/log/containers/*.log` and decorates events with Kubernetes metadata (Namespace, Pod Name, Container ID) before shipping.
+
+### 2. HTTP Event Collector (HEC)
+* **Decision:** We enable the HTTP Event Collector (HEC) for serverless and event-driven workloads.
+* **Why:** Traditional file tailing doesn't work for ephemeral functions (like AWS Lambda or Google Cloud Functions) or third-party webhooks. HEC allows these services to POST JSON payloads directly to Splunk.
+* **Security:** Tokens are managed via Kubernetes Secrets (see `helm/splunk-hec/templates/secret.yaml`) and rotated quarterly.
+
+### 3. Index Segmentation (Security & Compliance)
+* **Strategy:** We segregate data into distinct indexes based on sensitivity and retention requirements.
+    * **`main` Index:** Application logs. Retention: 30 days. Accessible by all developers.
+    * **`audit` Index:** Authentication logs, sudo commands, and K8s API audit trails. Retention: 1 year (Cold Storage). Accessible only by Security/SRE.
+    * **`pci` Index:** Logs from the payment gateway namespace. Strict access controls applied.
+
+### 4. Data Retention & Lifecycle
+* **Policy:** "Hot" storage for 7 days (NVMe SSD) for fast searching, moving to "Cold" storage (S3-backed) for long-term compliance.
+* **Impact:** Balances search performance with storage costs.
+```
+
+-----
+
+### 3\. `docs/prometheus-grafana.md`
+
+*Create this file.*
+
+```markdown
 # Prometheus & Grafana Architecture
 
 ## Overview
@@ -72,9 +103,9 @@ Unlike the "Push" model used by Datadog/Splunk agents, Prometheus **scrapes** me
 
 -----
 
-### 3\. Create New File: `docs/datadog-observability.md`
+### 4\. `docs/datadog-observability.md`
 
-*Action: Create this file in the `docs/` folder.*
+*Create this file.*
 
 ```markdown
 # Datadog Unified Observability
@@ -103,9 +134,9 @@ This document details the integration of **Datadog** as our primary SaaS observa
 
 -----
 
-### 4\. Create New File: `docs/dynatrace-intelligence.md`
+### 5\. `docs/dynatrace-intelligence.md`
 
-*Action: Create this file in the `docs/` folder.*
+*Create this file.*
 
 ```markdown
 # Dynatrace & Davis AI Integration
@@ -128,7 +159,3 @@ This document covers the **Dynatrace** implementation, specifically focusing on 
 * **Config:** Custom alerting profiles are defined in `helm/dynatrace/profiles`.
 * **Tuning:** We have tuned Davis AI to ignore "frequent but harmless" warnings (like transient high CPU during startup) to reduce alert fatigue.
 ```
-
-### Interview Talking Point
-
-> "I documented all four major platforms (Splunk, Prometheus, Datadog, Dynatrace) in my `docs/` folder to demonstrate **Tool Agnosticism**. In my experience, large organizations rarely have just one tool—they might use Prometheus for cheap metrics, Splunk for security logs, and Dynatrace for AIOps. As a Senior SRE, my job isn't to be a fanboy of one tool, but to architect a platform that can integrate *any* of them based on business cost/value requirements."
