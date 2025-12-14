@@ -25,6 +25,15 @@ services:
     networks:
       - monitoring
 
+  aiops:
+    build: ./aiops_engine
+    environment:
+      - SLACK_WEBHOOK_URL=https://hooks.slack.com/services/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
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring
+
 networks:
   monitoring:
     driver: bridge
