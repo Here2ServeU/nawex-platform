@@ -66,8 +66,10 @@ Ensure these are in your `/scripts` folder and are executable (`chmod +x`).
 
 ---
 
-## Q&A "Consultant Checks" (Cheat Sheet)| Question | Expert Answer |
-| --- | --- |
+## Q&A "Consultant Checks" (Cheat Sheet)
+
+| Question | Expert Answer |
+| :--- | :--- |
 | **"Why is there a gap in the data?"** | "Likely a missed scrape interval (default 15s) or a container restart. In prod, I'd use `absent()` alerts to catch this." |
 | **"How do we secure this?"** | "For production, I'd place Grafana behind an OAuth proxy (like Google Auth) and enforce mTLS between Prometheus and targets." |
 | **"Can we scale this globally?"** | "Prometheus is great for single clusters. For global scale, I would integrate **Thanos** or **Cortex** for long-term storage and federated querying." |
