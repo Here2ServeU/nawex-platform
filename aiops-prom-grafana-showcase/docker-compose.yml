@@ -1,34 +1,41 @@
-version: '3.8'
 services:
   app:
-    build: .
+    container_name: aiops-prom-grafana-showcase-app
+    build:
+      context: ./app
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000" # The Node App
+      - "3000:3000"
     networks:
       - monitoring
 
   prometheus:
     image: prom/prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    container_name: prometheus
     ports:
       - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - monitoring
 
   grafana:
     image: grafana/grafana
+    container_name: grafana
     ports:
-      - "3001:3000" # HOST 3001 maps to CONTAINER 3000
+      - "3001:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - monitoring
 
   aiops:
-    build: ./aiops_engine
+    platform: linux/amd64
+    build:
+      context: ./aiops-service
+      dockerfile: Dockerfile
     environment:
-      - SLACK_WEBHOOK_URL=https://hooks.slack.com/services/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
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
     depends_on:
       - prometheus
     networks:

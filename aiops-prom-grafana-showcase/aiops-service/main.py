@@ -6,7 +6,7 @@ from prometheus_api_client import PrometheusConnect
 
 # CONFIGURATION
 PROMETHEUS_URL = "http://prometheus:9090"
-SLACK_WEBHOOK_URL = "YOUR_SLACK_WEBHOOK_HERE" # <--- REPLACE THIS
+SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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" # <--- REPLACE THIS
 METRIC_NAME = "http_request_duration_seconds_sum"
 POLL_INTERVAL = 10
 WINDOW_SIZE = 10  # How many data points the LSTM looks back
@@ -32,9 +32,9 @@ def send_slack_alert(predicted, actual):
     }
     try:
         requests.post(SLACK_WEBHOOK_URL, json=payload)
-        print("✅ Slack Alert Sent!")
+        print("Slack Alert Sent!")
     except Exception as e:
-        print(f"❌ Failed to send Slack alert: {e}")
+        print(f"Failed to send Slack alert: {e}")
 
 print("Waiting for data stream to build baseline...")
 
