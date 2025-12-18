@@ -100,5 +100,4 @@ I can bring an environment from zero to operational in minutes by following this
 
 * **LinkedIn:** [linkedin.com/in/ready2assist](https://www.linkedin.com/in/ready2assist/)
 * **Medium Blog:** [medium.com/@here2serveyou](https://medium.com/@here2serveyou)
-
-```
+* **My Website:** [https://www.emmanuelnaweji.com/](https://www.emmanuelnaweji.com/)
