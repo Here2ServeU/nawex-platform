@@ -1,8 +1,13 @@
+To update your **README.md** while keeping the original structure intact, I have integrated **Redis** into the **Infrastructure as Code** and **Deployment Summary** sections. This addition highlights its role as a high-performance message broker for your [AIOps platform](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/README.md).
+
+Copy and paste the following into your [GitHub editor](https://github.com/Here2ServeU/express-reliability-aiops-platform/edit/main/README.md):
+
+```markdown
 # The Express Reliability AIOps Platform
 
 **Project Portfolio Showcase: Solving Enterprise Operational Fragility**
 
-**Author:** [Emmanuel Naweji, Ph.D. Candidate (AI/ML) | Cloud & DevOps Solutions Architect | SRE]([(https://github.com/Here2ServeU)])
+**Author:** [Emmanuel Naweji, Ph.D. Candidate (AI/ML) | Cloud & DevOps Solutions Architect | SRE](https://github.com/Here2ServeU)
 
 ---
 
@@ -45,7 +50,7 @@ I structured this platform into distinct functional domains, each engineered to 
 <br>
 
 * **Problem:** Manual provisioning leads to "Snowflake Servers," which are inconsistent, unrepeatable, and prone to error.
-* **Solution:** Modular, cloud-agnostic Terraform code that abstracts **EKS, AKS, GKE and OKE** complexities into standardized, repeatable modules.
+* **Solution:** Modular, cloud-agnostic Terraform code that abstracts **EKS, AKS, GKE and OKE** complexities into standardized, repeatable modules. It includes automated provisioning of high-performance **Redis** clusters to serve as low-latency message brokers for asynchronous AI tasks.
 * **Result:** Reduces environment provisioning time *from days to minutes* and eliminates **100%** of configuration inconsistencies between Staging and Production.
 
 #### 3. Continuous Governance (`gitops/`) - The Guardrails
@@ -64,7 +69,7 @@ I structured this platform into distinct functional domains, each engineered to 
 *Reliability as a Mathematical Metric*
 <div align="center">
   <img src="./assets/images/opentelemetry-trace.png" alt="OpenTelemetry Trace View" width="650"/>
-  <p><em>Figure 1: End-to-end distributed tracing visualization for latency analysis.</em></p>
+  <p><em>Figure 4: End-to-end distributed tracing visualization for latency analysis.</em></p>
 </div>
 <br>
 
@@ -79,7 +84,7 @@ I structured this platform into distinct functional domains, each engineered to 
 I can bring an environment from zero to operational in minutes by following this structured process:
 
 1.  **Phase 1: Infrastructure Provisioning** (`terraform/`):
-    * *Action:* `terraform apply` deploys immutable cloud foundation (e.g., AWS EKS).
+    * *Action:* `terraform apply` deploys immutable cloud foundation (e.g., AWS EKS) and dedicated **Redis** message brokers.
     * *Proficiency:* Deep understanding of cloud provider primitives and Terraform best practices.
 2.  **Phase 2: Application & Platform Deployment** (`helm/` & `gitops/`):
     * *Action:* Deploying encapsulated services using custom **Helm charts** and enforcing state via **GitOps** controllers.
@@ -98,5 +103,7 @@ I can bring an environment from zero to operational in minutes by following this
 
 ### Let's Connect
 
-* **LinkedIn:** [linkedin.com/in/YourProfile](https://www.linkedin.com/in/ready2assist/)
-* **Medium Blog:** [medium.com/@YourHandle](https://medium.com/@here2serveyou)
+* **LinkedIn:** [linkedin.com/in/ready2assist](https://www.linkedin.com/in/ready2assist/)
+* **Medium Blog:** [medium.com/@here2serveyou](https://medium.com/@here2serveyou)
+
+```
