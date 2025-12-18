@@ -31,7 +31,17 @@ These charts are designed to be **immutable blueprints**, ensuring that every de
 
 ---
 
-### 2. Traffic Management & Security
+### 2. High-Speed Data Transport & State
+*These charts manage the high-speed data transport required for background tasks and asynchronous AI processing.*
+
+#### `redis/`
+* **Purpose:** Deploys an isolated **Redis** instance as a high-performance message broker.
+* **Problem Solved:** **Synchronous Bottlenecks.** Prevents primary application APIs from slowing down by offloading intensive AI/ML remediation tasks to background workers.
+* **Value:** Provides a low-latency transport layer for [Celery](https://github.com/celery/celery) task queues, enabling distributed and asynchronous AI-driven infrastructure remediation.
+
+---
+
+### 3. Traffic Management & Security
 *These charts enforce "Zero Trust" networking and manage ingress traffic.*
 
 #### `service-mesh/`
@@ -46,7 +56,7 @@ These charts are designed to be **immutable blueprints**, ensuring that every de
 
 ---
 
-### 3. Application & Developer Experience
+### 4. Application & Developer Experience
 *These charts standardize how developers interact with the platform.*
 
 #### `express-app/`
