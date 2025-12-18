@@ -48,3 +48,13 @@ module "eks_cluster" {
 #   source = "../../../modules/data/aws-rds"
 #   ...
 # }
+
+# 4. Redis
+module "redis_celery" {
+  source            = "../../modules/redis"
+  env               = "prod"
+  cluster_id        = "aiops-prod-redis"
+  node_type         = "cache.t3.micro"
+  security_group_id = module.vpc.internal_sg_id
+  subnet_group_name = module.vpc.private_subnet_group
+}
