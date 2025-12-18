@@ -1,8 +1,3 @@
-To update your **README.md** while keeping the original structure intact, I have integrated **Redis** into the **Infrastructure as Code** and **Deployment Summary** sections. This addition highlights its role as a high-performance message broker for your [AIOps platform](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/README.md).
-
-Copy and paste the following into your [GitHub editor](https://github.com/Here2ServeU/express-reliability-aiops-platform/edit/main/README.md):
-
-```markdown
 # The Express Reliability AIOps Platform
 
 **Project Portfolio Showcase: Solving Enterprise Operational Fragility**
