@@ -1,1 +1,42 @@
-
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: edge-gateway-config
+  namespace: clinical-robotics
+data:
+  edge_node_id: "EDGE-LOCAL-01"
+  surgical_theater: "OR-7"
+  failover_priority: "CRITICAL"
+  local_buffer_size_gb: "64"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-safety-controller
+  namespace: clinical-robotics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: safety-controller
+  template:
+    metadata:
+      labels:
+        app: safety-controller
+    spec:
+      containers:
+      - name: safety-agent
+        image: emmanuelnaweji/clinical-safety-agent:latest
+        ports:
+        - containerPort: 50051 # gRPC for low-latency telemetry
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+        volumeMounts:
+        - name: local-persistence
+          mountPath: /data/forensics
+      volumes:
+      - name: local-persistence
+        hostPath:
+          path: /mnt/clinical-data
