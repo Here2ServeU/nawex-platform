@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 class SafetyInterceptor:
     def __init__(self, policy_path="failover_policy.json"):
@@ -38,7 +39,27 @@ class SafetyInterceptor:
             print(f"\n[POLICY ENFORCED] Action: {action_type}")
             print(f"Reason: {reason}")
             print(f"Compliance: {self.policy['governance']['compliance_standard']}")
+            
+            # Generate the Forensic Incident Report
+            self.generate_incident_report(action_type, reason)
             self.failover_active = True
+
+    def generate_incident_report(self, action, reason):
+        """Generates a forensic-level audit trail for medical board review."""
+        report = {
+            "incident_id": f"INC-{int(time.time())}",
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "policy_applied": self.policy.get("policy_name"),
+            "intervention": action,
+            "root_cause_analysis": reason,
+            "compliance_verification": self.policy['governance']['compliance_standard'],
+            "status": "AUTONOMOUS_FAILOVER_COMPLETE"
+        }
+        
+        file_name = f"clinical_incident_{report['incident_id']}.json"
+        with open(file_name, 'w') as f:
+            json.dump(report, f, indent=4)
+        print(f">>> Forensic Audit Log Created: {file_name}")
 
 # --- Practical Test with Clinical Policy ---
 interceptor = SafetyInterceptor()
