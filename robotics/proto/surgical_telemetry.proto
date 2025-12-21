@@ -1,1 +1,41 @@
 
+syntax = "proto3";
+
+package clinical_robotics;
+
+// The Surgical Telemetry service for high-frequency data streaming.
+service SurgicalTelemetry {
+  // Bi-directional stream for real-time kinematic feedback and safety commands.
+  rpc StreamTelemetry(stream TelemetryPacket) returns (stream SafetyCommand);
+}
+
+message TelemetryPacket {
+  string device_id = 1;
+  string timestamp = 2;
+  
+  message Kinematics {
+    double joint_vibration_index = 1;
+    double motor_temp_celsius = 2;
+    double torque_nm = 3;
+  }
+  
+  message Network {
+    double cloud_rtt_ms = 1;
+    double packet_loss_pct = 2;
+  }
+  
+  Kinematics kinematics = 3;
+  Network network = 4;
+}
+
+message SafetyCommand {
+  enum Action {
+    NOMINAL = 0;
+    REROUTE_TO_EDGE = 1;
+    SAFE_STATE_TRANSITION = 2;
+    EMERGENCY_STOP = 3;
+  }
+  Action recommended_action = 1;
+  string reason = 2;
+  string command_id = 3;
+}
