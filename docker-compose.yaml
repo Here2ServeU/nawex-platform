@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # The Nervous System: High-frequency gRPC Server
+  surgical-brain:
+    build:
+      context: .
+      dockerfile: robotics/grpc/Dockerfile
+    container_name: surgical_brain_server
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./robotics/logs:/app/robotics/logs
+    networks:
+      - clinical-net
+
+  # The Robot: Telemetry Client simulating kinematic stress
+  surgical-robot:
+    build:
+      context: .
+      dockerfile: robotics/grpc/Dockerfile
+    container_name: surgical_robot_client
+    depends_on:
+      - surgical-brain
+    command: python3 robotics/grpc/surgical_client.py
+    networks:
+      - clinical-net
+
+  # The Watchdog: Ensuring 99.999% availability of safety agents
+  safety-watchdog:
+    image: alpine:latest
+    container_name: clinical_safety_watchdog
+    volumes:
+      - ./robotics/agents:/agents
+      - ./robotics/logs:/logs
+    entrypoint: /bin/sh /agents/agent_health_check.sh
+    depends_on:
+      - surgical-brain
+    networks:
+      - clinical-net
+
+networks:
+  clinical-net:
+    driver: bridge
