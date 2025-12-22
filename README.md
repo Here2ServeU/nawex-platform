@@ -73,7 +73,3 @@ Developed with insights from my **Ph.D. candidacy in AI/ML** combined with **ove
 * **LinkedIn:** [linkedin.com/in/ready2assist](https://www.linkedin.com/in/ready2assist/)
 * **Medium Blog:** [medium.com/@here2serveyou](https://medium.com/@here2serveyou)
 * **My Website:** [emmanuelnaweji.com](https://www.emmanuelnaweji.com/)
-
----
-
-**Would you like me to generate the directory structure and the "Safety Protocol" script to populate that new `robotics/` folder?**
