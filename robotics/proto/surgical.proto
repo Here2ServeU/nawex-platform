@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package surgical;
+
+// The Surgical Brain service definition.
+service SurgicalBrain {
+  // Unary call: Robot sends current state, Brain acknowledges.
+  rpc SendTelemetry (TelemetryRequest) returns (TelemetryResponse) {}
+
+  // Server-side streaming: Brain sends continuous control signals to the Robot.
+  rpc StreamControlSignals (ControlRequest) returns (stream ControlSignal) {}
+}
+
+message TelemetryRequest {
+  string robot_id = 1;
+  double kinematic_stress_level = 2; // 0.0 to 1.0
+  float joint_angle_error = 3;
+  int64 timestamp = 4;
+}
+
+message TelemetryResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ControlRequest {
+  string robot_id = 1;
+}
+
+message ControlSignal {
+  string command = 1; // e.g., "ADJUST_TENSION", "HALT"
+  float adjustment_value = 2;
+}
