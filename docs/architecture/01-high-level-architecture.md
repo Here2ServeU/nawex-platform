@@ -16,7 +16,7 @@ The **Express-Reliability AIOps Platform** is a specialized ecosystem designed t
 | --- | --- | --- |
 | **Inference** | [AI Brain](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai) | Deep learning engine processing time-series data for anomaly detection. |
 | **Telemetry** | [Robotics Collector](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics) | High-fidelity data ingestion from edge-based clinical devices. |
-| **Orchestration** | [Multi-Cloud IaC](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) | Automated provisioning across EKS, AKS, and OKE for geographical redundancy. |
+| **Orchestration** | [Multi-Cloud IaC](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) | Automated provisioning across EKS, AKS, GCP, and OKE for geographical redundancy. |
 | **Operations** | [SRE Framework](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/sre) | SLO-driven alerting and automated incident response playbooks. |
 
 ## Strategic Value Proposition
