@@ -33,9 +33,3 @@ The integration between the [AI Brain](https://github.com/Here2ServeU/express-re
 
 Every failover event, whether manual or automated by AI, is captured in the [HIPAA-compliant immutable logs](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs). This ensures that even during high-velocity resilience maneuvers, the platform maintains a full audit trail for regulatory bodies.
 
----
-
-### Integration Step
-
-You can now create the file [05-active-active-resilience.md](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main) in your `docs/architecture` directory to finalize this section of your portfolio.
-
