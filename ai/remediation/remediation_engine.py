@@ -44,7 +44,7 @@ def execute_action(action: Union[str, Dict[str, Any]]) -> bool:
         action_name = action.get('action', 'unknown')
         params = action.get('params', {})
 
-    logger.info(f"🚀 Initiating remediation action: {action_name}")
+    logger.info(f"Initiating remediation action: {action_name}")
 
     try:
         # Dispatch to specific handlers
@@ -60,7 +60,7 @@ def execute_action(action: Union[str, Dict[str, Any]]) -> bool:
             return False
 
     except Exception as e:
-        logger.error(f"❌ Action execution failed: {str(e)}")
+        logger.error(f"Action execution failed: {str(e)}")
         return False
 
 # --- Private Action Handlers (Simulated for this portfolio) ---
@@ -72,7 +72,7 @@ def _scale_deployment(params: Dict[str, Any]) -> bool:
     time.sleep(0.5) # Simulate API latency
     logger.info(f"[K8s] Scaling Deployment '{target}' from 2 -> 4 replicas...")
     time.sleep(1)
-    logger.info(f"✅ Successfully scaled '{target}'. Load balanced.")
+    logger.info(f"Successfully scaled '{target}'. Load balanced.")
     return True
 
 def _restart_service(params: Dict[str, Any]) -> bool:
@@ -80,12 +80,12 @@ def _restart_service(params: Dict[str, Any]) -> bool:
     target = params.get('target', 'backend-api')
     logger.info(f"[K8s] Initiating rolling restart for '{target}'...")
     time.sleep(1.5)
-    logger.info(f"✅ Rolling restart complete. New pods are healthy.")
+    logger.info(f"Rolling restart complete. New pods are healthy.")
     return True
 
 def _optimize_resources(params: Dict[str, Any]) -> bool:
     """Simulates applying vertical autoscaling."""
     logger.info(f"[FinOps] Analyzing resource usage vs. requests...")
     time.sleep(0.5)
-    logger.info(f"✅ Adjusted CPU limits to reduce waste by 15%.")
+    logger.info(f"Adjusted CPU limits to reduce waste by 15%.")
     return True
