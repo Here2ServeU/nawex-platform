@@ -1,30 +1,41 @@
 graph TD
-    subgraph "Clinical Environment (Robotics Edge)"
-        A[Kinematic Telemetry Sensors] -->|Real-time Stream| B(Agentic Clinical Safety Nodes)
+    %% Global Styles
+    classDef predictive stroke:#f39c12,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef infra fill:#2c3e50,color:#fff,stroke:#34495e;
+    classDef healthcare fill:#e74c3c,color:#fff,stroke:#c0392b;
+
+    subgraph Edge ["<b>Robotics Edge Layer (Clinical Environment)</b>"]
+        A[/"Kinematic Sensors (IoT)"/] --- B("Agentic Safety Node")
     end
 
-    subgraph "AIOps Platform (Multi-Cloud Control Plane)"
-        B -->|gRPC/Protobuf| C{Data Ingestion Layer}
-        C --> D[Prometheus/Grafana Metrics]
+    subgraph Platform ["<b>AIOps Control Plane (Multi-Cloud)</b>"]
+        B -->|gRPC / TLS 1.3| C{"Data Orchestrator"}
         
-        subgraph "AI Brain (Predictive Engine)"
-            C --> E[[LSTM/TCN Inference Model]]
-            E --> F{Failure Prediction}
+        subgraph AI_Engine ["Predictive Intelligence"]
+            C --> D[["LSTM/TCN Model"]]
+            D --> E{"Risk Scoring"}
         end
+
+        C -.-> F[("Telemetry Store")]
     end
 
-    subgraph "SRE & Resilience (Automated Response)"
-        F -->|High Probability Incident| G[ArgoCD/GitOps Re-provisioning]
-        F -->|Anomaly Detected| H[Self-Healing Script/Ansible]
-        G --> I[Active-Active Failover]
+    subgraph Response ["<b>Resilience Engine (SRE)</b>"]
+        E -->|Critical| G{{"GitOps (ArgoCD)"}}
+        E -->|Warning| H{{"Self-Healing Script"}}
+        
+        G --> I[<b>Active-Active Failover</b>]
         H --> I
     end
 
-    subgraph "Governance & Compliance"
-        I --> J[HIPAA Audit Logs]
-        J --> K[Executive Dashboard]
+    subgraph Compliance ["<b>Governance & Audit</b>"]
+        I --> J["HIPAA / HDS Logs"]
+        J --> K["Executive SLM Dashboard"]
     end
 
-    style E fill:#f9f,stroke:#333,stroke-width:4px
-    style I fill:#00ff00,stroke:#333,stroke-width:2px
-    style F color:#fff,fill:#ff0000,stroke:#333
+    %% Apply Styles
+    class D,E predictive;
+    class B,A healthcare;
+    class G,I,C infra;
+
+    %% Add Legend/Key as a Note
+    Note["Predictive Logic (LSTM/TCN) mapped to Clinical Safety SLOs"]
