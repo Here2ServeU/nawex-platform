@@ -6,7 +6,7 @@ The **Predictive Reliability Framework (PRF)** is the core intelligence of the p
 
 ## The Multi-Cloud Dual-Model Approach
 
-The platform utilizes a hybrid inference strategy across [AWS/Azure/OCI](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md) and [GCP](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md) to balance accuracy and performance:
+The platform utilizes a hybrid inference strategy across [AWS/Azure/GCP/OCI/](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md) to balance accuracy and performance:
 
 1. **LSTM (Long Short-Term Memory)**: Used for long-range trend analysis of system health and resource consumption to identify gradual degradation.
 2. **TCN (Temporal Convolutional Network)**: Optimized for detecting rapid, high-frequency anomalies in robotics sensor data where local context is critical for safety.
