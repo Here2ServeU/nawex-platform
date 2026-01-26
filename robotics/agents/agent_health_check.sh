@@ -3,25 +3,49 @@
 # --- CONFIGURATION ---
 AGENT_PROCESS="safety_interceptor.py"
 LOG_FILE="../logs/agent_health.log"
-CHECK_INTERVAL=5 # Seconds
+CHECK_INTERVAL=5 
+MAX_RETRIES=5
+RETRY_COUNT=0
+# Replace with your actual Slack Webhook URL
+SLACK_WEBHOOK_URL="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
 
-echo "[$(date)] Starting Health Check Watchdog for $AGENT_PROCESS..."
-
-# Ensure the logs directory exists
+# Ensure robust path handling
+cd "$(dirname "$0")"
 mkdir -p ../logs
 
+echo "[$(date)] Starting Reliability Watchdog for $AGENT_PROCESS..." | tee -a "$LOG_FILE"
+
+send_alert() {
+    local message="$1"
+    echo "[$(date)] SENDING ALERT: $message" >> "$LOG_FILE"
+    # Payload for Slack notification
+    curl -X POST -H 'Content-type: application/json' \
+    --data "{\"text\":\"*AIOPS ALERT:* $message\"}" "$SLACK_WEBHOOK_URL" > /dev/null 2>&1
+}
+
 while true; do
-    # Check if the safety agent process is running
     if ! pgrep -f "$AGENT_PROCESS" > /dev/null; then
-        echo "[$(date)] ALERT: $AGENT_PROCESS is down. Restarting..." >> "$LOG_FILE"
+        RETRY_COUNT=$((RETRY_COUNT + 1))
         
-        # Action: Restart the agent in the background
-        python3 "$AGENT_PROCESS" >> "$LOG_FILE" 2>&1 &
-        
-        echo "[$(date)] SUCCESS: $AGENT_PROCESS has been resurrected." >> "$LOG_FILE"
+        echo "[$(date)] ALERT: $AGENT_PROCESS is down (Attempt $RETRY_COUNT/$MAX_RETRIES)." >> "$LOG_FILE"
+        send_alert "Process $AGENT_PROCESS is down. Attempting resurrection $RETRY_COUNT/$MAX_RETRIES."
+
+        if [ "$RETRY_COUNT" -le "$MAX_RETRIES" ]; then
+            python3 "$AGENT_PROCESS" >> "$LOG_FILE" 2>&1 &
+            sleep 2
+            if pgrep -f "$AGENT_PROCESS" > /dev/null; then
+                echo "[$(date)] SUCCESS: $AGENT_PROCESS resurrected." >> "$LOG_FILE"
+                RETRY_COUNT=0
+            fi
+        else
+            echo "[$(date)] CRITICAL: Max retries reached. Manual intervention required." >> "$LOG_FILE"
+            send_alert "CRITICAL: $AGENT_PROCESS failed to restart after $MAX_RETRIES attempts. System may be unstable."
+            # Optional: exit 1 to let an orchestrator like Kubernetes/Docker handle the container restart
+        fi
     else
-        # Optional: Log heartbeat for forensic audit
+        # Periodic Heartbeat for forensic audit
         echo "[$(date)] HEARTBEAT: $AGENT_PROCESS is healthy." >> "$LOG_FILE"
+        RETRY_COUNT=0
     fi
     
     sleep "$CHECK_INTERVAL"
