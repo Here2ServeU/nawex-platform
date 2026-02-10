@@ -33,4 +33,39 @@ Built for the most stringent regulatory environments, including **HIPAA**, **SOC
 * **[Architecture Deep Dives](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/architecture)**
 * **[Compliance Mapping](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/compliance)**
 * **[Operator Guides](https://www.google.com/search?q=https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/guides)**
+* **[Robotics Demo](docs/robotics/README.md)**
+
+---
+
+## Operational Quickstart (Interview-Ready)
+
+* **[Quickstart Guide](docs/guides/quickstart.md)**
+* **[Interview Demo Runbook](docs/guides/interview-demo.md)**
+* **[Troubleshooting (All Domains)](docs/guides/troubleshooting.md)**
+
+### One-Command Bootstrap
+
+```bash
+scripts/bootstrap.sh
+```
+
+### One-Click Demo Launcher
+
+```bash
+scripts/demo.sh
+```
+
+### Start Services
+
+```bash
+scripts/start_app.sh
+scripts/start_ai.sh
+```
+
+### Demo Chaos + Recovery
+
+```bash
+scripts/chaos_demo.sh
+scripts/heal.sh
+```
 

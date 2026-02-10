@@ -4,6 +4,7 @@ import logging
 import random
 import time
 from datetime import datetime
+import requests
 
 # Configure logger for observability
 logger = logging.getLogger(__name__)
@@ -16,7 +17,10 @@ class ObserverAgent:
     """
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.source = self.config.get('observability', {}).get('source', 'simulated')
+        observability_cfg = self.config.get('observability', {})
+        self.source = observability_cfg.get('source', 'simulated')
+        self.http_endpoint = observability_cfg.get('http_endpoint', 'http://localhost:8080/metrics')
+        self.http_timeout_seconds = observability_cfg.get('http_timeout_seconds', 3)
         logger.info(f"ObserverAgent initialized. Source: {self.source}")
 
     def collect_metrics(self) -> Dict[str, Any]:
@@ -27,6 +31,22 @@ class ObserverAgent:
         logger.info("Collecting system telemetry...")
         
         try:
+            # HTTP Metrics Source (real app telemetry)
+            if self.source == 'http':
+                response = requests.get(self.http_endpoint, timeout=self.http_timeout_seconds)
+                response.raise_for_status()
+                payload = response.json()
+                metrics_payload = payload.get('metrics', payload)
+
+                return {
+                    'timestamp': payload.get('timestamp', datetime.utcnow().isoformat()),
+                    'source': self.source,
+                    'latency_ms': metrics_payload.get('latency_ms', 0),
+                    'error_rate': metrics_payload.get('error_rate', 0),
+                    'cpu_usage_percent': metrics_payload.get('cpu_usage_percent', 0),
+                    'memory_usage_percent': metrics_payload.get('memory_usage_percent', metrics_payload.get('memory_usage_mb'))
+                }
+
             # Simulation Logic (Replace with real API calls like boto3 or prometheus_client)
             # Example: latency = cloudwatch.get_metric_statistics(...)
             

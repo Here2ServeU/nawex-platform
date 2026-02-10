@@ -2,11 +2,18 @@
   "name": "express-t2s-microservice",
   "version": "1.0.0",
   "description": "Core Express microservice for the Express T2S Platform, integrated with OpenTelemetry and Prometheus.",
-  "main": "server.js",
+  "main": "app/src/index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "bootstrap": "scripts/bootstrap.sh",
+    "start": "npm --prefix app start",
+    "dev": "npm --prefix app run dev",
+    "test": "npm --prefix app test",
+    "ai:start": "scripts/start_ai.sh",
+    "robotics:start": "scripts/start_robotics.sh",
+    "health": "scripts/healthcheck.sh",
+    "chaos": "scripts/chaos_demo.sh",
+    "heal": "scripts/heal.sh",
+    "demo": "scripts/demo.sh"
   },
   "keywords": [
     "express",

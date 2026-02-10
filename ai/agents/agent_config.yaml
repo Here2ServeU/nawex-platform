@@ -7,7 +7,9 @@ agents:
   # Observer Agent: The "Eyes"
   observer:
     observability:
-      source: simulated  # Options: simulated, prometheus, cloudwatch
+      source: simulated  # Options: simulated, http, prometheus, cloudwatch
+      http_endpoint: "http://localhost:8080/metrics"
+      http_timeout_seconds: 3
       collection_interval_seconds: 10
       regions:
         - us-east-1
