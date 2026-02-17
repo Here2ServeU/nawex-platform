@@ -18,8 +18,8 @@ KAFKA_WAIT_TIMEOUT=60
 SERVICE_WAIT_TIMEOUT=90
 
 # Temporary log files for service diagnostics
-APP_LOG_FILE=$(mktemp /tmp/express-app.XXXX.log)
-AI_LOG_FILE=$(mktemp /tmp/aiops-orchestrator.XXXX.log)
+APP_LOG_FILE=$(mktemp /tmp/express-app.XXXXXX.log)
+AI_LOG_FILE=$(mktemp /tmp/aiops-orchestrator.XXXXXX.log)
 
 # Colors
 RED='\033[0;31m'
