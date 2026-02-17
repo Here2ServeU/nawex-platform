@@ -12,7 +12,7 @@ This project utilizes the **T2S-Golden-Project** structure to ensure SOC 2 and [
 * **[Multi-Cloud Topology](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md)**: Global orchestration across **AWS, Azure, GCP, and OCI** using modular [Terraform](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) and [GitOps](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops).
 * **[Resilience Engine](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md)**: Sub-30 second RTO (Recovery Time Objective) driven by [predictive failover logic](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md).
 * **Kafka Event Backbone**: Internal Kafka + Zookeeper for durable telemetry buffering and async workflows (raw manifests in [k8s/kafka-zookeeper.yaml](k8s/kafka-zookeeper.yaml) and Helm chart in [helm/kafka-zookeeper](helm/kafka-zookeeper)).
-* **Quantum Optimization Layer**: Hybrid quantum-inspired scheduling for resource allocation and routing decisions, with classical fallbacks for deterministic execution.
+* **Quantum Optimization Layer**: Hybrid quantum-inspired scheduling for resource allocation and routing decisions, with classical fallbacks for deterministic execution (design in [docs/architecture/06-quantum-optimization-layer.md](docs/architecture/06-quantum-optimization-layer.md)).
 
 ## Ph.D. Research Implementation
 
@@ -36,6 +36,8 @@ Built for the most stringent regulatory environments, including **HIPAA**, **SOC
 * **[Compliance Mapping](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/compliance)**
 * **[Operator Guides](https://www.google.com/search?q=https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/guides)**
 * **[Robotics Demo](docs/robotics/README.md)**
+* **[DevSecOps Integration Guide](docs/guides/devsecops-integration.md)**
+* **[Quantum Optimization Layer](docs/architecture/06-quantum-optimization-layer.md)**
 
 ---
 

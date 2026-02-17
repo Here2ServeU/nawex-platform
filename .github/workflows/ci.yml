@@ -1,0 +1,51 @@
+name: ci
+
+on:
+    push:
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    policy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Policy gate
+              run: bash scripts/policy-gate.sh
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v3
+
+            - name: Terraform fmt
+              run: terraform fmt -check -recursive
+    security-scan:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Run Trivy vulnerability scanner (filesystem)
+              uses: aquasecurity/trivy-action@master
+              with:
+                  scan-type: "fs"
+                  scan-ref: "."
+                  format: "sarif"
+                  output: "trivy-results.sarif"
+                  severity: "CRITICAL,HIGH"
+
+            - name: Upload Trivy results to GitHub Security tab
+              uses: github/codeql-action/upload-sarif@v2
+              with:
+                  sarif_file: "trivy-results.sarif"
+
+            - name: Run Trivy on Dockerfiles
+              uses: aquasecurity/trivy-action@master
+              with:
+                  scan-type: "config"
+                  scan-ref: "."
+                  format: "table"
+                  severity: "CRITICAL,HIGH"
