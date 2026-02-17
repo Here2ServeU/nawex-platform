@@ -14,12 +14,8 @@ cd "$PROJECT_DIR"
 # Configuration
 DEMO_ROBOTICS=0
 DEMO_AWS_AUDIT=0
-KAFKA_WAIT_TIMEOUT=60
-SERVICE_WAIT_TIMEOUT=90
-
-# Temporary log files for service diagnostics
-APP_LOG_FILE=$(mktemp /tmp/express-app.XXXXXX.log)
-AI_LOG_FILE=$(mktemp /tmp/aiops-orchestrator.XXXXXX.log)
+KAFKA_WAIT_TIMEOUT=30
+SERVICE_WAIT_TIMEOUT=30
 
 # Colors
 RED='\033[0;31m'
@@ -59,17 +55,13 @@ pause_for_demo() {
     local msg="${1:-Press enter to continue...}"
     read -p "$(echo -e ${YELLOW}$msg${NC})" -r
 }
-pid=$3
+
+wait_for_port() {
+    local port=$1
+    local timeout=$2
     local elapsed=0
     local interval=2
-    
-    while ! nc -z localhost "$port" 2>/dev/null; do
-        if [ $elapsed -ge $timeout ]; then
-            error "Timeout waiting for port $port"
-            if [ -n "${pid:-}" ] && ! kill -0 $pid 2>/dev/null; then
-                error "Process $pid is no longer running"
-            fi
-    
+
     while ! nc -z localhost "$port" 2>/dev/null; do
         if [ $elapsed -ge $timeout ]; then
             error "Timeout waiting for port $port"
@@ -85,29 +77,15 @@ wait_for_kafka() {
     log "Waiting for Kafka broker to be ready (timeout: ${KAFKA_WAIT_TIMEOUT}s)..."
     local elapsed=0
     local interval=3
-    
-    # First, wait for the port to be open
-    while ! nc -z localhost 9092 2>/dev/null; do
+
+    while ! docker exec kafka_broker kafka-broker-api-versions.sh --bootstrap-server localhost:9092 &>/dev/null; do
         if [ $elapsed -ge $KAFKA_WAIT_TIMEOUT ]; then
-            error "Timeout waiting for Kafka port 9092"
-            docker compose logs kafka || true
+            error "Timeout waiting for Kafka"
             return 1
         fi
         sleep $interval
         elapsed=$((elapsed + interval))
     done
-    
-    # Once port is open, verify Kafka is actually responding
-    elapsed=0
-    while ! docker exec kafka_broker kafka-topics.sh --bootstrap-server kafka:9092 --list &>/dev/null 2>&1; do
-        if [ $elapsed -ge 10 ]; then
-            warn "Kafka port open but broker not responding yet, continuing anyway..."
-            break
-        fi
-        sleep 2
-        elapsed=$((elapsed + 2))
-    done
-    
     success "Kafka broker is ready"
     return 0
 }
@@ -121,15 +99,15 @@ while [[ $# -gt 0 ]]; do
         --robotics)
             DEMO_ROBOTICS=1
             shift
-        ;;
+            ;;
         --aws-audit)
             DEMO_AWS_AUDIT=1
             shift
-        ;;
+            ;;
         *)
             error "Unknown option: $1"
             exit 1
-        ;;
+            ;;
     esac
 done
 
@@ -143,18 +121,8 @@ log "Checking prerequisites..."
 command -v docker >/dev/null || { error "Docker not installed"; exit 1; }
 command -v node >/dev/null || { error "Node.js not installed"; exit 1; }
 command -v python3 >/dev/null || { error "Python 3 not installed"; exit 1; }
-if bash scripts/bootstrap.sh >/dev/null 2>&1; then
-    success "Bootstrap completed"
-else
-    warn "Bootstrap script had warnings, continuing..."
-fi
 
-log "Verifying npm dependencies in app/..."
-if [ ! -d "app/node_modules" ]; then
-    log "Installing app dependencies..."
-    npm --prefix app install >/dev/null 2>&1 || warn "npm install had warnings"
-fi
-success "App dependencies readyet"
+success "All prerequisites met"
 
 log "Running bootstrap..."
 bash scripts/bootstrap.sh >/dev/null 2>&1 || warn "Bootstrap script had warnings, continuing..."
@@ -179,30 +147,16 @@ else
     exit 1
 fi
 
-log "Verifying Kafka health"$APP_LOG_FILE" 2>&1 &
-APP_PID=$!
-log "Express app started (PID: $APP_PID)"
-log "App logs: $APP_LOG_FILE"
+log "Verifying Kafka healthcheck..."
+bash tools/kafka/kafka-healthcheck.sh || warn "Kafka healthcheck had issues"
 
-log "Waiting for Express app port 3000 (timeout: ${SERVICE_WAIT_TIMEOUT}s)..."
-if wait_for_port 3000 $SERVICE_WAIT_TIMEOUT $APP_PID; then
-    success "Express app is listening"
-else
-    error "Express app failed to start"
-    
-    # Show diagnostics
-    if [ -f "$APP_LOG_FILE" ]; then
-        error "Last 20 lines of app log:"
-        tail -20 "$APP_LOG_FILE" >&2
-    fi
-    
-    if kill -0 $APP_PID 2>/dev/null; then
-        log "Killing app p"$AI_LOG_FILE" 2>&1 &
-AI_PID=$!
-log "AIOps orchestrator started (PID: $AI_PID)"
-log "AI logs: $AI_LOG_FILE"
-sleep 2
-    #####################################################
+success "Kafka backbone is operational"
+
+pause_for_demo "▶ Kafka ready. Press enter to start Express App and AIOps Orchestrator..."
+
+##############################################################################
+# Phase 4: Start Core Services
+##############################################################################
 
 section "PHASE 3: Start Core Services (App + AIOps)"
 
@@ -375,10 +329,10 @@ echo "    • Config: ai/agents/agent_config.yaml"
 echo "    • PID: $AI_PID"
 echo ""
 if [ $DEMO_ROBOTICS -eq 1 ]; then
-    echo "  Robotics Demo:"
-    echo "    • gRPC Server: localhost:50051"
-    echo "    • PID: $ROBOTICS_PID"
-    echo ""
+echo "  Robotics Demo:"
+echo "    • gRPC Server: localhost:50051"
+echo "    • PID: $ROBOTICS_PID"
+echo ""
 fi
 echo "  Compliance & Security:"
 echo "    • SecurityHub: terraform/modules/aws/securityhub/"
@@ -386,10 +340,6 @@ echo "    • AWS Config: terraform/modules/aws/config/"
 echo "    • Trivy CI Scans: .github/workflows/ci.yml"
 echo ""
 log "To stop all services:"
-
-log "Service logs stored at:"
-log "  App:  $APP_LOG_FILE"
-log "  AI:   $AI_LOG_FILE"
 echo "  • Foreground processes: Press Ctrl+C (will cleanly exit)"
 echo "  • Docker services: docker compose down"
 echo "  • Full cleanup: scripts/cleanup.sh"
