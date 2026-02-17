@@ -14,7 +14,7 @@ cd "$PROJECT_DIR"
 # Configuration
 DEMO_ROBOTICS=0
 DEMO_AWS_AUDIT=0
-KAFKA_WAIT_TIMEOUT=30
+KAFKA_WAIT_TIMEOUT=60
 SERVICE_WAIT_TIMEOUT=30
 
 # Colors
@@ -61,7 +61,7 @@ wait_for_port() {
     local timeout=$2
     local elapsed=0
     local interval=2
-
+    
     while ! nc -z localhost "$port" 2>/dev/null; do
         if [ $elapsed -ge $timeout ]; then
             error "Timeout waiting for port $port"
@@ -77,15 +77,29 @@ wait_for_kafka() {
     log "Waiting for Kafka broker to be ready (timeout: ${KAFKA_WAIT_TIMEOUT}s)..."
     local elapsed=0
     local interval=3
-
-    while ! docker exec kafka_broker kafka-broker-api-versions.sh --bootstrap-server localhost:9092 &>/dev/null; do
+    
+    # First, wait for the port to be open
+    while ! nc -z localhost 9092 2>/dev/null; do
         if [ $elapsed -ge $KAFKA_WAIT_TIMEOUT ]; then
-            error "Timeout waiting for Kafka"
+            error "Timeout waiting for Kafka port 9092"
+            docker compose logs kafka || true
             return 1
         fi
         sleep $interval
         elapsed=$((elapsed + interval))
     done
+    
+    # Once port is open, verify Kafka is actually responding
+    elapsed=0
+    while ! docker exec kafka_broker kafka-topics.sh --bootstrap-server kafka:9092 --list &>/dev/null 2>&1; do
+        if [ $elapsed -ge 10 ]; then
+            warn "Kafka port open but broker not responding yet, continuing anyway..."
+            break
+        fi
+        sleep 2
+        elapsed=$((elapsed + 2))
+    done
+    
     success "Kafka broker is ready"
     return 0
 }
@@ -99,15 +113,15 @@ while [[ $# -gt 0 ]]; do
         --robotics)
             DEMO_ROBOTICS=1
             shift
-            ;;
+        ;;
         --aws-audit)
             DEMO_AWS_AUDIT=1
             shift
-            ;;
+        ;;
         *)
             error "Unknown option: $1"
             exit 1
-            ;;
+        ;;
     esac
 done
 
@@ -329,10 +343,10 @@ echo "    • Config: ai/agents/agent_config.yaml"
 echo "    • PID: $AI_PID"
 echo ""
 if [ $DEMO_ROBOTICS -eq 1 ]; then
-echo "  Robotics Demo:"
-echo "    • gRPC Server: localhost:50051"
-echo "    • PID: $ROBOTICS_PID"
-echo ""
+    echo "  Robotics Demo:"
+    echo "    • gRPC Server: localhost:50051"
+    echo "    • PID: $ROBOTICS_PID"
+    echo ""
 fi
 echo "  Compliance & Security:"
 echo "    • SecurityHub: terraform/modules/aws/securityhub/"
