@@ -21,13 +21,30 @@ Use this runbook to showcase production-style reliability engineering in 10–15
 - **API Exercises**: VS Code REST client file in `tools/http/`.
 - **Supply Chain Security**: Trivy script in `scripts/`.
 
-## Suggested Talking Points
-- “The app is designed to emit golden signals out-of-the-box.”
-- “Chaos endpoints make reliability measurable, not theoretical.”
-- “The AI loop automates detection and remediation safely in dry-run by default.”
-- “Everything is documented and reproducible—GitOps + IaC + runbooks.”
+## Unified DevSecOps Demo (Recommended)
 
-## Fast Commands
+The easiest way to see the entire platform in action:
+
+```bash
+# Standard demo (10–15 minutes)
+scripts/demo-devsecops.sh
+
+# With robotics simulation
+scripts/demo-devsecops.sh --robotics
+
+# With AWS audit trail info (requires AWS credentials)
+scripts/demo-devsecops.sh --aws-audit
+```
+
+This single script orchestrates:
+1. Kafka/Zookeeper startup
+2. Express app + AIOps orchestrator
+3. Health validation
+4. Chaos injection
+5. Recovery & remediation
+6. Security & compliance review
+
+## Fast Commands (Manual)
 ```bash
 scripts/healthcheck.sh
 scripts/chaos_demo.sh

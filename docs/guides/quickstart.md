@@ -13,17 +13,19 @@ This guide brings up the Express app, the AIOps orchestrator, and the robotics d
 scripts/bootstrap.sh
 ```
 
-## One-Click Demo Launcher
+## Unified DevSecOps Demo (Recommended)
+Run the complete infrastructure demo in one command:
 ```bash
-scripts/demo.sh
+scripts/demo-devsecops.sh
 ```
 
-To include robotics:
-```bash
-DEMO_ROBOTICS=1 bash scripts/demo.sh
-```
+Options:
+- `--robotics`: Include robotics simulation
+- `--aws-audit`: Show AWS SecurityHub/Config audit info
 
-## 2) Start the Express App (Terminal A)
+## Manual Setup Steps
+
+For step-by-step control, use the following commands:
 ```bash
 scripts/start_app.sh
 ```

@@ -47,27 +47,29 @@ Built for the most stringent regulatory environments, including **HIPAA**, **SOC
 * **[Interview Demo Runbook](docs/guides/interview-demo.md)**
 * **[Troubleshooting (All Domains)](docs/guides/troubleshooting.md)**
 
-### One-Command Bootstrap
+### Unified DevSecOps Demo (Recommended)
+```bash
+# Complete end-to-end demo: Kafka → App → AIOps → Chaos → Recovery → Security (10–15 min)
+scripts/demo-devsecops.sh
 
+# With robotics simulation
+scripts/demo-devsecops.sh --robotics
+```
+
+### Individual Commands
+
+**Bootstrap:**
 ```bash
 scripts/bootstrap.sh
 ```
 
-### One-Click Demo Launcher
-
-```bash
-scripts/demo.sh
-```
-
-### Start Services
-
+**Start Services:**
 ```bash
 scripts/start_app.sh
 scripts/start_ai.sh
 ```
 
-### Demo Chaos + Recovery
-
+**Chaos & Recovery:**
 ```bash
 scripts/chaos_demo.sh
 scripts/heal.sh
