@@ -1,8 +1,8 @@
-# Express-Reliability AIOps: Predictive Safety & Resilience Platform
+# Naweji Reliability Platform (NRP): Predictive Safety & Resilience Platform
 
 ## Executive Summary: Bridging the Gap Between AI and Infrastructure
 
-The **Express-Reliability AIOps Platform** is an enterprise-grade ecosystem designed for high-availability **healthcare** and **fintech** environments. By integrating **Deep Learning (LSTM/TCN)** with a **Multi-Cloud Active-Active Resilience** strategy, the platform achieves 99.999% availability for critical [robotics telemetry streams](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics) and [financial transaction processing](fintech/README.md), effectively transforming infrastructure from reactive to predictive.
+The **Naweji Reliability Platform (NRP)** is an enterprise-grade ecosystem designed for high-availability **healthcare** and **fintech** environments. By integrating **Deep Learning (LSTM/TCN)** with a **Multi-Cloud Active-Active Resilience** strategy, the platform achieves 99.999% availability for critical [robotics telemetry streams](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics) and [financial transaction processing](fintech/README.md), effectively transforming infrastructure from reactive to predictive.
 
 ## Architectural Excellence (Golden Project Standard)
 
