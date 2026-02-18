@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nrp-platform
+  labels:
+    app: naweji-reliability-platform
+    environment: production
+  annotations:
+    openshift.io/description: "Naweji Reliability Platform - Healthcare & Fintech Services"
+    openshift.io/display-name: "NRP Platform"
+    openshift.io/requester: "platform-admin"
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nrp-healthcare
+  labels:
+    app: naweji-healthcare
+    environment: production
+  annotations:
+    openshift.io/description: "Healthcare Services - HIPAA Compliant"
+    openshift.io/display-name: "NRP Healthcare"
+    openshift.io/requester: "platform-admin"
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nrp-fintech
+  labels:
+    app: naweji-fintech
+    environment: production
+  annotations:
+    openshift.io/description: "Fintech Services - PCI-DSS Compliant"
+    openshift.io/display-name: "NRP Fintech"
+    openshift.io/requester: "platform-admin"
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nrp-robotics
+  labels:
+    app: naweji-robotics
+    environment: production
+  annotations:
+    openshift.io/description: "Robotics & Edge Control - Real-time Processing"
+    openshift.io/display-name: "NRP Robotics"
+    openshift.io/requester: "platform-admin"
