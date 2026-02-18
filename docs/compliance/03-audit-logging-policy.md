@@ -14,6 +14,8 @@ The platform captures granular telemetry across the entire [multi-cloud stack](h
 | **AI Decisioning** | [Predictive Brain](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai) | Risk probability scores (), input telemetry features, and triggered actions. |
 | **Infrastructure** | [GitOps (ArgoCD)](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) | Commit SHA, Author, and diffs of all environmental changes. |
 | **Clinical Safety** | [Robotics Edge](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics) | Kinematic anomaly flags and agentic safety mediation events. |
+| **Financial Transactions** | [Transaction Engine](/ai/pipelines/detect_fraud.py) | Transaction IDs, amounts, fraud scores, payment gateway responses, settlement events. |
+| **Regulatory Compliance** | [Compliance Engine](/docs/compliance) | PCI-DSS scope validation, SOX control testing, PSD2 SCA decisions, GLBA access audits. |
 
 ## Immutability & Protection
 
@@ -35,7 +37,8 @@ Utilizing the [Predictive Reliability Framework](https://github.com/Here2ServeU/
 Logs are retained according to the following schedule to meet legal mandates:
 
 * **Active Logs**: 90 days in high-performance [TSDB](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/02-data-flow-diagrams.md).
-* **Archive Logs**: 7 years in cold storage (GCS/S3) for HIPAA/HDS regulatory look-backs.
+* **Archive Logs**: 7 years in cold storage (GCS/S3) for HIPAA/HDS/SOX/GLBA regulatory look-backs.
+* **Financial Transaction Logs**: 5 years minimum per PCI-DSS Requirement 10.7; 7 years for SOX-relevant systems.
 
 ---
 

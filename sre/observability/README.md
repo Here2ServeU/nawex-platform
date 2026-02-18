@@ -28,3 +28,17 @@ This directory contains the configurations and automation scripts for a full-sta
 
 ---
 **Summary:** This module moves the platform beyond simple "up/down" monitoring to **Deep Observability**, providing the granular data needed for the AIOps engine to make accurate predictions.
+
+---
+
+### 5. Fintech Transaction Monitoring (`fintech-*`)
+* **Files:** `fintech-transaction-monitoring.md`
+* **Core Functionality:** Defines fintech-specific metrics, SLOs, Grafana dashboards, and alert rules for transaction processing, fraud detection, and payment gateway monitoring.
+* **SRE Challenge Solved:** **Financial Blind Spots.** Provides purpose-built observability for payment SLOs, fraud detection latency, and settlement pipeline health.
+* **Operational Impact:** Enables real-time visibility into financial operations with compliance-aligned alerting (PCI-DSS, PSD2, SOX) and automated error budget tracking for payment services.
+
+### 6. Healthcare EHR Monitoring (`healthcare-*`)
+* **Files:** `healthcare-ehr-monitoring.md`
+* **Core Functionality:** Defines healthcare-specific metrics, SLOs, Grafana dashboards, and alert rules for EHR ingestion, clinical decision latency, patient data gateway, and PHI access auditing.
+* **SRE Challenge Solved:** **Clinical Observability Gaps.** Provides purpose-built monitoring for clinical workflows, PHI access patterns, and HIPAA compliance verification across all healthcare services.
+* **Operational Impact:** Enables real-time visibility into clinical operations with compliance-aligned alerting (HIPAA, HITECH, FDA 21 CFR Part 11) and automated error budget tracking for patient safety SLOs.

@@ -10,8 +10,14 @@
     "test": "npm --prefix app test",
     "ai:start": "scripts/start_ai.sh",
     "robotics:start": "scripts/start_robotics.sh",
+    "fintech:start": "scripts/start_fintech.sh",
+    "fintech:traffic": "scripts/generate-transactions.sh",
+    "healthcare:start": "scripts/start_healthcare.sh",
+    "healthcare:traffic": "scripts/generate-ehr-events.sh",
     "health": "scripts/healthcheck.sh",
     "chaos": "scripts/chaos_demo.sh",
+    "chaos:fintech": "sre/chaos/payment-gateway-failure.sh",
+    "chaos:healthcare": "sre/chaos/ehr-gateway-failure.sh",
     "heal": "scripts/heal.sh",
     "demo": "scripts/demo.sh"
   },
@@ -19,7 +25,12 @@
     "express",
     "microservice",
     "sre",
-    "opentelemetry"
+    "opentelemetry",
+    "fintech",
+    "fraud-detection",
+    "payments",
+    "healthcare",
+    "aiops"
   ],
   "author": "Express Platform Team",
   "license": "MIT",

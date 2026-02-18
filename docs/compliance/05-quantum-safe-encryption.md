@@ -6,7 +6,7 @@ As quantum computing transitions from theoretical research to functional applica
 
 ## Cryptographic Standards
 
-The platform utilizes NIST-selected algorithms for high-stakes healthcare communication:
+The platform utilizes NIST-selected algorithms for high-stakes healthcare and financial services communication:
 
 | Layer | Algorithm | Purpose |
 | --- | --- | --- |
@@ -24,7 +24,13 @@ Quantum-resistant security is integrated into the core infrastructure:
 
 ## Compliance Alignment
 
-This policy serves as a strategic extension of our [HIPAA Compliance Mapping](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md) and [HDS Data Privacy](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/02-data-privacy-hds.md) standards. By adopting PQC early, the platform satisfies the "Technical Safeguards" requirements for long-term data durability in high-security healthcare sectors.
+This policy serves as a strategic extension of our [HIPAA Compliance Mapping](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md), [HDS Data Privacy](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/02-data-privacy-hds.md), [PCI-DSS Mapping](/docs/compliance/06-pci-dss-compliance-mapping.md), and [SOX Controls](/docs/compliance/07-sox-compliance-mapping.md). By adopting PQC early, the platform satisfies the "Technical Safeguards" requirements for long-term data durability in high-security healthcare and financial services sectors.
+
+### Fintech-Specific PQC Applications
+
+* **Transaction Signing**: All financial transactions are signed with CRYSTALS-Dilithium, ensuring non-repudiation even against quantum adversaries.
+* **Payment Channel Security**: Inter-bank and payment processor communications use Kyber-768 hybrid key exchange.
+* **HSM Integration**: Hardware Security Modules in the payment processing pipeline support PQC algorithm offloading for high-throughput transaction signing.
 
 ---
 

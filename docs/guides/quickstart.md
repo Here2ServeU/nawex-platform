@@ -40,17 +40,47 @@ scripts/start_ai.sh
 scripts/start_robotics.sh
 ```
 
-## 5) Validate
+## 5) (Optional) Start Fintech Services (Terminal D)
+```bash
+scripts/start_fintech.sh
+```
+
+## 6) Generate Fintech Traffic (Terminal E)
+```bash
+# 30 seconds of transactions at 5 TPS
+scripts/generate-transactions.sh 30 5
+```
+
+## 7) (Optional) Start Healthcare Services (Terminal F)
+```bash
+scripts/start_healthcare.sh
+```
+
+## 8) Generate Healthcare Traffic (Terminal G)
+```bash
+# 30 seconds of clinical events at 5 RPS
+scripts/generate-ehr-events.sh 30 5
+```
+
+## 9) Validate
 ```bash
 scripts/healthcheck.sh
 ```
 
-## 6) Trigger Chaos
+## 10) Trigger Chaos
 ```bash
 scripts/chaos_demo.sh
+
+# Fintech-specific chaos
+sre/chaos/payment-gateway-failure.sh
+sre/chaos/transaction-fraud-spike.sh
+
+# Healthcare-specific chaos
+sre/chaos/ehr-gateway-failure.sh
+sre/chaos/phi-breach-simulation.sh
 ```
 
-## 7) Heal / Reset
+## 11) Heal / Reset
 ```bash
 scripts/heal.sh
 ```

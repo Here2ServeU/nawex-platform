@@ -3,20 +3,24 @@
 Use this runbook to showcase production-style reliability engineering in 10–15 minutes.
 
 ## Demo Flow (10–15 minutes)
-1. **Show Architecture**: Highlight the multi-domain structure (AI, app, GitOps, Terraform, SRE).
-2. **Start Services**: App + Orchestrator, then robotics demo (optional).
+1. **Show Architecture**: Highlight the multi-domain structure (AI, app, GitOps, Terraform, SRE, Fintech, Healthcare).
+2. **Start Services**: App + Orchestrator, then robotics demo (optional), fintech demo, or healthcare demo.
 3. **Show Observability**: Live metrics and `/metrics` payload.
-4. **Inject Chaos**: Latency, error spike, CPU, memory leak.
+4. **Inject Chaos**: Latency, error spike, CPU, memory leak, payment gateway failure, or EHR gateway failure.
 5. **Explain AIOps Loop**: Observe → Analyze → Plan → Execute.
 6. **Show Remediation**: Reset with `/ops/heal` and demonstrate recovery.
+7. **(Fintech)** Show fraud detection scoring, transaction processing, and payment failover.
+8. **(Healthcare)** Show clinical decision scoring, EHR ingestion, PHI access audit, and patient data gateway.
 
 ## Tools to Showcase
 - **Observability**: Prometheus metrics endpoint, log-driven AIOps.
 - **Chaos Engineering**: Built-in chaos endpoints + traffic generator.
-- **Security & Compliance**: SOC2/HIPAA docs in `docs/compliance/`.
+- **Security & Compliance**: SOC2/HIPAA/PCI-DSS/SOX docs in `docs/compliance/`.
+- **Fintech**: Fraud detection, payment gateway, transaction processing in `fintech/`.
+- **Healthcare**: EHR ingestion, clinical decision support, patient data gateway in `healthcare/`.
 - **GitOps**: ArgoCD/Flux manifests in `gitops/`.
 - **Infrastructure-as-Code**: Terraform modules in `terraform/`.
-- **Kubernetes Packaging**: Helm charts in `helm/`.
+- **Kubernetes Packaging**: Helm charts in `helm/` (incl. fraud-detection, payment-gateway, ehr-service, clinical-gateway).
 - **Load Testing**: k6 script in `tools/k6/`.
 - **API Exercises**: VS Code REST client file in `tools/http/`.
 - **Supply Chain Security**: Trivy script in `scripts/`.

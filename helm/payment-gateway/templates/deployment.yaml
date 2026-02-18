@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "payment-gateway.fullname" . }}
+  labels:
+    {{- include "payment-gateway.labels" . | nindent 4 }}
+    compliance: pci-dss
+    data-classification: restricted
+    cde-scope: "true"
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "payment-gateway.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "payment-gateway.selectorLabels" . | nindent 8 }}
+        compliance: pci-dss
+        cde-scope: "true"
+    spec:
+      securityContext:
+        {{- toYaml .Values.security.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.security.containerSecurityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            - name: KAFKA_BROKER
+              value: {{ .Values.config.kafkaBroker | quote }}
+            - name: SETTLEMENT_BATCH_INTERVAL
+              value: {{ .Values.config.settlementBatchInterval | quote }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

@@ -6,10 +6,16 @@ This document defines the formal **Disaster Recovery (DR)** strategy for the [ex
 
 ## Recovery Objectives (RTO & RPO)
 
-In a healthcare context, "Downtime = Clinical Risk." Our targets are designed for near-instantaneous recovery:
+In a healthcare context, "Downtime = Clinical Risk." In a fintech context, "Downtime = Financial Loss and Regulatory Exposure." Our targets are designed for near-instantaneous recovery:
 
 * **Recovery Time Objective (RTO)**: **< 30 Seconds**. Traffic is automatically re-routed via GSLB upon detection of regional failure.
-* **Recovery Point Objective (RPO)**: **Near-Zero**. Real-time [telemetry synchronization](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md) across AWS, Azure, OCI, and GCP ensures no patient data loss during handover.
+* **Recovery Point Objective (RPO)**: **Near-Zero**. Real-time [telemetry synchronization](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md) across AWS, Azure, OCI, and GCP ensures no patient data loss or financial transaction loss during handover.
+
+### Fintech-Specific DR Requirements
+
+* **Transaction Integrity**: In-flight payment transactions are preserved in Kafka with exactly-once delivery guarantees during failover.
+* **Settlement Continuity**: End-of-day settlement processes include checkpoint/restart capability to resume from the last committed batch.
+* **Regulatory Notification**: Automated notification to relevant financial regulators within 4 hours of a major incident per PSD2 Article 96 and PCI-DSS Incident Response requirements.
 
 ## Multi-Cloud Failover Strategy
 

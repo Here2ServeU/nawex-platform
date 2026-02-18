@@ -18,14 +18,35 @@ agents:
   # Analyzer Agent: The "Brain" (Detection)
   analyzer:
     thresholds:
+      # Infrastructure thresholds
       latency_ms: 200
       error_rate_percent: 1.0
       cpu_usage_percent: 80.0
       memory_usage_percent: 85.0
+      # Fintech-specific thresholds
+      transaction_latency_ms: 100
+      fraud_score_threshold: 0.85
+      payment_error_rate_percent: 0.1
+      settlement_timeout_minutes: 120
+      transaction_velocity_per_hour: 10000
+      api_rate_limit_requests_per_sec: 5000
+      # Healthcare-specific thresholds
+      ehr_query_latency_ms: 200
+      clinical_alert_latency_ms: 50
+      phi_anomaly_threshold: 0.60
+      clinical_decision_timeout_ms: 500
+      ehr_ingestion_throughput_rps: 850
+      patient_safety_score_threshold: 0.70
     features:
       enable_ml_analysis: false  # Set to true once LSTM models are trained
+      enable_fraud_detection: true
+      enable_payment_monitoring: true
+      enable_phi_monitoring: true
+      enable_clinical_anomaly_detection: true
     models:
       lstm_path: "ai/models/lstm_v1.h5"
+      fraud_model_path: "ai/models/fraud_detector_v1.h5"
+      clinical_model_path: "ai/models/clinical_anomaly_v1.h5"
 
   # Planner Agent: The "Logic" (Remediation Strategy)
   planner:

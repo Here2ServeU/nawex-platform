@@ -27,11 +27,27 @@ The framework operates on a **Risk Probability (P)** scale to trigger specific o
 
 In healthcare environments, downtime is life-critical. This framework maps infrastructure reliability directly to **Clinical SLOs**. If the AI predicts a failure in the [robotics telemetry stream](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics), the platform triggers a sub-second handover to a redundant cloud region—such as shifting critical workloads from EKS to [GKE](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md)—ensuring zero interruption for surgical edge devices.
 
+## Financial Safety & Resilience
+
+In fintech environments, downtime means direct financial loss and regulatory exposure. This framework maps infrastructure reliability to **Financial SLOs**:
+
+* **Transaction Processing SLO**: 99.999% of payment transactions must complete within 100ms end-to-end latency.
+* **Fraud Detection SLO**: Real-time fraud scoring must complete within 50ms per transaction, with >95% precision and <0.1% false positive rate.
+* **Settlement SLO**: End-of-day settlement batches must complete within the clearing window with zero data loss.
+
+If the AI predicts a failure in the [payment processing pipeline](/ai/pipelines/detect_fraud.py), the platform triggers automated failover:
+
+1. **Payment Gateway Failover**: Traffic is rerouted to a standby payment processor in a secondary cloud region within 5 seconds.
+2. **Transaction Queue Protection**: In-flight transactions are buffered in Kafka with exactly-once semantics to prevent duplicate charges or lost payments.
+3. **Fraud Model Hot-Swap**: If the primary fraud detection model degrades, a pre-validated shadow model is promoted automatically.
+
 ## Performance Metrics
 
 * **Prediction Lead Time**: Goal of >5 minutes before critical failure.
-* **Precision/Recall**: Targeted at >92% for clinical safety-critical anomalies.
-* **False Positive Rate**: Minimized to <2% to prevent "alert fatigue" in the [SRE team](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/sre).
+* **Precision/Recall**: Targeted at >92% for clinical safety-critical anomalies; >95% for financial fraud detection.
+* **False Positive Rate**: Minimized to <2% for infrastructure alerts; <0.1% for transaction fraud flags to prevent legitimate payment blocking.
+* **Transaction Integrity**: Zero duplicate charges or lost transactions during failover events.
+* **Regulatory Response Time**: Automated incident reports generated within 4 hours per PSD2 Article 96 requirements.
 
 ---
 

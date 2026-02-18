@@ -71,6 +71,36 @@ These charts are designed to be **immutable blueprints**, ensuring that every de
 
 ---
 
+### 5. Fintech Services
+*These charts deploy the payment processing and fraud detection infrastructure.*
+
+#### `fraud-detection/`
+* **Purpose:** Deploys the **Fraud Detection** ML inference service as a highly available deployment with auto-scaling.
+* **Problem Solved:** **Transaction Fraud.** Provides real-time ML-based fraud scoring for every transaction with sub-50ms latency.
+* **Value:** Enables PCI-DSS compliant fraud prevention with automated model hot-swap and multi-AZ resilience. Includes strict network policies for CDE isolation.
+
+#### `payment-gateway/`
+* **Purpose:** Deploys the **Payment Gateway** processing service with automated failover capability.
+* **Problem Solved:** **Payment Downtime.** Ensures payment processing remains available during infrastructure failures with automatic failover to secondary gateways.
+* **Value:** Enforces PCI-DSS CDE segmentation with deny-all network policies, strict pod security contexts, and pod disruption budgets for zero-downtime deployments.
+
+---
+
+### 6. Healthcare Services
+*These charts deploy the clinical data processing and patient safety infrastructure.*
+
+#### `ehr-service/`
+* **Purpose:** Deploys the **EHR Ingestion** service as a highly available deployment with auto-scaling and HIPAA-compliant PHI audit logging.
+* **Problem Solved:** **Clinical Data Availability.** Provides reliable FHIR R4 clinical data ingestion with 99.999% availability for patient-safety-critical workflows.
+* **Value:** Enables HIPAA-compliant EHR processing with automated breach detection, consent verification, and multi-AZ resilience. Includes PHI encryption at rest and strict network policies.
+
+#### `clinical-gateway/`
+* **Purpose:** Deploys the **Clinical Gateway** (Patient Data Gateway) with automated failover for FHIR/HL7 interoperability.
+* **Problem Solved:** **Clinical Interoperability Downtime.** Ensures clinical data exchange remains available across EHR systems (Epic, Cerner, Meditech) during infrastructure failures.
+* **Value:** Enforces HIPAA access controls with deny-all network policies, patient consent verification, and pod disruption budgets for zero-downtime clinical operations.
+
+---
+
 ### Usage Guide
 
 These charts are designed to be deployed via **ArgoCD** (GitOps). Do not run `helm install` manually in production.
