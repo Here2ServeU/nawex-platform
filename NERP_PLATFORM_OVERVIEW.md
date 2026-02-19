@@ -9,11 +9,11 @@
 
 ### Core Capabilities
 
-🏦 **Fintech Engine** - Real-time transaction processing, fraud detection, payment resilience  
-🏥 **Healthcare Engine** - FHIR R4 clinical data, patient monitoring, decision support  
-🤖 **AI Brain** - Predictive anomaly detection (LSTM/TCN) for proactive failure prevention  
-🌍 **Multi-Cloud** - AWS, Azure, GCP, OCI with automatic failover  
-🏢 **Multi-Tenant** - Enterprise SaaS architecture with complete data isolation  
+- **Fintech Engine** - Real-time transaction processing, fraud detection, payment resilience  
+- **Healthcare Engine** - FHIR R4 clinical data, patient monitoring, decision support  
+- **AI Brain** - Predictive anomaly detection (LSTM/TCN) for proactive failure prevention  
+- **Multi-Cloud** - AWS, Azure, GCP, OCI with automatic failover  
+- **Multi-Tenant** - Enterprise SaaS architecture with complete data isolation  
 
 ---
 
