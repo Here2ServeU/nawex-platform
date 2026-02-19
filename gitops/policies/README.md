@@ -39,3 +39,7 @@ It serves as the bridge between **DevOps** (speed) and **SecOps/Audit** (control
 ### Interview Talking Point:
 
 > I created this `policies` directory because I know that **SRE is about more than just uptime; it's about trust.** I use documents like `soc2-gitops-controls.md` to show auditors that our automated pipeline isn't a 'wild west'—it's actually *more* controlled than the old manual processes. I map every Git action to a compliance control, turning our GitHub repo into our primary evidence locker.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

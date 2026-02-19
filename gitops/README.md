@@ -39,18 +39,18 @@ Located in `policies/`. Documentation on how this architecture satisfies regulat
 
 To bootstrap the Application Layer using ArgoCD:
 
-1.  **Install ArgoCD** (if not already present):
+1. **Install ArgoCD** (if not already present):
     ```bash
     kubectl apply -n argocd -f [https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml](https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml)
     ```
 
-2.  **Apply Platform Manifests**:
+2. **Apply Platform Manifests**:
     ```bash
     kubectl apply -f gitops/argocd/namespace.yaml
     kubectl apply -f gitops/argocd/project-platform.yaml
     ```
 
-3.  **Deploy Applications**:
+3. **Deploy Applications**:
     ```bash
     kubectl apply -f gitops/argocd/app-express-app.yaml
     kubectl apply -f gitops/argocd/app-splunk-forwarder.yaml
@@ -64,12 +64,12 @@ To bootstrap the Application Layer using ArgoCD:
 
 To bootstrap the Infrastructure Layer using Flux:
 
-1.  **Install Flux CLI & Controllers**:
+1. **Install Flux CLI & Controllers**:
     ```bash
     flux install --namespace flux-system
     ```
 
-2.  **Apply Source & Kustomization**:
+2. **Apply Source & Kustomization**:
     ```bash
     kubectl apply -f gitops/flux/namespace.yaml
     kubectl apply -f gitops/flux/gitrepository-platform.yaml
@@ -77,3 +77,7 @@ To bootstrap the Infrastructure Layer using Flux:
     ```
 
 **Result:** Flux will enter a continuous reconciliation loop (1-minute interval), ensuring that any drift in the `helm/` charts is instantly corrected.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

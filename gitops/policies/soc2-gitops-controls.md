@@ -44,6 +44,10 @@ In the event of a failure, the GitOps workflow provides an instant, tested recov
 
 When demonstrating compliance to external auditors, use the following artifacts:
 
-1.  **Change Log:** Export the Git commit history for the audit period.
-2.  **Access Review:** Show GitHub/GitLab permission settings to prove branch protection and PR requirements.
-3.  **Drift Proof:** Demonstrate the "Drift Detection" policy by manually modifying a resource and showing its automatic correction.
+1. **Change Log:** Export the Git commit history for the audit period.
+2. **Access Review:** Show GitHub/GitLab permission settings to prove branch protection and PR requirements.
+3. **Drift Proof:** Demonstrate the "Drift Detection" policy by manually modifying a resource and showing its automatic correction.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

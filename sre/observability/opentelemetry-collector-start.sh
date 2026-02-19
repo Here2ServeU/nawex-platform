@@ -1,8 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 #
 # OpenTelemetry Collector Deployment Script
 # Description: robustly deploys the OpenTelemetry Collector using Helm (preferred) or raw manifests.
-#              Includes dependency checking, namespace validation, and rollout verification.
+# Includes dependency checking, namespace validation, and rollout verification.
 # Usage: ./opentelemetry-collector-start.sh [-n <namespace>] [-d <chart_dir>]
 #
 
@@ -28,11 +33,11 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 usage() {
     echo -e "${BLUE}Usage:${NC} $0 [OPTIONS]"
     echo -e "\nOptions:"
-    echo -e "  -n, --namespace <ns>   Kubernetes namespace to deploy into (Default: $DEFAULT_NAMESPACE)"
-    echo -e "  -p, --path <path>      Path to Helm chart or Manifest (Default: $DEFAULT_CHART_PATH)"
-    echo -e "  -h, --help             Show this help message"
+    echo -e " -n, --namespace <ns> Kubernetes namespace to deploy into (Default: $DEFAULT_NAMESPACE)"
+    echo -e " -p, --path <path> Path to Helm chart or Manifest (Default: $DEFAULT_CHART_PATH)"
+    echo -e " -h, --help Show this help message"
     echo -e "\n${BLUE}Example:${NC}"
-    echo -e "  $0 -n observability"
+    echo -e " $0 -n observability"
     exit 1
 }
 
@@ -134,8 +139,8 @@ kubectl rollout status deployment/"$DEPLOYMENT_NAME" -n "$NAMESPACE" --timeout=6
 kubectl rollout status deployment/otel-collector -n "$NAMESPACE" --timeout=60s
 
 if [[ $? -eq 0 ]]; then
-    echo -e "\n${GREEN}✔ OpenTelemetry Collector is up and running!${NC}"
+    echo -e "\n${GREEN} OpenTelemetry Collector is up and running!${NC}"
 else
-    echo -e "\n${RED}✘ Rollout failed or timed out. Check logs with: kubectl logs -l app=$DEPLOYMENT_NAME -n $NAMESPACE${NC}"
+    echo -e "\n${RED} Rollout failed or timed out. Check logs with: kubectl logs -l app=$DEPLOYMENT_NAME -n $NAMESPACE${NC}"
     exit 1
 fi

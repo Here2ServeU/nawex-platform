@@ -1,3 +1,8 @@
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 """data_loader.py
 
 Loads time-series SLI/SLO data from CSV or synthetic generator.
@@ -61,7 +66,7 @@ def load_sample_sli_slo(n_points: int = 500, freq: str = "5min") -> pd.DataFrame
             "latency_ms": latency,
             "error_rate": error_rate,
             "slo_latency_ms": 200.0,
-            "slo_error_rate": 1.0,  # 1% error allowed
+            "slo_error_rate": 1.0, # 1% error allowed
         }
     )
     return df

@@ -30,3 +30,7 @@ graph LR
     B -.-> L1
     B -.-> L2
     B -.-> L3
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -23,11 +23,11 @@ The design prioritizes safety and determinism, ensuring that automated actions d
 
 The engine follows a strict **Trigger-Action-Validation** flow:
 
-1.  **Trigger:** The engine receives a `RemediationPlan` from the Planner Agent containing a `diagnosis_id` (e.g., `HIGH_LATENCY_FRONTEND`).
-2.  **Lookup:** It scans `remediation_rules.yaml` to find the matching policy.
-3.  **Constraints Check:** It verifies if the action is currently allowed (e.g., not during a blackout window, and not exceeding the rate limit).
-4.  **Execution:** It invokes the specific handler (e.g., `scale_deployment(service, count)`).
-5.  **Audit:** The action is logged with a correlation ID for post-incident review.
+1. **Trigger:** The engine receives a `RemediationPlan` from the Planner Agent containing a `diagnosis_id` (e.g., `HIGH_LATENCY_FRONTEND`).
+2. **Lookup:** It scans `remediation_rules.yaml` to find the matching policy.
+3. **Constraints Check:** It verifies if the action is currently allowed (e.g., not during a blackout window, and not exceeding the rate limit).
+4. **Execution:** It invokes the specific handler (e.g., `scale_deployment(service, count)`).
+5. **Audit:** The action is logged with a correlation ID for post-incident review.
 
 ## Configuration Example
 
@@ -61,3 +61,7 @@ python remediation_engine.py --rule cpu-saturation-recovery --dry-run
 
 ### Interview Talking Point
 > I architected the `remediation` module to separate **Mechanism** from **Policy**. The `remediation_engine.py` is the mechanism—it knows *how* to scale a pod or restart a service. The `remediation_rules.yaml` is the policy—it decides *when* that should happen. This separation is critical for a Senior SRE role because it allows me to safely enable automation incrementally. We can deploy the code today but keep the rules commented out, or run them in 'Dry Run' mode to build confidence before letting the AI touch production.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

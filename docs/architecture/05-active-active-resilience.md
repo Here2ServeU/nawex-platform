@@ -33,3 +33,6 @@ The integration between the [AI Brain](https://github.com/Here2ServeU/Naweji-Rel
 
 Every failover event, whether manual or automated by AI, is captured in the [HIPAA-compliant immutable logs](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs). This ensures that even during high-velocity resilience maneuvers, the platform maintains a full audit trail for regulatory bodies.
 
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -86,3 +86,7 @@ This document defines the **Service Level Objectives (SLOs)** for the Healthcare
 | Zero data loss | HIPAA §164.312(c) Integrity Controls |
 | Failover ≤3s | HIPAA DR Plan / SOC 2 Availability |
 | Consent 100% pre-access | HIPAA §164.508 Authorization |
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

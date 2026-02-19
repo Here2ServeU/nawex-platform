@@ -10,17 +10,17 @@ This guide maps DevSecOps responsibilities to concrete artifacts in the platform
 Example (dev environment):
 ```hcl
 module "securityhub" {
-  source        = "../../../modules/aws/securityhub"
-  enabled       = true
+  source = "../../../modules/aws/securityhub"
+  enabled = true
   standards_arns = [
     "arn:aws:securityhub:::standards/aws-foundational-security-best-practices/v/1.0.0"
   ]
 }
 
 module "config" {
-  source       = "../../../modules/aws/config"
-  name         = "aiops-config-dev"
-  bucket_name  = "aiops-config-dev-logs"
+  source = "../../../modules/aws/config"
+  name = "aiops-config-dev"
+  bucket_name = "aiops-config-dev-logs"
   create_bucket = true
 }
 ```
@@ -40,3 +40,7 @@ module "config" {
 ## 5) Security and Compliance
 - SecurityHub + Config enablement: [ops/playbooks/securityhub_config.md](../../ops/playbooks/securityhub_config.md)
 - Evidence trail: Immutable log retention for decisions and changes.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

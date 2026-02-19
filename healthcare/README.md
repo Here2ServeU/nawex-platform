@@ -47,3 +47,7 @@ These services are designed to comply with:
 - **FDA 21 CFR Part 11** — Electronic records and signatures for clinical systems
 
 See `/docs/compliance/` for detailed compliance mappings.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

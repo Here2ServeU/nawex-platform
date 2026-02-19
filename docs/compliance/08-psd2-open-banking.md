@@ -45,3 +45,7 @@ PSD2 compliance is tightly coupled with GDPR requirements:
 ### Regulatory Alignment
 
 This mapping positions the platform as a compliant foundation for Account Information Service Providers (AISPs), Payment Initiation Service Providers (PISPs), and Card-Based Payment Instrument Issuers (CBPIIs) operating under PSD2 across the European Economic Area.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -35,3 +35,7 @@
 5. **Post-Failover Tasks**
 - Plan re-seeding or re-adding the old primary as a replica or standby instance if the host is healthy.
 - Document the incident timeline and performance metrics during the failover window.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -17,7 +17,11 @@ This directory contains cloud-specific DR runbooks for major providers:
 
 Each cloud-specific runbook outlines the following critical areas tailored to the NRP environment:
 
-1.  **RPO / RTO Targets:** Defines acceptable data loss and service restoration time for microservices and IDP.
-2.  **Backup Strategy:** Details the mechanism for backing up critical data, particularly the Backstage PostgreSQL instance.
-3.  **Restore & Failover:** Step-by-step procedures for restoring stateful data and executing service failover to the DR region.
-4.  **Validation & Cutback:** Procedures for validating service functionality post-restore and returning traffic to the primary region.
+1. **RPO / RTO Targets:** Defines acceptable data loss and service restoration time for microservices and IDP.
+2. **Backup Strategy:** Details the mechanism for backing up critical data, particularly the Backstage PostgreSQL instance.
+3. **Restore & Failover:** Step-by-step procedures for restoring stateful data and executing service failover to the DR region.
+4. **Validation & Cutback:** Procedures for validating service functionality post-restore and returning traffic to the primary region.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

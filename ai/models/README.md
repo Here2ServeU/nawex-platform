@@ -34,3 +34,7 @@ To test a model architecture in isolation (dry-run):
 # Verify model structure and forward pass
 python lstm_model.py --verify
 ````
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 # =============================================================================
 # Start Fintech Services
 # =============================================================================
@@ -12,7 +17,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo "=============================================="
-echo " Express-Reliability: Fintech Services"
+echo " NRP: Fintech Services"
 echo "=============================================="
 echo ""
 
@@ -28,11 +33,11 @@ if [ -z "$KAFKA_RUNNING" ]; then
     echo "[1/3] Starting Kafka event backbone..."
     cd "$ROOT_DIR"
     docker compose up -d zookeeper kafka
-    echo "  Waiting for Kafka to be healthy..."
+    echo " Waiting for Kafka to be healthy..."
     sleep 10
-    echo "  ✓ Kafka started"
+    echo " Kafka started"
 else
-    echo "[1/3] Kafka already running ✓"
+    echo "[1/3] Kafka already running "
 fi
 echo ""
 
@@ -40,7 +45,7 @@ echo ""
 echo "[2/3] Starting Fintech services..."
 cd "$ROOT_DIR"
 docker compose up -d fintech-redis transaction-engine fraud-detector payment-gateway fintech-watchdog
-echo "  ✓ All fintech services started"
+echo " All fintech services started"
 echo ""
 
 # Wait for services to be ready
@@ -58,9 +63,9 @@ for svc_info in "Transaction Engine|http://localhost:8090/health" \
     IFS='|' read -r name url <<< "$svc_info"
     status=$(curl -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")
     if [ "$status" = "200" ]; then
-        echo "  ✓ $name: healthy"
+        echo " $name: healthy"
     else
-        echo "  ⏳ $name: starting (status=$status)"
+        echo " $name: starting (status=$status)"
     fi
 done
 
@@ -69,17 +74,17 @@ echo "=============================================="
 echo " Fintech services are running!"
 echo ""
 echo " Endpoints:"
-echo "   Transaction Engine:  http://localhost:8090"
-echo "   Fraud Detector:      http://localhost:8091"
-echo "   Payment Gateway:     http://localhost:8092"
-echo "   Fintech Redis:       localhost:6380"
+echo " Transaction Engine: http://localhost:8090"
+echo " Fraud Detector: http://localhost:8091"
+echo " Payment Gateway: http://localhost:8092"
+echo " Fintech Redis: localhost:6380"
 echo ""
 echo " Try:"
-echo "   curl http://localhost:8091/score -X POST \\"
-echo "     -H 'Content-Type: application/json' \\"
-echo "     -d '{\"amount\": 500, \"channel\": \"online\", \"country_code\": \"US\"}'"
+echo " curl http://localhost:8091/score -X POST \\"
+echo " -H 'Content-Type: application/json' \\"
+echo " -d '{\"amount\": 500, \"channel\": \"online\", \"country_code\": \"US\"}'"
 echo ""
 echo " Chaos:"
-echo "   sre/chaos/payment-gateway-failure.sh"
-echo "   sre/chaos/transaction-fraud-spike.sh"
+echo " sre/chaos/payment-gateway-failure.sh"
+echo " sre/chaos/transaction-fraud-spike.sh"
 echo "=============================================="

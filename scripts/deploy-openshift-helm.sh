@@ -1,5 +1,9 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 # OpenShift Deployment Script for Naweji Reliability Platform
 # This script automates the deployment of NRP to OpenShift clusters
 # Requirements: oc CLI installed and logged into OpenShift cluster
@@ -140,7 +144,7 @@ deploy_healthcare() {
     
     # Display routes
     log_info "Healthcare service routes:"
-    oc get routes -n nrp-healthcare --no-headers 2>/dev/null | awk '{print "  - https://" $2}' || true
+    oc get routes -n nrp-healthcare --no-headers 2>/dev/null | awk '{print " - https://" $2}' || true
 }
 
 deploy_fintech() {
@@ -158,7 +162,7 @@ deploy_fintech() {
     
     # Display routes
     log_info "Fintech service routes:"
-    oc get routes -n nrp-fintech --no-headers 2>/dev/null | awk '{print "  - https://" $2}' || true
+    oc get routes -n nrp-fintech --no-headers 2>/dev/null | awk '{print " - https://" $2}' || true
 }
 
 verify_deployment() {
@@ -175,24 +179,24 @@ verify_deployment() {
 show_summary() {
     log_info "Deployment Summary:"
     echo ""
-    echo "🚀 Naweji Reliability Platform deployed to OpenShift"
+    echo " Naweji Reliability Platform deployed to OpenShift"
     echo ""
     echo "Namespaces created:"
-    oc get ns -l app=naweji-reliability-platform -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' | sed 's/^/  - /'
+    oc get ns -l app=naweji-reliability-platform -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' | sed 's/^/ - /'
     echo ""
     echo "Platform Routes:"
-    oc get routes -A -l platform=openshift 2>/dev/null | tail -n +2 | awk '{print "  - https://" $3}' || echo "  No routes yet (they are being created)"
+    oc get routes -A -l platform=openshift 2>/dev/null | tail -n +2 | awk '{print " - https://" $3}' || echo " No routes yet (they are being created)"
     echo ""
     echo "Pod Status:"
     for ns in nrp-platform nrp-healthcare nrp-fintech; do
         count=$(oc get pods -n "$ns" 2>/dev/null | tail -n +2 | grep -c "Running" || echo "0")
-        echo "  $ns: $count pods running"
+        echo " $ns: $count pods running"
     done
     echo ""
     echo "Next steps:"
-    echo "  1. Monitor deployment: oc get pods -A -w"
-    echo "  2. View logs: oc logs -f pod/<pod-name> -n <namespace>"
-    echo "  3. Access services via the routes listed above"
+    echo " 1. Monitor deployment: oc get pods -A -w"
+    echo " 2. View logs: oc logs -f pod/<pod-name> -n <namespace>"
+    echo " 3. Access services via the routes listed above"
 }
 
 main() {
@@ -216,7 +220,7 @@ main() {
     verify_deployment
     show_summary
     
-    log_success "Deployment complete! 🎉"
+    log_success "Deployment complete! "
 }
 
 # Handle errors

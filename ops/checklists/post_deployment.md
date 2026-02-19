@@ -11,3 +11,7 @@
 - [ ] **Alerting:** No abnormal alerts or warnings in the first 30–60 minutes.
 - [ ] **Documentation:** Observability dashboards and runbooks are updated (if needed).
 - [ ] **Handover:** Relevant ticket/issue is updated with deployment outcome and metrics summary.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

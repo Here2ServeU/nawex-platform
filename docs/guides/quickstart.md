@@ -88,3 +88,7 @@ scripts/heal.sh
 ## Notes
 - The AI orchestrator reads config from `ai/agents/agent_config.yaml`.
 - To read real app metrics, set `source: http` in that config.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

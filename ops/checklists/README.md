@@ -13,3 +13,7 @@ Operational checklists are a critical component of our DevOps strategy, ensuring
 ## Usage
 
 These documents should be utilized by all DevOps and SRE personnel prior to and following any changes to the production environment. They serve as a single source of truth for critical operational procedures.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

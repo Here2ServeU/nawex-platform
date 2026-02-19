@@ -1,3 +1,8 @@
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 """detect_phi_anomalies.py
 
 Real-time PHI (Protected Health Information) access anomaly detection and
@@ -148,7 +153,7 @@ def detect_phi_access_anomalies(
         group['phi_risk_score'] = (
             0.40 * (group['volume_zscore'].abs() / 4.0).clip(upper=1.0)
             + 0.35 * group['frequency_score']
-            + 0.25 * 0.1  # Baseline role/temporal risk (simplified for batch)
+            + 0.25 * 0.1 # Baseline role/temporal risk (simplified for batch)
         ).round(4)
 
         group['is_flagged'] = group['phi_risk_score'] > threshold

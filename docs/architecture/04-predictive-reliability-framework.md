@@ -18,10 +18,10 @@ The framework operates on a **Risk Probability (P)** scale to trigger specific o
 
 | Risk Level | Threshold | Automated Action | Response Tier |
 | --- | --- | --- | --- |
-| **Low** |  | Baseline Logging | Observability Only |
-| **Medium** |  | Dynamic Scaling | Infrastructure Warm-up |
-| **High** |  | Traffic Shadowing | Self-Healing Circuit |
-| **Critical** |  | **Automated Failover** | [GitOps Re-provisioning](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) |
+| **Low** | | Baseline Logging | Observability Only |
+| **Medium** | | Dynamic Scaling | Infrastructure Warm-up |
+| **High** | | Traffic Shadowing | Self-Healing Circuit |
+| **Critical** | | **Automated Failover** | [GitOps Re-provisioning](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) |
 
 ## Clinical Safety & Resilience
 
@@ -55,3 +55,6 @@ If the AI predicts a failure in the [payment processing pipeline](/ai/pipelines/
 
 This document signals that you don't just "do AI"—you know how to make AI **useful** for an enterprise. Highlighting the **Probability Thresholds** and the specialized use of **GCP for training** shows you understand the decision science and cost-efficiency required at the $500k+ salary level.
 
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

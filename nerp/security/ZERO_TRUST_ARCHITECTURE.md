@@ -12,53 +12,53 @@ NERP implements a complete zero-trust architecture ensuring maximum protection f
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     NERP Zero-Trust Model                        │
+│ NERP Zero-Trust Model │
 ├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  External Request                                                 │
-│         │                                                         │
-│         ▼                                                         │
-│  ┌──────────────────────┐                                        │
-│  │  WAF / Rate Limit    │  (DDoS protection, bot detection)     │
-│  └──────────┬───────────┘                                        │
-│             │                                                     │
-│             ▼                                                     │
-│  ┌──────────────────────┐                                        │
-│  │  API Gateway         │  (TLS 1.3, mutual auth)              │
-│  │  (Kong/Traefik)      │                                        │
-│  └──────────┬───────────┘                                        │
-│             │                                                     │
-│             ▼                                                     │
-│  ┌──────────────────────┐                                        │
-│  │  Identity Provider   │  (OAuth2, OIDC, FIDO2)               │
-│  │  (Keycloak/Auth0)    │                                        │
-│  └──────────┬───────────┘                                        │
-│             │                                                     │
-│             ▼                                                     │
-│  ┌──────────────────────────────────────────┐                   │
-│  │  Policy Enforcement Point (PEP)          │                   │
-│  │  ├─ OPA/Rego Rules Engine                │                   │
-│  │  ├─ ABAC (Attribute-Based Access Control)│                   │
-│  │  └─ Context Enrichment                   │                   │
-│  └──────────┬───────────────────────────────┘                   │
-│             │                                                     │
-│             ▼                                                     │
-│  ┌──────────────────────────────────────────┐                   │
-│  │  Service-to-Service Security             │                   │
-│  │  ├─ mTLS (mutual TLS) via Istio          │                   │
-│  │  ├─ SPIFFE/SVID Identity                 │                   │
-│  │  └─ Encrypted Service Mesh               │                   │
-│  └──────────┬───────────────────────────────┘                   │
-│             │                                                     │
-│             ▼                                                     │
-│  ┌──────────────────────────────────────────┐                   │
-│  │  Data Security Layer                     │                   │
-│  │  ├─ Field-Level Encryption (AES-256)    │                   │
-│  │  ├─ Row-Level Security (PostgreSQL RLS) │                   │
-│  │  ├─ Vault Integration (Key Management)   │                   │
-│  │  └─ Audit Logging (Immutable)            │                   │
-│  └──────────────────────────────────────────┘                   │
-│                                                                   │
+│ │
+│ External Request │
+│ │ │
+│ │
+│ ┌──────────────────────┐ │
+│ │ WAF / Rate Limit │ (DDoS protection, bot detection) │
+│ └──────────┬───────────┘ │
+│ │ │
+│ │
+│ ┌──────────────────────┐ │
+│ │ API Gateway │ (TLS 1.3, mutual auth) │
+│ │ (Kong/Traefik) │ │
+│ └──────────┬───────────┘ │
+│ │ │
+│ │
+│ ┌──────────────────────┐ │
+│ │ Identity Provider │ (OAuth2, OIDC, FIDO2) │
+│ │ (Keycloak/Auth0) │ │
+│ └──────────┬───────────┘ │
+│ │ │
+│ │
+│ ┌──────────────────────────────────────────┐ │
+│ │ Policy Enforcement Point (PEP) │ │
+│ │ ├─ OPA/Rego Rules Engine │ │
+│ │ ├─ ABAC (Attribute-Based Access Control)│ │
+│ │ └─ Context Enrichment │ │
+│ └──────────┬───────────────────────────────┘ │
+│ │ │
+│ │
+│ ┌──────────────────────────────────────────┐ │
+│ │ Service-to-Service Security │ │
+│ │ ├─ mTLS (mutual TLS) via Istio │ │
+│ │ ├─ SPIFFE/SVID Identity │ │
+│ │ └─ Encrypted Service Mesh │ │
+│ └──────────┬───────────────────────────────┘ │
+│ │ │
+│ │
+│ ┌──────────────────────────────────────────┐ │
+│ │ Data Security Layer │ │
+│ │ ├─ Field-Level Encryption (AES-256) │ │
+│ │ ├─ Row-Level Security (PostgreSQL RLS) │ │
+│ │ ├─ Vault Integration (Key Management) │ │
+│ │ └─ Audit Logging (Immutable) │ │
+│ └──────────────────────────────────────────┘ │
+│ │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -181,7 +181,7 @@ allow {
     input.subject.roles contains "finance-admin"
     input.action == "reverse_transaction"
     transaction_not_settled(input.transaction_id)
-    time.now_ns() - transaction_created_time < 86400000000000  # 24 hours
+    time.now_ns() - transaction_created_time < 86400000000000 # 24 hours
 }
 
 # Rule 4: Deny high-value transactions outside business hours
@@ -200,7 +200,7 @@ deny["compliance_not_approved"] {
 
 # Helper functions
 is_within_sla(timestamp) {
-    time.now_ns() - timestamp < 86400000000000  # Within 24 hours
+    time.now_ns() - timestamp < 86400000000000 # Within 24 hours
 }
 
 is_transaction_flagged(transaction_id) {
@@ -209,7 +209,7 @@ is_transaction_flagged(transaction_id) {
 
 has_valid_mfa(user_id) {
     audit.mfa_verified[user_id]
-    audit.mfa_timestamp[user_id] > time.now_ns() - 3600000000000  # Last 1 hour
+    audit.mfa_timestamp[user_id] > time.now_ns() - 3600000000000 # Last 1 hour
 }
 
 transaction_not_settled(transaction_id) {
@@ -218,7 +218,7 @@ transaction_not_settled(transaction_id) {
 
 not_within_business_hours {
     hour := time.now_ns() / 3600000000000 % 24
-    hour < 9  # Before 9 AM
+    hour < 9 # Before 9 AM
 }
 ```
 
@@ -247,8 +247,8 @@ allow {
     input.subject.roles contains "nursing"
     input.fields contains "heart_rate"
     input.fields contains "blood_pressure"
-    not input.fields contains "psychiatric_history"  # Not needed for nursing
-    not input.fields contains "genetic_markers"        # Not needed for nursing
+    not input.fields contains "psychiatric_history" # Not needed for nursing
+    not input.fields contains "genetic_markers" # Not needed for nursing
 }
 
 # Audit every access
@@ -284,7 +284,7 @@ metadata:
   namespace: nerp-production
 spec:
   mtls:
-    mode: STRICT  # Require mTLS for all service-to-service
+    mode: STRICT # Require mTLS for all service-to-service
   portLevelMtls:
     "8080":
       mode: STRICT
@@ -350,7 +350,7 @@ curl --unix-socket /tmp/spire-agent/public/api.sock \
 ```yaml
 # vault-config.yaml
 vault:
-  mode: ha-cluster  # 3 nodes minimum
+  mode: ha-cluster # 3 nodes minimum
   storage: postgresql
   encryption: transit-engine
   
@@ -377,7 +377,7 @@ vault:
       type: kv
       version: 2
       config:
-        max_lease_ttl: 2592000  # 30 days
+        max_lease_ttl: 2592000 # 30 days
     
     - path: transit/
       type: transit
@@ -471,9 +471,9 @@ db_creds = vault_client.secrets.database.generate_credentials(
 
 # Response includes:
 # {
-#   "username": "v-fintech-abc123-xyz",  # Auto-generated
-#   "password": "SecureRandomPassword",  # Vault-generated
-#   "ttl": "1h"  # Auto-revokes after 1 hour
+# "username": "v-fintech-abc123-xyz", # Auto-generated
+# "password": "SecureRandomPassword", # Vault-generated
+# "ttl": "1h" # Auto-revokes after 1 hour
 # }
 
 # Use credentials
@@ -496,11 +496,11 @@ conn = psycopg2.connect(
 -- PostgreSQL with Vault transit engine
 CREATE TABLE transactions (
     id UUID PRIMARY KEY,
-    amount DECIMAL(15,2),              -- Unencrypted (logged)
-    encrypted_account_number BYTEA,    -- Encrypted with Vault
-    encrypted_routing_number BYTEA,    -- Encrypted with Vault
-    fraud_score FLOAT,                 -- Unencrypted (analysis)
-    encrypted_customer_id BYTEA,       -- HIPAA/PCI-DSS requirement
+    amount DECIMAL(15,2), -- Unencrypted (logged)
+    encrypted_account_number BYTEA, -- Encrypted with Vault
+    encrypted_routing_number BYTEA, -- Encrypted with Vault
+    fraud_score FLOAT, -- Unencrypted (analysis)
+    encrypted_customer_id BYTEA, -- HIPAA/PCI-DSS requirement
     created_at TIMESTAMP,
     tenant_id UUID
 );
@@ -586,7 +586,7 @@ class ImmutableAuditLog:
     def __init__(self, vault_client, kafka_producer):
         self.vault = vault_client
         self.kafka = kafka_producer
-        self.retention_years = 7  # Compliance requirement
+        self.retention_years = 7 # Compliance requirement
     
     def log_event(self, event: dict) -> str:
         """
@@ -642,11 +642,11 @@ audit_log.log_event({
 
 ## Compliance Checklist
 
-- ✅ PCI-DSS 3.2.1 (financial data encryption, mTLS, audit logging)
-- ✅ HIPAA BAA (PHI encryption, access controls, audit trail)
-- ✅ SOC 2 Type II (control effectiveness, logging, incident response)
-- ✅ GDPR (data minimization, right to deletion, consent tracking)
-- ✅ ISO 27001 (information security management system)
+- PCI-DSS 3.2.1 (financial data encryption, mTLS, audit logging)
+- HIPAA BAA (PHI encryption, access controls, audit trail)
+- SOC 2 Type II (control effectiveness, logging, incident response)
+- GDPR (data minimization, right to deletion, consent tracking)
+- ISO 27001 (information security management system)
 
 ---
 
@@ -655,3 +655,7 @@ audit_log.log_event({
 - [OPA Policy Examples](policies/../)
 - [Vault Integration Guide](vault-integration.md)
 - [Compliance Documentation](../../docs/compliance/)
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

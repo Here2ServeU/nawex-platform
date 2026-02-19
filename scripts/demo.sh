@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -61,7 +66,7 @@ info "Demo is running. Logs: $LOG_DIR/app.log and $LOG_DIR/ai.log"
 
 if [[ "$DETACH" == "1" ]]; then
     info "Services are running in background. To stop:"
-    info "  kill $APP_PID $AI_PID"
+    info " kill $APP_PID $AI_PID"
     exit 0
 fi
 

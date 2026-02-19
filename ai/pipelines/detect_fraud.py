@@ -1,3 +1,8 @@
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 """detect_fraud.py
 
 Real-time transaction fraud detection using statistical and ML-based methods.
@@ -43,7 +48,7 @@ def calculate_fraud_score(transaction: Dict[str, Any], history: Optional[pd.Data
         std_amt = history['amount'].std()
         if std_amt > 0:
             z_amount = abs(amount - mean_amt) / std_amt
-            scores.append(min(z_amount / 5.0, 1.0))  # Normalize to [0, 1]
+            scores.append(min(z_amount / 5.0, 1.0)) # Normalize to [0, 1]
         else:
             scores.append(0.5 if amount > mean_amt * 2 else 0.0)
     else:
@@ -81,7 +86,7 @@ def calculate_fraud_score(transaction: Dict[str, Any], history: Optional[pd.Data
     scores.append(channel_risk.get(channel, 0.2))
 
     # --- Merchant Category Risk ---
-    high_risk_mcc = {'7995', '5967', '5966', '6051', '4829'}  # Gambling, crypto, money transfer
+    high_risk_mcc = {'7995', '5967', '5966', '6051', '4829'} # Gambling, crypto, money transfer
     mcc = str(transaction.get('merchant_category_code', ''))
     if mcc in high_risk_mcc:
         scores.append(0.5)
@@ -143,7 +148,7 @@ def detect_transaction_anomalies(
         group['fraud_score'] = (
             0.40 * (group['amount_zscore'].abs() / 5.0).clip(upper=1.0)
             + 0.35 * group['velocity_score']
-            + 0.25 * 0.1  # Baseline channel/geo risk (simplified for batch)
+            + 0.25 * 0.1 # Baseline channel/geo risk (simplified for batch)
         ).round(4)
 
         group['is_flagged'] = group['fraud_score'] > threshold

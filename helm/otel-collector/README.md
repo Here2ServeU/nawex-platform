@@ -50,3 +50,7 @@ Developers simply point their application SDKs to the local node:
 
 ### Talking Point:
 > I implemented the **OpenTelemetry Collector** because I believe in **'Instrumentation once, send anywhere.'** In my previous roles, I saw how painful it was to rip out proprietary agents when contracts changed. By using this OTel chart, I've future-proofed the platform—we can switch from AWS X-Ray to Jaeger to Honeycomb just by changing a few lines of YAML in this chart, without bothering a single developer.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

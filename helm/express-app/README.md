@@ -40,3 +40,7 @@ This directory contains the **"Golden Path"** Helm chart for deploying Node.js/E
 3. Deploy via ArgoCD (preferred) or Helm:
    ```bash
    helm install my-service ./express-app -f my-service-values.yaml
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

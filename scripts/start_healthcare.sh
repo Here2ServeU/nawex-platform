@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 # =============================================================================
 # Start Healthcare Services
 # =============================================================================
@@ -12,7 +17,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo "=============================================="
-echo " Express-Reliability: Healthcare Services"
+echo " NRP: Healthcare Services"
 echo "=============================================="
 echo ""
 
@@ -28,11 +33,11 @@ if [ -z "$KAFKA_RUNNING" ]; then
     echo "[1/3] Starting Kafka event backbone..."
     cd "$ROOT_DIR"
     docker compose up -d zookeeper kafka
-    echo "  Waiting for Kafka to be healthy..."
+    echo " Waiting for Kafka to be healthy..."
     sleep 10
-    echo "  ✓ Kafka started"
+    echo " Kafka started"
 else
-    echo "[1/3] Kafka already running ✓"
+    echo "[1/3] Kafka already running "
 fi
 echo ""
 
@@ -40,7 +45,7 @@ echo ""
 echo "[2/3] Starting Healthcare services..."
 cd "$ROOT_DIR"
 docker compose up -d healthcare-redis ehr-ingestion clinical-decision patient-data-gateway healthcare-watchdog
-echo "  ✓ All healthcare services started"
+echo " All healthcare services started"
 echo ""
 
 # Wait for services to be ready
@@ -58,9 +63,9 @@ for svc_info in "EHR Ingestion|http://localhost:8093/health" \
     IFS='|' read -r name url <<< "$svc_info"
     status=$(curl -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")
     if [ "$status" = "200" ]; then
-        echo "  ✓ $name: healthy"
+        echo " $name: healthy"
     else
-        echo "  ⏳ $name: starting (status=$status)"
+        echo " $name: starting (status=$status)"
     fi
 done
 
@@ -69,17 +74,17 @@ echo "=============================================="
 echo " Healthcare services are running!"
 echo ""
 echo " Endpoints:"
-echo "   EHR Ingestion:         http://localhost:8093"
-echo "   Clinical Decision:     http://localhost:8094"
-echo "   Patient Data Gateway:  http://localhost:8095"
-echo "   Healthcare Redis:      localhost:6381"
+echo " EHR Ingestion: http://localhost:8093"
+echo " Clinical Decision: http://localhost:8094"
+echo " Patient Data Gateway: http://localhost:8095"
+echo " Healthcare Redis: localhost:6381"
 echo ""
 echo " Try:"
-echo "   curl http://localhost:8094/score -X POST \\"
-echo "     -H 'Content-Type: application/json' \\"
-echo "     -d '{\"patient_id\": \"P001\", \"heart_rate\": 110, \"spo2\": 93, \"department\": \"icu\"}'"
+echo " curl http://localhost:8094/score -X POST \\"
+echo " -H 'Content-Type: application/json' \\"
+echo " -d '{\"patient_id\": \"P001\", \"heart_rate\": 110, \"spo2\": 93, \"department\": \"icu\"}'"
 echo ""
 echo " Chaos:"
-echo "   sre/chaos/ehr-gateway-failure.sh"
-echo "   sre/chaos/phi-breach-simulation.sh"
+echo " sre/chaos/ehr-gateway-failure.sh"
+echo " sre/chaos/phi-breach-simulation.sh"
 echo "=============================================="

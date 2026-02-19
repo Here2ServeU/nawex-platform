@@ -64,3 +64,7 @@ graph TD
 ### Pro-Tip for your Portfolio:
 
 Notice that I added **Probability Thresholds** (e.g., `p > 0.85`) to the diagram lines. This subtle detail demonstrates to hiring managers that you understand **Decision Science** and how to tune AI for operational reliability.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

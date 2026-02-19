@@ -23,12 +23,12 @@ This guide covers deploying the **Naweji Reliability Platform (NRP)** on **Red H
 
 ### Key Benefits of OpenShift Deployment
 
-✅ **Enterprise Security**: Built-in RBAC, SCCs, network policies, and audit logging  
-✅ **Operator Framework**: Automated lifecycle management with Red Hat operators  
-✅ **GitOps**: Integrated with OpenShift GitOps (ArgoCD)  
-✅ **Developer Experience**: OpenShift Console, Source-to-Image (S2I) builds  
-✅ **Compliance**: Native support for compliance monitoring and policy enforcement  
-✅ **RHEL-based**: Runs on Red Hat Enterprise Linux with full support  
+ **Enterprise Security**: Built-in RBAC, SCCs, network policies, and audit logging 
+ **Operator Framework**: Automated lifecycle management with Red Hat operators 
+ **GitOps**: Integrated with OpenShift GitOps (ArgoCD) 
+ **Developer Experience**: OpenShift Console, Source-to-Image (S2I) builds 
+ **Compliance**: Native support for compliance monitoring and policy enforcement 
+ **RHEL-based**: Runs on Red Hat Enterprise Linux with full support 
 
 ---
 
@@ -150,7 +150,7 @@ oc apply -f openshift/manifests/scc-nrp.yaml
 oc get scc nrp-scc nrp-privileged-scc
 ```
 
-**NRP SCC**: Restricted security model for standard workloads  
+**NRP SCC**: Restricted security model for standard workloads 
 **NRP Privileged SCC**: For robotics and edge workloads requiring elevated privileges
 
 #### 3. Setup Service Accounts and RBAC
@@ -296,7 +296,7 @@ volumeClaimTemplates:
       name: kafka-data
     spec:
       accessModes: ["ReadWriteOnce"]
-      storageClassName: "standard"  # or your OpenShift storage class
+      storageClassName: "standard" # or your OpenShift storage class
       resources:
         requests:
           storage: 100Gi
@@ -329,7 +329,7 @@ oc describe scc nrp-scc
 
 # Add additional SCCs as needed
 oc adm policy add-scc-to-user anyuid \
-  -z special-sa -n nrp-robotics  # For robotics with special requirements
+  -z special-sa -n nrp-robotics # For robotics with special requirements
 ```
 
 ### RBAC and Access Control
@@ -600,6 +600,10 @@ oc scale machineset <machineset-name> --replicas=5 -n openshift-machine-api
 
 ---
 
-**Last Updated**: February 2026  
-**OpenShift Version**: 4.10+  
+**Last Updated**: February 2026 
+**OpenShift Version**: 4.10+ 
 **Platform Version**: Latest
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

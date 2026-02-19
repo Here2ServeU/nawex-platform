@@ -63,3 +63,7 @@ spec:
 ### Talking Point
 
 > I organize my `gitops/argocd` folder to separate the *definition* of the app from the *deployment* of the app. By keeping these manifests distinct from the Helm charts, I can manage multi-cluster deployments easily. For example, I can have an `app-prod.yaml` and `app-stage.yaml` that both point to the same chart but apply different sync policies or environment variables.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

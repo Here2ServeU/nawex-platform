@@ -25,12 +25,12 @@ cd nerp
 tree -L 2 -d nerp/
 # Output:
 # nerp/
-# ├─ api/                          (REST, GraphQL, gRPC)
-# ├─ multi-tenancy/                (Tenant isolation)
-# ├─ security/                     (Zero-trust, encryption)
-# ├─ observability/                (Tracing, metrics, logs)
-# ├─ testing/                      (Unit, integration, chaos)
-# └─ fintech/                      (Transaction engine)
+# ├─ api/ (REST, GraphQL, gRPC)
+# ├─ multi-tenancy/ (Tenant isolation)
+# ├─ security/ (Zero-trust, encryption)
+# ├─ observability/ (Tracing, metrics, logs)
+# ├─ testing/ (Unit, integration, chaos)
+# └─ fintech/ (Transaction engine)
 ```
 
 #### Step 3: Watch System in Action (1 hour)
@@ -63,14 +63,14 @@ curl -X POST http://localhost:8000/api/v2/tenants/test-tenant/transactions \
 #### Prerequisites Check
 ```bash
 # Required versions
-python --version        # 3.11+
-docker --version        # 24.0+
-kubectl version         # 1.25+
-helm version           # 3.12+
+python --version # 3.11+
+docker --version # 24.0+
+kubectl version # 1.25+
+helm version # 3.12+
 
 # Install missing tools
-brew install python3.11 docker kubectl helm  # macOS
-apt install python3.11 docker.io kubectl helm  # Ubuntu
+brew install python3.11 docker kubectl helm # macOS
+apt install python3.11 docker.io kubectl helm # Ubuntu
 ```
 
 #### Python Environment Setup
@@ -119,7 +119,7 @@ python -c "import nerp; print(nerp.__version__)"
 #### Local Kubernetes Cluster
 ```bash
 # Option 1: Docker Desktop Kubernetes (easiest)
-docker desktop > preferences > Kubernetes > ✓ Enable Kubernetes
+docker desktop > preferences > Kubernetes > Enable Kubernetes
 
 # Option 2: Minikube
 minikube start --cpus=8 --memory=16000 --disk-size=50gb
@@ -186,15 +186,15 @@ make lint
 ```python
 # Scenario: You're building a feature that reads transactions
 
-# ❌ WRONG - No tenant isolation
+# WRONG - No tenant isolation
 async def get_transaction(transaction_id: str):
     return await db.query("SELECT * FROM transactions WHERE id = ?", (transaction_id,))
 
-# ✓ CORRECT - Enforces tenant isolation
+# CORRECT - Enforces tenant isolation
 from nerp.multi_tenancy import TenantContext
 
 async def get_transaction(transaction_id: str):
-    tenant_id = TenantContext.get_current_tenant()  # From auth token
+    tenant_id = TenantContext.get_current_tenant() # From auth token
     
     return await db.query(
         "SELECT * FROM transactions WHERE id = ? AND tenant_id = ?",
@@ -257,11 +257,11 @@ from nerp.multi_tenancy import TenantContext
 
 vault = VaultClient()
 
-# ❌ WRONG - Storing plaintext in database
+# WRONG - Storing plaintext in database
 def store_account(account_number: str):
     db.insert("accounts", {"number": account_number})
 
-# ✓ CORRECT - Encrypt before storage
+# CORRECT - Encrypt before storage
 async def store_account(account_number: str):
     tenant_id = TenantContext.get_current_tenant()
     
@@ -297,11 +297,11 @@ plaintext = await vault.decrypt(encrypted_account)
 
 ```
 nerp/fintech/
-├─ processor.py          (Main business logic)
-├─ router.py             (API endpoints)
-├─ models.py             (Data models + validation)
-├─ schema.py             (Database schema)
-├─ observability.py      (Metrics + tracing)
+├─ processor.py (Main business logic)
+├─ router.py (API endpoints)
+├─ models.py (Data models + validation)
+├─ schema.py (Database schema)
+├─ observability.py (Metrics + tracing)
 └─ tests/
    ├─ unit/
    ├─ integration/
@@ -426,17 +426,17 @@ from nerp.fintech.fees import calculate_fee
 @pytest.mark.asyncio
 async def test_domestic_small_amount():
     fee = await calculate_fee(Decimal("5000"), "domestic")
-    assert fee == Decimal("5")  # 0.1%
+    assert fee == Decimal("5") # 0.1%
 
 @pytest.mark.asyncio
 async def test_domestic_large_amount():
     fee = await calculate_fee(Decimal("50000"), "domestic")
-    assert fee == Decimal("25")  # 0.05%
+    assert fee == Decimal("25") # 0.05%
 
 @pytest.mark.asyncio
 async def test_international():
     fee = await calculate_fee(Decimal("1000"), "international")
-    assert fee == Decimal("10")  # 1%
+    assert fee == Decimal("10") # 1%
 
 @given(st.decimals(min_value=Decimal("1"), max_value=Decimal("1000000")))
 async def test_fee_is_positive(amount):
@@ -613,13 +613,13 @@ curl http://fraud-detector:8000/assess
 #### Example: Production-Ready Transaction API
 
 ```python
-# ❌ First draft (not production-ready)
+# First draft (not production-ready)
 async def process_transaction(tenant_id, amount, source_account, dest_account):
     result = fraud_model.predict(amount, source_account)
     db.insert("transactions", {...})
     return {"id": transaction_id}
 
-# ✓ Production-ready
+# Production-ready
 from nerp.api.decorators import require_auth, validate_input, trace_span
 from nerp.multi_tenancy import TenantContext
 from nerp.observability import traced_operation
@@ -656,10 +656,10 @@ async def process_transaction(
         
     Example:
         >>> result = await process_transaction(
-        ...     "acme-bank",
-        ...     Decimal("1000.00"),
-        ...     "ACC-001",
-        ...     "ACC-002"
+        ... "acme-bank",
+        ... Decimal("1000.00"),
+        ... "ACC-001",
+        ... "ACC-002"
         ... )
         >>> print(result["id"])
         "TXN-20260218-0001"
@@ -679,7 +679,7 @@ async def process_transaction(
     if idempotency_key:
         existing = db.query("transactions", {"idempotency_key": idempotency_key})
         if existing:
-            return existing  # Replay previous response
+            return existing # Replay previous response
     
     try:
         # 4. Assess fraud
@@ -770,7 +770,7 @@ async def process_transaction(
 ```bash
 # Solution: Ensure you're in virtual environment
 source venv/bin/activate
-pip install -e .  # Install in editable mode
+pip install -e . # Install in editable mode
 ```
 
 ### Problem: Tests timeout in Docker
@@ -812,11 +812,11 @@ psql -h localhost -U nerp -d nerp
 ### Common Commands
 ```bash
 # Run tests
-pytest nerp/                    # All tests
-pytest -k fraud                # Tests matching "fraud"
-pytest -m unit                 # Only unit tests (not integration)
-pytest --cov=nerp --cov-report=html  # Coverage report
-make test                      # Everything at once
+pytest nerp/ # All tests
+pytest -k fraud # Tests matching "fraud"
+pytest -m unit # Only unit tests (not integration)
+pytest --cov=nerp --cov-report=html # Coverage report
+make test # Everything at once
 
 # Start development environment
 docker-compose -f docker-compose.nerp.yml up -d
@@ -824,7 +824,7 @@ kubectl logs -f deployment/fintech-processor -n nerp-dev
 
 # Format code
 black nerp/ --line-length=100
-isort nerp/  # Sort imports
+isort nerp/ # Sort imports
 
 # Type checking
 mypy nerp/ --strict
@@ -845,4 +845,8 @@ By end of Day 3, you should be able to:
 - [ ] Access observability dashboards (Jaeger, Prometheus, Grafana)
 - [ ] Commit code with proper message format
 
-Welcome to the team! 🚀
+Welcome to the team!
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

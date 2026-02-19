@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 set -euo pipefail
 
 # Default URL points to the external Ingress hostname for the Express Web App
 # NOTE: For local testing, override with: export APP_URL="http://127.0.0.1:8080"
-APP_URL=${APP_URL:-"http://express-web-app.express-t2s.com"}
+APP_URL=${APP_URL:-"http://express-web-app.nrp-platform.com"}
 CONCURRENCY=${CONCURRENCY:-50}
 REQUESTS=${REQUESTS:-20000}
 

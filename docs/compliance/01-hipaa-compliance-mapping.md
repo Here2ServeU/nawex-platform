@@ -29,3 +29,7 @@ To support international healthcare standards (including **HDS** for French data
 ### Strategy for your Portfolio
 
 This document signals to a **CISO or CTO** that you understand the liability and regulatory overhead of healthcare tech. It transforms your repository from a "coding project" into a "compliant product."
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

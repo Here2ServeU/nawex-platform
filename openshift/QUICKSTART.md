@@ -8,22 +8,22 @@ OpenShift support for NRP includes production-ready manifests, scripts, and docu
 
 ```
 openshift/
-├── README.md                          ← Start here: Full deployment guide
-├── TROUBLESHOOTING.md                 ← Common issues and solutions
-├── OPERATIONS.md                      ← Day 2 operations & advanced features
+├── README.md ← Start here: Full deployment guide
+├── TROUBLESHOOTING.md ← Common issues and solutions
+├── OPERATIONS.md ← Day 2 operations & advanced features
 ├── manifests/
-│   ├── namespace.yaml                 ← 4 namespaces for isolation
-│   ├── scc-nrp.yaml                   ← Security Context Constraints
-│   ├── service-accounts.yaml           ← RBAC configuration
-│   ├── express-app-deployment.yaml     ← Main web application
-│   ├── healthcare-deployment.yaml      ← EHR, Clinical Decision, Patient Gateway
-│   ├── fintech-deployment.yaml         ← Fraud Detection, Payment Gateway, Transaction Engine
-│   ├── kafka-zookeeper.yaml            ← Event backbone
-│   ├── network-policies.yaml           ← Network security policies
-│   ├── config-maps.yaml                ← Application configuration
-│   └── pod-disruption-budgets.yaml     ← High availability guarantees
+│ ├── namespace.yaml ← 4 namespaces for isolation
+│ ├── scc-nrp.yaml ← Security Context Constraints
+│ ├── service-accounts.yaml ← RBAC configuration
+│ ├── express-app-deployment.yaml ← Main web application
+│ ├── healthcare-deployment.yaml ← EHR, Clinical Decision, Patient Gateway
+│ ├── fintech-deployment.yaml ← Fraud Detection, Payment Gateway, Transaction Engine
+│ ├── kafka-zookeeper.yaml ← Event backbone
+│ ├── network-policies.yaml ← Network security policies
+│ ├── config-maps.yaml ← Application configuration
+│ └── pod-disruption-budgets.yaml ← High availability guarantees
 └── helm-values/
-    ├── express-app-values.yaml         ← OpenShift-specific Helm values
+    ├── express-app-values.yaml ← OpenShift-specific Helm values
     ├── healthcare-values.yaml
     └── fintech-values.yaml
 ```
@@ -237,7 +237,7 @@ oc get hpa -n <namespace>
 
 ## Security Best Practices
 
-✅ **Applied by Default**:
+ **Applied by Default**:
 - Non-root container security contexts
 - ReadOnlyRootFilesystem where possible
 - Capability dropping (CAP_DROP=ALL)
@@ -246,7 +246,7 @@ oc get hpa -n <namespace>
 - Pod disruption budgets for high availability
 - Resource requests and limits
 
-⚠️ **Additional Hardening**:
+ **Additional Hardening**:
 ```bash
 # Encrypt secrets at rest
 oc patch apiserver cluster -p \
@@ -424,24 +424,24 @@ oc get events -A | grep -i error
 ## Compliance & Security
 
 ### HIPAA (Healthcare)
-- ✅ Audit logging enabled
-- ✅ Encryption at rest & in transit
-- ✅ PHI masking
-- ✅ FHIR R4 compliance
-- ✅ Access control via RBAC
+- Audit logging enabled
+- Encryption at rest & in transit
+- PHI masking
+- FHIR R4 compliance
+- Access control via RBAC
 
 ### PCI-DSS (Fintech)
-- ✅ Network segmentation (network policies)
-- ✅ Encryption (TLS routes + pod security)
-- ✅ Access control (SCCs + RBAC)
-- ✅ Logging & monitoring
-- ✅ Vulnerability scanning
+- Network segmentation (network policies)
+- Encryption (TLS routes + pod security)
+- Access control (SCCs + RBAC)
+- Logging & monitoring
+- Vulnerability scanning
 
 ### SOC 2 Type II
-- ✅ Audit trails
-- ✅ Change tracking (GitOps)
-- ✅ Availability monitoring
-- ✅ Incident response
+- Audit trails
+- Change tracking (GitOps)
+- Availability monitoring
+- Incident response
 
 ---
 
@@ -496,6 +496,10 @@ oc rollout undo deployment/<name> -n <ns>
 
 ---
 
-**Welcome to NRP on OpenShift! 🚀**
+**Welcome to NRP on OpenShift! **
 
 Start with [README.md](README.md) for the full deployment guide.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

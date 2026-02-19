@@ -20,17 +20,17 @@ This document extends the platform's [RBAC model](/sre/security/reliability-rbac
 
 | Action | Clinical Admin | Clinician | PHI Auditor | Privacy Officer | Data Engineer |
 | --- | --- | --- | --- | --- | --- |
-| Configure EHR gateway | ✓ | | | | |
-| View patient records | ✓ | ✓ (dept) | | | |
-| Access PHI audit logs | | | ✓ | ✓ | |
-| Manage consent records | | | | ✓ | |
-| Modify clinical thresholds | ✓ | | | | |
-| View compliance reports | | | ✓ | ✓ | |
-| Access raw patient data | ✓ | ✓ (dept) | | | |
+| Configure EHR gateway | | | | | |
+| View patient records | | (dept) | | | |
+| Access PHI audit logs | | | | | |
+| Manage consent records | | | | | |
+| Modify clinical thresholds | | | | | |
+| View compliance reports | | | | | |
+| Access raw patient data | | (dept) | | | |
 | Deploy code changes | | | | | |
 | Modify RBAC policies | | | | | |
-| Manage data pipelines | | | | | ✓ |
-| Override quarantine | ✓ | ✓ (attending) | | | |
+| Manage data pipelines | | | | | |
+| Override quarantine | | (attending) | | | |
 
 ### HIPAA-Required Controls
 
@@ -88,3 +88,7 @@ rules:
 | Service account audit | Monthly | SRE Team | FDA 21 CFR Part 11 |
 | RBAC policy drift check | Weekly (automated) | AI Platform | Continuous compliance |
 | Workforce termination access | Immediately | HR + Clinical Admin | HIPAA §164.308(a)(3)(ii)(C) |
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

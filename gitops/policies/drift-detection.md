@@ -46,3 +46,7 @@ This platform uses **GitOps** to detect and remediate drift between:
 4. Highlight how:
    - You treat the UI/CLI as *read-only*
    - Git + reviews are the single source of truth.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

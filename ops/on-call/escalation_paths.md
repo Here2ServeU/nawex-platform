@@ -29,3 +29,7 @@
 - PagerDuty / OpsGenie / custom webhook from Prometheus/Grafana (for automated alerts).
 - Slack / Teams incident channel (e.g., #inc-<date>-<short-desc> ).
 - Email summary to stakeholders for P2 and higher post-mortem.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

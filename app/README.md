@@ -62,3 +62,7 @@ docker run -p 8080:8080 aiops-app
 
 ### Talking Point
 > I wrote this `app` to be the 'guinea pig' for my platform. It’s not just a web server; it’s a **telemetry generator**. I built in specific endpoints like `/slow` and `/error` so I could trigger failures on demand and verify that my AIOps engine detects them within seconds. This proves the feedback loop between the Application layer and the Infrastructure layer.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

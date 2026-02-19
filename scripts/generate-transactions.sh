@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 # =============================================================================
 # Generate Fintech Transaction Traffic
 # =============================================================================
@@ -96,7 +101,7 @@ while true; do
 
     # Progress update every 5 seconds
     if [ $((elapsed % 5)) -eq 0 ] && [ "$elapsed" -gt 0 ]; then
-        echo "  [${elapsed}s] Transactions: ${total_txns} | Blocked: ${blocked} | Errors: ${errors}"
+        echo " [${elapsed}s] Transactions: ${total_txns} | Blocked: ${blocked} | Errors: ${errors}"
     fi
 
     sleep 1
@@ -106,10 +111,10 @@ echo ""
 echo "=============================================="
 echo " Traffic Generation Complete"
 echo "───────────────────────────────────────────────"
-echo "  Total Transactions: ${total_txns}"
-echo "  Approved:           $((total_txns - blocked - errors))"
-echo "  Blocked (Fraud):    ${blocked}"
-echo "  Errors:             ${errors}"
-echo "  Duration:           ${DURATION}s"
-echo "  Avg TPS:            $((total_txns / DURATION))"
+echo " Total Transactions: ${total_txns}"
+echo " Approved: $((total_txns - blocked - errors))"
+echo " Blocked (Fraud): ${blocked}"
+echo " Errors: ${errors}"
+echo " Duration: ${DURATION}s"
+echo " Avg TPS: $((total_txns / DURATION))"
 echo "=============================================="

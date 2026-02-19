@@ -46,3 +46,7 @@ These services are designed to comply with:
 - **GLBA** — Financial privacy safeguards
 
 See `/docs/compliance/` for detailed compliance mappings.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -109,3 +109,7 @@ These charts are designed to be deployed via **ArgoCD** (GitOps). Do not run `he
 1. Update the `values.yaml` in the respective environment folder (e.g., `gitops/envs/prod`).
 2. Commit the change to Git.
 3. ArgoCD will automatically sync the state.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -37,26 +37,26 @@ curl -X GET https://api.nerp-platform.io/api/v2/tenants/TENANT-ID/transactions \
 
 #### Fintech - Transactions
 ```
-POST   /api/v2/tenants/{tenantId}/transactions
+POST /api/v2/tenants/{tenantId}/transactions
        ├─ Request: { amount, currency, source_account, dest_account }
        ├─ Response: { id, status, fraud_score, estimated_delivery }
        └─ Latency: <50ms (fraud detection included)
 
-GET    /api/v2/tenants/{tenantId}/transactions/{id}
+GET /api/v2/tenants/{tenantId}/transactions/{id}
        ├─ Response: { id, status, audit_trail }
        └─ Latency: <10ms
 
-GET    /api/v2/tenants/{tenantId}/transactions?filter[status]=PENDING&limit=100
+GET /api/v2/tenants/{tenantId}/transactions?filter[status]=PENDING&limit=100
        ├─ Pagination: limit, offset, sort
        ├─ Filtering: status, date_range, amount_range
        ├─ Response: { data: [], total, pagination }
        └─ Latency: <100ms
 
-POST   /api/v2/tenants/{tenantId}/transactions/{id}/approve
+POST /api/v2/tenants/{tenantId}/transactions/{id}/approve
        ├─ Admin override for manual review
        └─ Response: { approved_by, approved_at, settlement_time }
 
-POST   /api/v2/tenants/{tenantId}/transactions/{id}/reverse
+POST /api/v2/tenants/{tenantId}/transactions/{id}/reverse
        ├─ Reverse a transaction (if not settled)
        └─ Response: { reversed_at, reversal_id, new_balance }
 ```
@@ -96,24 +96,24 @@ curl -X POST https://api.nerp-platform.io/api/v2/tenants/acme-bank/transactions 
 
 #### Healthcare - Patients
 ```
-POST   /api/v2/tenants/{tenantId}/patients
+POST /api/v2/tenants/{tenantId}/patients
        ├─ Admit new patient
        └─ Response: { patient_id, mrn, admission_date }
 
-PUT    /api/v2/tenants/{tenantId}/patients/{patientId}/vitals
+PUT /api/v2/tenants/{tenantId}/patients/{patientId}/vitals
        ├─ Record vital signs
        └─ Response: { recorded_at, alerts: [] }
 
-GET    /api/v2/tenants/{tenantId}/patients/{patientId}
+GET /api/v2/tenants/{tenantId}/patients/{patientId}
        ├─ Get patient demographics and history
        └─ Response: { patient_data (FHIR format) }
 
-GET    /api/v2/tenants/{tenantId}/patients/{patientId}/alerts
+GET /api/v2/tenants/{tenantId}/patients/{patientId}/alerts
        ├─ Get clinical alerts (last 24h)
        ├─ Filtering: severity (LOW, MEDIUM, HIGH, CRITICAL)
        └─ Response: { alerts: [], alert_count }
 
-POST   /api/v2/tenants/{tenantId}/clinical/decisions
+POST /api/v2/tenants/{tenantId}/clinical/decisions
        ├─ Request clinical decision support
        ├─ Input: { patient_id, vitals, symptoms }
        └─ Response: { recommendation, confidence, evidence }
@@ -153,16 +153,16 @@ curl -X PUT https://api.nerp-platform.io/api/v2/tenants/hospital-a/patients/P-20
 
 #### Analytics & Reporting
 ```
-GET    /api/v2/tenants/{tenantId}/reports/transactions
+GET /api/v2/tenants/{tenantId}/reports/transactions
        ├─ Params: date_range, currency, status
        └─ Response: { total_volume, success_rate, fraud_rate, avg_latency }
 
-GET    /api/v2/tenants/{tenantId}/reports/fraud-patterns
+GET /api/v2/tenants/{tenantId}/reports/fraud-patterns
        ├─ Identify fraud trends
        ├─ Params: date_range, limit
        └─ Response: { patterns: [], emerging_threats: [] }
 
-GET    /api/v2/tenants/{tenantId}/compliance/audit-log
+GET /api/v2/tenants/{tenantId}/compliance/audit-log
        ├─ Compliance audit trail
        ├─ Params: user_id, action, date_range
        └─ Response: { events: [], total }
@@ -471,3 +471,7 @@ v3 - Planned (2027+)
 - [GraphQL Schema](schema.graphql)
 - [gRPC Services](services.proto)
 - [SDK Documentation](https://sdk.nerp-platform.io)
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

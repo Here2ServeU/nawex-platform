@@ -37,3 +37,7 @@ This policy serves as a strategic extension of our [HIPAA Compliance Mapping](ht
 ### Integration Step
 
 Once you commit this file, your [EXECUTIVE-PORTFOLIO.md](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/guides/EXECUTIVE-PORTFOLIO.md) will have a complete "Source of Truth" for its quantum claims.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

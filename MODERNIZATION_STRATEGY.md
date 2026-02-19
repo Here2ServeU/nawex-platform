@@ -21,7 +21,7 @@ OLD → NEW
 express-app → nerp-core-api
 express-t2s-microservice → nerp-core
 express-web-app → nerp-dashboard
-express-reliability-aiops-platform → Naweji Enterprise Reliability Platform (NERP)
+Naweji-Reliability-Platform → Naweji Enterprise Reliability Platform (NERP)
 NRP → NERP (with NERP = Enterprise Reliability Platform)
 ```
 
@@ -35,10 +35,10 @@ NRP → NERP (with NERP = Enterprise Reliability Platform)
 # Multi-tenancy architecture
 nerp/
 ├── core/
-│   ├── tenant-manager/        # NEW: Tenant isolation, provisioning
-│   ├── workspace-controller/   # NEW: Per-tenant workspaces
-│   ├── data-isolator/          # NEW: Data encryption per tenant
-│   └── quota-enforcer/         # NEW: Resource quotas per tenant
+│ ├── tenant-manager/ # NEW: Tenant isolation, provisioning
+│ ├── workspace-controller/ # NEW: Per-tenant workspaces
+│ ├── data-isolator/ # NEW: Data encryption per tenant
+│ └── quota-enforcer/ # NEW: Resource quotas per tenant
 
 # Deployment pattern
 - Client A's data → Isolated namespace, encryption, RBAC
@@ -69,10 +69,10 @@ Every request:
 
 **REST API (Existing Patterns Enhanced)**
 ```
-GET    /api/v2/tenants/{tenant}/transactions
-GET    /api/v2/tenants/{tenant}/patients/{id}
-POST   /api/v2/tenants/{tenant}/fraud-assessments
-PUT    /api/v2/tenants/{tenant}/clinical-alerts/{id}
+GET /api/v2/tenants/{tenant}/transactions
+GET /api/v2/tenants/{tenant}/patients/{id}
+POST /api/v2/tenants/{tenant}/fraud-assessments
+PUT /api/v2/tenants/{tenant}/clinical-alerts/{id}
 DELETE /api/v2/tenants/{tenant}/audit-records/{id}
 
 + OpenAPI 3.1 documentation
@@ -134,7 +134,7 @@ service TransactionService {
 
 ### 3.1 OpenTelemetry Integration (Logs, Traces, Metrics)
 
-**Current:** Fragmented observability  
+**Current:** Fragmented observability 
 **Future:** Unified observability stack
 
 ```
@@ -183,32 +183,32 @@ ErrorBudget Consumption Tracking:
 ### 4.1 Testing Pyramid for NERP
 
 ```
-                    🔺
+                    
                 Explorer (Manual)
               Ad-hoc discovery tests
                 15% confidence
                     │
-                    💡
+                    
           Property-Based Tests
         (Metamorphic relationships)
             45% confidence
                     │
-                  🔄
+                  
         Chaos Engineering Tests
       (Failure scenario simulation)
             70% confidence
                     │
-                   🎯
+                   
           Integration Tests
       (Service-to-service contracts)
             85% confidence
                     │
-                   ⚙️
+                   
            Unit Tests
       (Function behavior validation)
             95% confidence
                     
-                    📊
+                    
             Performance Tests
           (Benchmark regression)
             99% confidence
@@ -303,18 +303,18 @@ Dissertation-Ready Topics:
 ```
 /docs/research/
 ├── papers/
-│   ├── 01-predictive-reliability.md (PhD chapter)
-│   ├── 02-multi-tenant-architecture.md (conference paper)
-│   ├── 03-service-mesh-patterns.md (IEEE paper)
-│   └── 04-zero-trust-security.md (USENIX paper)
+│ ├── 01-predictive-reliability.md (PhD chapter)
+│ ├── 02-multi-tenant-architecture.md (conference paper)
+│ ├── 03-service-mesh-patterns.md (IEEE paper)
+│ └── 04-zero-trust-security.md (USENIX paper)
 ├── datasets/
-│   ├── transaction-flows/ (anonymized fintech data)
-│   ├── clinical-patterns/ (HIPAA-safe healthcare data)
-│   └── failure-scenarios/ (chaos test results)
+│ ├── transaction-flows/ (anonymized fintech data)
+│ ├── clinical-patterns/ (HIPAA-safe healthcare data)
+│ └── failure-scenarios/ (chaos test results)
 ├── benchmarks/
-│   ├── latency-percentiles.csv
-│   ├── throughput-scaling.csv
-│   └── failure-recovery-times.csv
+│ ├── latency-percentiles.csv
+│ ├── throughput-scaling.csv
+│ └── failure-recovery-times.csv
 └── case-studies/
     ├── case-study-payment-outage.md
     ├── case-study-ehr-breach-detection.md
@@ -352,13 +352,13 @@ AWS Cost Explorer → NERP → Dashboard showing:
 
 ```yaml
 Recovery Strategies:
-  RPO (Recovery Point Objective):  0-5 minutes  # Risk of loss
-  RTO (Recovery Time Objective):   <30 seconds  # Time to recover
+  RPO (Recovery Point Objective): 0-5 minutes # Risk of loss
+  RTO (Recovery Time Objective): <30 seconds # Time to recover
   
   Levels:
-    1. Single node failure     → Automatic pod restart + rescheduling
+    1. Single node failure → Automatic pod restart + rescheduling
     2. Availability Zone down → Failover to another AZ (<5 sec)
-    3. Region down            → Failover to backup region (<30 sec)
+    3. Region down → Failover to backup region (<30 sec)
     4. Complete system failure → Restore from backup (< 4 hours)
     
   Testing:
@@ -540,29 +540,29 @@ Labs & Hands-On (120 hours required)
 
 NERP will be successful when:
 
-✅ **Enterprise Adoption**
+ **Enterprise Adoption**
 - Used by major fintech platforms
 - Used by hospital systems
 - Deployed in 500+ organizations
 
-✅ **Developer Excellence**
+ **Developer Excellence**
 - Engineers consider it gold standard
 - $15k+ training programs filled
 - Community contributions at scale
 
-✅ **Academic Rigor**
+ **Academic Rigor**
 - PhD dissertations written about it
 - Papers in top conferences
 - Case studies in textbooks
 
-✅ **Long-Term Vision**
+ **Long-Term Vision**
 - Still relevant in 20 years
 - Evolved with industry needs
 - Set standards for the next generation
 
 ---
 
-**Let's build the platform that transforms enterprise reliability for the next two decades.** 🚀
+**Let's build the platform that transforms enterprise reliability for the next two decades.** 
 
 ---
 
@@ -571,3 +571,7 @@ NERP will be successful when:
 2. Confirm vision alignment
 3. Begin Phase 1 implementation (renaming, multi-tenancy)
 4. Proceed systematically through phases
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 set -euo pipefail
 
 ##############################################################################
-# Express-Reliability AIOps DevSecOps Unified Demo Script
+# Naweji Reliability Platform (NRP) DevSecOps Unified Demo Script
 # Orchestrates full infrastructure demo: Kafka → App → AIOps → Chaos → Recovery → Security
 # Usage: ./scripts/demo-devsecops.sh [--robotics] [--aws-audit]
 ##############################################################################
@@ -33,21 +38,21 @@ log() {
 }
 
 success() {
-    echo -e "${GREEN}✓ $*${NC}"
+    echo -e "${GREEN} $*${NC}"
 }
 
 warn() {
-    echo -e "${YELLOW}⚠ $*${NC}"
+    echo -e "${YELLOW} $*${NC}"
 }
 
 error() {
-    echo -e "${RED}✗ $*${NC}" >&2
+    echo -e "${RED} $*${NC}" >&2
 }
 
 section() {
     echo ""
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${BLUE}▶ $*${NC}"
+    echo -e "${BLUE} $*${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }
 
@@ -128,7 +133,7 @@ log "Running bootstrap..."
 bash scripts/bootstrap.sh >/dev/null 2>&1 || warn "Bootstrap script had warnings, continuing..."
 success "Bootstrap completed"
 
-pause_for_demo "▶ Bootstrap complete. Press enter to start Kafka & Zookeeper..."
+pause_for_demo " Bootstrap complete. Press enter to start Kafka & Zookeeper..."
 
 ##############################################################################
 # Phase 3: Start Kafka & Zookeeper
@@ -152,7 +157,7 @@ bash tools/kafka/kafka-healthcheck.sh || warn "Kafka healthcheck had issues"
 
 success "Kafka backbone is operational"
 
-pause_for_demo "▶ Kafka ready. Press enter to start Express App and AIOps Orchestrator..."
+pause_for_demo " Kafka ready. Press enter to start Express App and AIOps Orchestrator..."
 
 ##############################################################################
 # Phase 4: Start Core Services
@@ -195,7 +200,7 @@ if [ $DEMO_ROBOTICS -eq 1 ]; then
     success "Robotics demo is running"
 fi
 
-pause_for_demo "▶ Services running. Press enter to validate health..."
+pause_for_demo " Services running. Press enter to validate health..."
 
 ##############################################################################
 # Phase 6: Health Check & Observability
@@ -219,7 +224,7 @@ docker exec kafka_broker kafka-topics.sh --bootstrap-server localhost:9092 --lis
 
 success "Observability validated"
 
-pause_for_demo "▶ Observability configured. Press enter to inject chaos..."
+pause_for_demo " Observability configured. Press enter to inject chaos..."
 
 ##############################################################################
 # Phase 7: Chaos Engineering
@@ -242,7 +247,7 @@ echo "$CHAOS_METRICS"
 
 success "AIOps decision loop should have attempted remediation (check logs)"
 
-pause_for_demo "▶ Chaos running. Press enter to trigger recovery..."
+pause_for_demo " Chaos running. Press enter to trigger recovery..."
 
 ##############################################################################
 # Phase 8: Recovery & Healing
@@ -264,7 +269,7 @@ echo "$RECOVERED_METRICS"
 
 success "System has recovered to baseline"
 
-pause_for_demo "▶ Recovery complete. Press enter to validate security compliance..."
+pause_for_demo " Recovery complete. Press enter to validate security compliance..."
 
 ##############################################################################
 # Phase 9: Security & Compliance Validation
@@ -277,29 +282,29 @@ bash scripts/policy-gate.sh && success "Policy gate PASSED" || warn "Policy gate
 
 log "Reviewing DevSecOps integration points..."
 echo ""
-log "✓ SecurityHub + AWS Config modules wired to all environments"
-log "  Location: terraform/modules/aws/securityhub/ and terraform/modules/aws/config/"
+log " SecurityHub + AWS Config modules wired to all environments"
+log " Location: terraform/modules/aws/securityhub/ and terraform/modules/aws/config/"
 log ""
-log "✓ Data Pipeline Observability playbook"
-log "  Location: ops/playbooks/data_pipeline_observability.md"
+log " Data Pipeline Observability playbook"
+log " Location: ops/playbooks/data_pipeline_observability.md"
 log ""
-log "✓ Kafka operations & healthcheck tooling"
-log "  Healthcheck: tools/kafka/kafka-healthcheck.sh"
+log " Kafka operations & healthcheck tooling"
+log " Healthcheck: tools/kafka/kafka-healthcheck.sh"
 log ""
-log "✓ Trivy vulnerability scanning in CI/CD"
-log "  Location: .github/workflows/ci.yml"
+log " Trivy vulnerability scanning in CI/CD"
+log " Location: .github/workflows/ci.yml"
 log ""
-log "✓ Playbooks for operational runbooks"
-log "  Locations:"
-log "    - ops/playbooks/kafka_healthcheck.md"
-log "    - ops/playbooks/observability_dashboards.md"
-log "    - ops/playbooks/securityhub_config.md"
+log " Playbooks for operational runbooks"
+log " Locations:"
+log " - ops/playbooks/kafka_healthcheck.md"
+log " - ops/playbooks/observability_dashboards.md"
+log " - ops/playbooks/securityhub_config.md"
 log ""
 
 if [ $DEMO_AWS_AUDIT -eq 1 ]; then
     log "To enable AWS SecurityHub + Config audit (requires AWS credentials and Terraform):"
-    echo "  cd terraform/live/aws/dev && terraform plan"
-    echo "  (This would wire SecurityHub and Config to your AWS account)"
+    echo " cd terraform/live/aws/dev && terraform plan"
+    echo " (This would wire SecurityHub and Config to your AWS account)"
 fi
 
 success "Security & Compliance review complete"
@@ -308,51 +313,51 @@ success "Security & Compliance review complete"
 # Phase 10: Summary & Cleanup Instructions
 ##############################################################################
 
-section "DEMO COMPLETE ✓"
+section "DEMO COMPLETE "
 
 echo ""
 log "Summary of Infrastructure Components:"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo "  Kafka Backbone:"
-echo "    • Bootstrap: kafka:9092"
-echo "    • Command: docker compose ps"
+echo " Kafka Backbone:"
+echo " • Bootstrap: kafka:9092"
+echo " • Command: docker compose ps"
 echo ""
-echo "  Express App:"
-echo "    • URL: http://localhost:3000"
-echo "    • Metrics: http://localhost:3000/metrics"
-echo "    • PID: $APP_PID"
+echo " Express App:"
+echo " • URL: http://localhost:3000"
+echo " • Metrics: http://localhost:3000/metrics"
+echo " • PID: $APP_PID"
 echo ""
-echo "  AIOps Orchestrator:"
-echo "    • Status: Running in background"
-echo "    • Config: ai/agents/agent_config.yaml"
-echo "    • PID: $AI_PID"
+echo " AIOps Orchestrator:"
+echo " • Status: Running in background"
+echo " • Config: ai/agents/agent_config.yaml"
+echo " • PID: $AI_PID"
 echo ""
 if [ $DEMO_ROBOTICS -eq 1 ]; then
-echo "  Robotics Demo:"
-echo "    • gRPC Server: localhost:50051"
-echo "    • PID: $ROBOTICS_PID"
+echo " Robotics Demo:"
+echo " • gRPC Server: localhost:50051"
+echo " • PID: $ROBOTICS_PID"
 echo ""
 fi
-echo "  Compliance & Security:"
-echo "    • SecurityHub: terraform/modules/aws/securityhub/"
-echo "    • AWS Config: terraform/modules/aws/config/"
-echo "    • Trivy CI Scans: .github/workflows/ci.yml"
+echo " Compliance & Security:"
+echo " • SecurityHub: terraform/modules/aws/securityhub/"
+echo " • AWS Config: terraform/modules/aws/config/"
+echo " • Trivy CI Scans: .github/workflows/ci.yml"
 echo ""
 log "To stop all services:"
-echo "  • Foreground processes: Press Ctrl+C (will cleanly exit)"
-echo "  • Docker services: docker compose down"
-echo "  • Full cleanup: scripts/cleanup.sh"
+echo " • Foreground processes: Press Ctrl+C (will cleanly exit)"
+echo " • Docker services: docker compose down"
+echo " • Full cleanup: scripts/cleanup.sh"
 echo ""
 log "Documentation:"
-echo "  • Architecture: docs/architecture/"
-echo "  • Playbooks: ops/playbooks/"
-echo "  • DevSecOps Guide: docs/guides/devsecops-integration.md"
-echo "  • Quick Reference: docs/guides/quickstart.md"
+echo " • Architecture: docs/architecture/"
+echo " • Playbooks: ops/playbooks/"
+echo " • DevSecOps Guide: docs/guides/devsecops-integration.md"
+echo " • Quick Reference: docs/guides/quickstart.md"
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-pause_for_demo "▶ Demo complete. Press enter to exit..."
+pause_for_demo " Demo complete. Press enter to exit..."
 
 ##############################################################################
 # Cleanup

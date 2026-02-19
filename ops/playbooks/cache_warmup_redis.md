@@ -24,3 +24,7 @@
 
 5. **Automate/Integrate**
 - Integrate the warm-up job execution into the deployment pipeline as a **post-deployment hook** in your GitOps configuration (ArgoCD/Flux) to ensure it runs on every relevant deployment.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -35,3 +35,6 @@ All infrastructure is declared using modular [Terraform](https://github.com/Here
 
 By adding **GCP (GKE)** specifically for **Model Training**, you demonstrate a sophisticated understanding of cloud specialization: using AWS/Azure for reliable web/inference and GCP for its superior data-processing capabilities.
 
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

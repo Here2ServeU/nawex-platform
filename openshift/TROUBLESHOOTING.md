@@ -27,7 +27,7 @@ oc get events -A --sort-by='.lastTimestamp'
 ```bash
 oc describe pod <pod-name> -n <namespace>
 oc logs <pod-name> -n <namespace>
-oc logs <pod-name> -n <namespace> --previous  # If it crashed
+oc logs <pod-name> -n <namespace> --previous # If it crashed
 
 # Check for events
 oc get events -n <namespace> | grep <pod-name>
@@ -508,5 +508,9 @@ If issues persist:
 
 ---
 
-**Last Updated**: February 2026  
+**Last Updated**: February 2026 
 **OpenShift Versions**: 4.10+
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

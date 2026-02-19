@@ -33,3 +33,7 @@ This directory contains the **FluxCD** configuration for the platform. While Arg
 
 ### Interview Talking Point:
 > You might notice I have both argocd and flux folders. I built it this way to demonstrate proficiency with both industry standards. In a real-world scenario, I often use Flux for the low-level cluster bootstrapping (CNI, CSI, Service Mesh) because it's lightweight and headless, and then I layer ArgoCD on top for the developer-facing applications so they get the nice UI.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

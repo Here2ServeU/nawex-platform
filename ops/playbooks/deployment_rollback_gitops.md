@@ -30,3 +30,7 @@
 * Document the root cause analysis, including the time-to-revert (TTR).
 * Update the incident ticket with the successful rollback outcome.
 * Create a follow-up task to address the root cause and prevent recurrence.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 # =============================================================================
 # Healthcare: PHI Breach Simulation
 # =============================================================================
@@ -32,7 +37,7 @@ for i in $(seq 1 10); do
             \"phi_flag\": true
         }" > /dev/null 2>&1 || true
 done
-echo "  ✓ 10 legitimate EHR records ingested"
+echo " 10 legitimate EHR records ingested"
 echo ""
 
 # Step 2: Simulate anomalous PHI access patterns
@@ -52,13 +57,13 @@ for i in $(seq 1 10); do
 
     risk=$(echo "$result" | python3 -c "import sys,json; print(json.load(sys.stdin).get('risk_score', 'N/A'))" 2>/dev/null || echo "N/A")
     suspicious=$(echo "$result" | python3 -c "import sys,json; print(json.load(sys.stdin).get('is_suspicious', 'N/A'))" 2>/dev/null || echo "N/A")
-    echo "  Access event $i: risk=$risk, suspicious=$suspicious"
+    echo " Access event $i: risk=$risk, suspicious=$suspicious"
 done
 echo ""
 
 # Step 3: Check clinical decision metrics
 echo "[3/4] Checking clinical decision service state..."
-curl -s "$CLINICAL_DECISION_URL/metrics" 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "  (metrics not available)"
+curl -s "$CLINICAL_DECISION_URL/metrics" 2>/dev/null | python3 -m json.tool 2>/dev/null || echo " (metrics not available)"
 echo ""
 
 # Step 4: Verify breach detection via clinical scoring
@@ -79,16 +84,16 @@ for i in $(seq 1 3); do
         }" 2>/dev/null || echo "{}")
 
     risk_level=$(echo "$result" | python3 -c "import sys,json; print(json.load(sys.stdin).get('risk_level', 'N/A'))" 2>/dev/null || echo "N/A")
-    echo "  Clinical event $i: risk_level=$risk_level (expected: critical/high)"
+    echo " Clinical event $i: risk_level=$risk_level (expected: critical/high)"
 done
 echo ""
 
 echo "=============================================="
 echo " PHI breach simulation complete."
 echo " Expected AIOps response:"
-echo "   → phi_breach_detected rule should trigger"
-echo "   → Suspicious user sessions locked"
-echo "   → HIPAA compliance team notified"
-echo "   → Breach notification timer started"
-echo "   → HIPAA audit trail preserved for forensics"
+echo " → phi_breach_detected rule should trigger"
+echo " → Suspicious user sessions locked"
+echo " → HIPAA compliance team notified"
+echo " → Breach notification timer started"
+echo " → HIPAA audit trail preserved for forensics"
 echo "=============================================="

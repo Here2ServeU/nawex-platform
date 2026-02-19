@@ -42,3 +42,6 @@ python3 surgical_client.py
 
 **Strategic Value:** This setup demonstrates [Operational Alpha](https://gemini.google.com/app/95037d332637f270) by ensuring that even under [heavy network jitter](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine), the [Naweji Reliability Platform (NRP)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/README.md) maintains full control over the clinical environment.
 
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

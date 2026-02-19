@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 # =============================================================================
 # Fintech: Transaction Fraud Spike Simulation
 # =============================================================================
@@ -32,7 +37,7 @@ for i in $(seq 1 10); do
             \"merchant_category_code\": \"5411\"
         }" > /dev/null 2>&1 || true
 done
-echo "  ✓ 10 legitimate transactions scored"
+echo " 10 legitimate transactions scored"
 echo ""
 
 # Step 2: Inject suspicious high-risk transactions
@@ -50,13 +55,13 @@ for i in $(seq 1 10); do
     
     score=$(echo "$result" | python3 -c "import sys,json; print(json.load(sys.stdin).get('fraud_score', 'N/A'))" 2>/dev/null || echo "N/A")
     is_fraud=$(echo "$result" | python3 -c "import sys,json; print(json.load(sys.stdin).get('is_fraud', 'N/A'))" 2>/dev/null || echo "N/A")
-    echo "  Transaction fraud-$(printf '%03d' $i): score=$score, blocked=$is_fraud"
+    echo " Transaction fraud-$(printf '%03d' $i): score=$score, blocked=$is_fraud"
 done
 echo ""
 
 # Step 3: Check fraud detector metrics
 echo "[3/4] Checking fraud detector state..."
-curl -s "$FRAUD_DETECTOR_URL/metrics" 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "  (metrics not available)"
+curl -s "$FRAUD_DETECTOR_URL/metrics" 2>/dev/null | python3 -m json.tool 2>/dev/null || echo " (metrics not available)"
 echo ""
 
 # Step 4: Submit high-risk transactions to engine
@@ -73,15 +78,15 @@ for i in $(seq 1 3); do
         }" 2>/dev/null || echo "{}")
     
     status=$(echo "$result" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status', 'N/A'))" 2>/dev/null || echo "N/A")
-    echo "  Transaction status: $status (expected: blocked)"
+    echo " Transaction status: $status (expected: blocked)"
 done
 echo ""
 
 echo "=============================================="
 echo " Fraud spike simulation complete."
 echo " Expected AIOps response:"
-echo "   → fraud_spike rule should trigger"
-echo "   → Suspicious IP ranges blocked"
-echo "   → fraud-ops-team notified"
-echo "   → Key rotation initiated via GitOps"
+echo " → fraud_spike rule should trigger"
+echo " → Suspicious IP ranges blocked"
+echo " → fraud-ops-team notified"
+echo " → Key rotation initiated via GitOps"
 echo "=============================================="

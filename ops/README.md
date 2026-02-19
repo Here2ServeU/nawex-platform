@@ -12,3 +12,7 @@ This directory contains the central source of truth for **Site Reliability Engin
 * **Scripts (`scripts/`):** Utility automation scripts for maintenance and monitoring tasks.
 * **SRE (`sre/`):** General SRE principles, SLO/SLI definitions, and team structure documentation.
 * **Terraform (`terraform/`):** Infrastructure-as-Code definitions for platform components (e.g., EKS/AKS/GKE clusters).
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

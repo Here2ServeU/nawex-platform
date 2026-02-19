@@ -46,3 +46,7 @@ The [Predictive Reliability Framework](/docs/architecture/04-predictive-reliabil
 ### Audit Readiness
 
 This mapping ensures the platform can provide real-time evidence to external auditors (Big Four), demonstrating that IT controls supporting financial reporting are designed, implemented, and operating effectively throughout the reporting period.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

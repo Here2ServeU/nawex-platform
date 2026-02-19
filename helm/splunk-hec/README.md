@@ -61,3 +61,6 @@ env:
 ### Talking Point:
 > I separated `splunk-hec` into its own chart to solve the **'Secret Sprawl'** problem. Instead of every app team managing their own Splunk credentials, I centralize the HEC token management here. This allows me to rotate tokens instantly for security compliance and gives me a single point of control to point traffic to a different Splunk instance (like during a DR failover) without redeploying a single application.
 
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

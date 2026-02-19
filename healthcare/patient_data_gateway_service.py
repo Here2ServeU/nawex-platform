@@ -1,3 +1,8 @@
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 """Patient Data Gateway Service
 
 Simulates FHIR R4 / HL7 v2 gateway interactions for development and demo purposes.

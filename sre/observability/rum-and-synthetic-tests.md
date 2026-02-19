@@ -2,8 +2,8 @@
 
 ## 1. Overview
 This document defines the frontend observability standards for the Express AIOps platform. We utilize a dual-approach strategy:
-1.  **RUM (Real User Monitoring):** Captures *actual* user experience, including JavaScript errors, network latency, and session replays.
-2.  **Synthetic Testing:** Simulates user journeys and API calls from global locations to proactively detect downtime before real users are impacted.
+1. **RUM (Real User Monitoring):** Captures *actual* user experience, including JavaScript errors, network latency, and session replays.
+2. **Synthetic Testing:** Simulates user journeys and API calls from global locations to proactively detect downtime before real users are impacted.
 
 ---
 
@@ -33,3 +33,7 @@ datadogRum.init({
 });
 
 datadogRum.startSessionReplayRecording();
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

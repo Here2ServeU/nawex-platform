@@ -42,3 +42,7 @@ This directory contains the configurations and automation scripts for a full-sta
 * **Core Functionality:** Defines healthcare-specific metrics, SLOs, Grafana dashboards, and alert rules for EHR ingestion, clinical decision latency, patient data gateway, and PHI access auditing.
 * **SRE Challenge Solved:** **Clinical Observability Gaps.** Provides purpose-built monitoring for clinical workflows, PHI access patterns, and HIPAA compliance verification across all healthcare services.
 * **Operational Impact:** Enables real-time visibility into clinical operations with compliance-aligned alerting (HIPAA, HITECH, FDA 21 CFR Part 11) and automated error budget tracking for patient safety SLOs.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

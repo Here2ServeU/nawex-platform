@@ -16,3 +16,7 @@ This chart deploys an isolated Celery worker environment as part of the [Naweji 
 To install the chart with the release name `my-worker`:
 ```bash
 helm install my-worker ./helm/redis
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

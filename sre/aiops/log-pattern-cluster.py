@@ -1,3 +1,8 @@
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 # Demonstration of log clustering using TF-IDF + KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans

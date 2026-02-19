@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 set -euo pipefail
 
 # Configuration can be overridden via environment variables:
@@ -22,5 +27,5 @@ if [[ -z "${POD}" ]]; then
 fi
 
 echo "[INFO] Found pod: ${POD}"
-echo "[INFO] Port-forwarding ${POD} ➜ localhost:${LOCAL_PORT}"
+echo "[INFO] Port-forwarding ${POD} localhost:${LOCAL_PORT}"
 kubectl port-forward -n "${NAMESPACE}" "${POD}" "${LOCAL_PORT}":${CONTAINER_PORT}

@@ -81,3 +81,7 @@ This document describes the observability configuration for the **Fintech** vert
 1. **Latency Degradation**: P99 transaction latency > 80ms
 2. **Model Drift**: Fraud model precision drops below 93%
 3. **Volume Anomaly**: Transaction volume deviates >3σ from baseline
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

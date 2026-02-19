@@ -50,3 +50,7 @@ The [Multi-Cloud Topology](/docs/architecture/03-infrastructure-topology.md) enf
 ### Compliance Certification Path
 
 This mapping enables the platform to achieve **PCI-DSS Level 1 Service Provider** certification, demonstrating that the architecture is designed to protect payment data at every layer of the stack—from network ingress through AI inference to encrypted storage.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

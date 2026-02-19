@@ -9,16 +9,16 @@
 1. Enable SecurityHub:
 ```hcl
 module "securityhub" {
-  source  = "../../../modules/aws/securityhub"
+  source = "../../../modules/aws/securityhub"
   enabled = true
 }
 ```
 2. Enable AWS Config:
 ```hcl
 module "config" {
-  source        = "../../../modules/aws/config"
-  name          = "aiops-config"
-  bucket_name   = "aiops-config-logs"
+  source = "../../../modules/aws/config"
+  name = "aiops-config"
+  bucket_name = "aiops-config-logs"
   create_bucket = true
 }
 ```
@@ -30,3 +30,7 @@ module "config" {
 - Export SecurityHub findings summary.
 - Capture Config recorder status and delivery channel output.
 - Store evidence in the audit log repository.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

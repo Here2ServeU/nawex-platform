@@ -30,10 +30,10 @@ The Observability stack is built on a distributed forwarding model ensuring 100%
 
 ## Data Flow
 
-1.  **Generation:** The **Web App Workload** generates structured JSON logs (Latency, Errors, CPU).
-2.  **Collection:** The `splunk-forwarder` DaemonSet intercepts these logs at the node level.
-3.  **Ingestion:** Logs are encrypted and pushed to the central Splunk HEC endpoint.
-4.  **Analysis:**
+1. **Generation:** The **Web App Workload** generates structured JSON logs (Latency, Errors, CPU).
+2. **Collection:** The `splunk-forwarder` DaemonSet intercepts these logs at the node level.
+3. **Ingestion:** Logs are encrypted and pushed to the central Splunk HEC endpoint.
+4. **Analysis:**
     * **SRE Teams:** Use Splunk dashboards for historical trend analysis and incident post-mortems.
     * **AIOps Engine:** (Future Integration) The `ObserverAgent` can query Splunk APIs to retrain LSTM/TCN models with historical datasets.
 
@@ -56,3 +56,7 @@ The Observability stack is built on a distributed forwarding model ensuring 100%
 cd terraform/live/aws/splunk
 terraform apply -auto-approve
 # Output: splunk_hec_endpoint, splunk_admin_token
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

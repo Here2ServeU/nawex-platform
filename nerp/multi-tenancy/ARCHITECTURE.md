@@ -12,15 +12,15 @@ NERP multi-tenancy provides complete isolation, compliance, and cost efficiency 
 
 ```
 ┌─────────────────────────────────────────┐
-│  Tenant A (Bank)                         │
+│ Tenant A (Bank) │
 ├─────────────────────────────────────────┤
-│  Namespace: tenant-a                    │
-│  Encryption Key: tenant-a-key-v1        │
-│  Network Policy: Deny all ingress       │
-│  RBAC: 5 service accounts with minimal  │
-│  Resource Quota: CPU 100 cores, Mem 1TB │
-│  Database: Logical (row-level security) │
-│  Secrets: Encrypted, tenant-specific    │
+│ Namespace: tenant-a │
+│ Encryption Key: tenant-a-key-v1 │
+│ Network Policy: Deny all ingress │
+│ RBAC: 5 service accounts with minimal │
+│ Resource Quota: CPU 100 cores, Mem 1TB │
+│ Database: Logical (row-level security) │
+│ Secrets: Encrypted, tenant-specific │
 └─────────────────────────────────────────┘
 ```
 
@@ -100,12 +100,12 @@ Latency breakdown: 2ms (auth) + 10ms (query) + 2ms (encrypt) = 14ms p99
 
 CREATE TABLE transactions (
     id UUID NOT NULL,
-    tenant_id UUID NOT NULL,  # Tenant identifier
+    tenant_id UUID NOT NULL, # Tenant identifier
     created_at TIMESTAMP,
     amount DECIMAL,
     status TEXT,
-    encrypted_details BYTEA,  # Client secrets encrypted
-    PRIMARY KEY (id, tenant_id)  # Composite key ensures isolation
+    encrypted_details BYTEA, # Client secrets encrypted
+    PRIMARY KEY (id, tenant_id) # Composite key ensures isolation
 );
 
 -- Row-level security policy
@@ -117,7 +117,7 @@ ALTER TABLE transactions FORCE ROW LEVEL SECURITY;
 
 -- Application enforces:
 SET app.current_tenant_id TO {tenantId};
-SELECT * FROM transactions;  -- Automatically filtered by tenant
+SELECT * FROM transactions; -- Automatically filtered by tenant
 ```
 
 ### Tenant Context Middleware
@@ -324,15 +324,15 @@ spec:
   # Billing
   billing:
     tier: premium
-    monthlyBudget: 50000  # $50k/month limit
-    alertThreshold: 0.8    # Alert at 80% spend
+    monthlyBudget: 50000 # $50k/month limit
+    alertThreshold: 0.8 # Alert at 80% spend
     
   # Resource Allocation
   resources:
     compute:
-      cpu: "500"        # 500 cores
-      memory: "1000Gi"  # 1TB memory
-    storage: "10Ti"     # 10TB
+      cpu: "500" # 500 cores
+      memory: "1000Gi" # 1TB memory
+    storage: "10Ti" # 10TB
     networkBandwidth: "10Gbps"
   
   # Security
@@ -345,7 +345,7 @@ spec:
   # Compliance
   compliance:
     frameworks:
-      - HIPAA          # If healthcare tenant
+      - HIPAA # If healthcare tenant
       - PCI_DSS_LEVEL_1
       - SOC_2_TYPE_II
       - GDPR
@@ -370,8 +370,8 @@ spec:
   dr:
     backupFrequency: hourly
     retentionDays: 90
-    rpoMinutes: 60  # Recovery point: 1 hour
-    rtoSeconds: 300  # Recovery time: 5 minutes
+    rpoMinutes: 60 # Recovery point: 1 hour
+    rtoSeconds: 300 # Recovery time: 5 minutes
     multiRegion: true
 ```
 
@@ -411,3 +411,7 @@ Tenant Dashboard Shows:
 - [Kubernetes Multi-Tenancy Best Practices](https://kubernetes.io/docs/concepts/security/multi-tenancy/)
 - [PostgreSQL Row-Level Security](https://www.postgresql.org/docs/current/ddl-rowsecurity.html)
 - [NIST Multi-Tenancy Guidelines](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-92.pdf)
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

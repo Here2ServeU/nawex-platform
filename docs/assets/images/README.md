@@ -12,9 +12,9 @@ This directory contains the high-level diagrams and visual artifacts that docume
 ### 2. The AIOps Loop
 * **File:** `aiops-selfhealing-pipeline.png`
 * **Description:** Illustrates the closed-loop automation process:
-    1.  **Detect:** Telemetry data flows into the AIOps engine.
-    2.  **Predict:** The LSTM model forecasts an anomaly.
-    3.  **Act:** The system triggers an auto-scaling event or circuit breaker.
+    1. **Detect:** Telemetry data flows into the AIOps engine.
+    2. **Predict:** The LSTM model forecasts an anomaly.
+    3. **Act:** The system triggers an auto-scaling event or circuit breaker.
 * **Key Concept:** Visual proof of the transition from **Reactive** to **Predictive** reliability.
 
 ### 3. GitOps Workflow
@@ -38,3 +38,7 @@ These images are embedded in the root `README.md` and module-specific documentat
 
 ### Talking Point
 > I keep a dedicated `assets` folder because I believe **Visual Communication** is a core SRE skill. When I'm explaining a complex incident to leadership or onboarding a new engineer, having a clear `architecture-diagram.png` or `gitops-workflow.png` is often more valuable than the code itself. It proves I understand the *system design*, not just the syntax.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

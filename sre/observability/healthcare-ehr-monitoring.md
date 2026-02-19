@@ -89,3 +89,7 @@ This document describes the observability configuration for the **Healthcare** v
 1. **Latency Degradation**: P99 EHR query latency > 150ms
 2. **Model Drift**: Clinical model sensitivity drops below 95%
 3. **Consent Verification Failure**: Consent check failure rate > 1%
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

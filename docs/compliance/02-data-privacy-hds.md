@@ -35,3 +35,6 @@ Our [Predictive Reliability Framework](https://github.com/Here2ServeU/Naweji-Rel
 
 Adding **HDS** to your documentation highlights your ability to navigate complex international regulations. This is a massive differentiator for leadership roles in global healthcare tech.
 
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

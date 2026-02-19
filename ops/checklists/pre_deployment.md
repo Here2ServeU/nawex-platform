@@ -11,3 +11,7 @@
 - [ ] **SLO Impact:** SLO impact reviewed; error budget available for potential deployment issues.
 - [ ] **Runbooks:** Runbooks updated if new failure modes or service dependencies were introduced.
 - [ ] **Rollback Plan:** Rollback plan clearly documented and tested (revert to previous stable tag).
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

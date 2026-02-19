@@ -21,3 +21,7 @@ This directory contains the core machine learning scripts that drive the **Predi
 
 ---
 **Summary:** These components form the **"AIOps Engine,"** successfully transitioning operations from a **Reactive** model (remediating failure) to a **Predictive** model (anticipating risks).
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

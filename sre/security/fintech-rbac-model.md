@@ -20,13 +20,13 @@ This document extends the platform's [RBAC model](/sre/security/reliability-rbac
 
 | Action | Payment Admin | Txn Analyst | Fraud Investigator | Compliance Officer | Settlement Operator |
 | --- | --- | --- | --- | --- | --- |
-| Configure payment gateway | ✓ | | | | |
-| View transaction logs | ✓ | ✓ | ✓ | ✓ | |
-| Block fraudulent transactions | ✓ | | ✓ | | |
-| Trigger settlement | ✓ | | | | ✓ |
-| Modify fraud thresholds | ✓ | | | | |
-| View compliance reports | | | | ✓ | |
-| Access cardholder data | ✓ | | | | |
+| Configure payment gateway | | | | | |
+| View transaction logs | | | | | |
+| Block fraudulent transactions | | | | | |
+| Trigger settlement | | | | | |
+| Modify fraud thresholds | | | | | |
+| View compliance reports | | | | | |
+| Access cardholder data | | | | | |
 | Deploy code changes | | | | | |
 | Modify RBAC policies | | | | | |
 
@@ -85,3 +85,7 @@ rules:
 | Privileged access review | Monthly | Security Team | GLBA Safeguards Rule |
 | Service account audit | Monthly | SRE Team | PCI-DSS Req 8.6 |
 | RBAC policy drift check | Weekly (automated) | AI Platform | Continuous compliance |
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

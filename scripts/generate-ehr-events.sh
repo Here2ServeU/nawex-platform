@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 # =============================================================================
 # Generate Healthcare EHR Event Traffic
 # =============================================================================
@@ -104,7 +109,7 @@ while true; do
 
     # Progress update every 5 seconds
     if [ $((elapsed % 5)) -eq 0 ] && [ "$elapsed" -gt 0 ]; then
-        echo "  [${elapsed}s] Events: ${total_events} | Anomalies: ${anomalies} | Errors: ${errors}"
+        echo " [${elapsed}s] Events: ${total_events} | Anomalies: ${anomalies} | Errors: ${errors}"
     fi
 
     sleep 1
@@ -114,10 +119,10 @@ echo ""
 echo "=============================================="
 echo " Traffic Generation Complete"
 echo "───────────────────────────────────────────────"
-echo "  Total Events:     ${total_events}"
-echo "  Normal:           $((total_events - anomalies - errors))"
-echo "  Anomalies:        ${anomalies}"
-echo "  Errors:           ${errors}"
-echo "  Duration:         ${DURATION}s"
-echo "  Avg RPS:          $((total_events / DURATION))"
+echo " Total Events: ${total_events}"
+echo " Normal: $((total_events - anomalies - errors))"
+echo " Anomalies: ${anomalies}"
+echo " Errors: ${errors}"
+echo " Duration: ${DURATION}s"
+echo " Avg RPS: $((total_events / DURATION))"
 echo "=============================================="

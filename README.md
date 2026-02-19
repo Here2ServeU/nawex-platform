@@ -73,7 +73,7 @@ scripts/demo-devsecops.sh --robotics
 scripts/start_fintech.sh
 
 # Generate simulated transaction traffic
-scripts/generate-transactions.sh 30 5   # 30 seconds at 5 TPS
+scripts/generate-transactions.sh 30 5 # 30 seconds at 5 TPS
 
 # Chaos: Payment gateway failure
 sre/chaos/payment-gateway-failure.sh
@@ -88,7 +88,7 @@ sre/chaos/transaction-fraud-spike.sh
 scripts/start_healthcare.sh
 
 # Generate simulated clinical events
-scripts/generate-ehr-events.sh 30 5   # 30 seconds at 5 RPS
+scripts/generate-ehr-events.sh 30 5 # 30 seconds at 5 RPS
 
 # Chaos: EHR gateway failure
 sre/chaos/ehr-gateway-failure.sh
@@ -116,3 +116,6 @@ scripts/chaos_demo.sh
 scripts/heal.sh
 ```
 
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -13,3 +13,7 @@
 - [ ] **Production Access:** Access to production cluster restricted to GitOps service accounts + break-glass process.
 - [ ] **DB Access Control:** Direct access to production database (PostgreSQL) is restricted and auditable.
 - [ ] **Monitoring & Alerting:** Comprehensive monitoring and alerting is configured for all critical services.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

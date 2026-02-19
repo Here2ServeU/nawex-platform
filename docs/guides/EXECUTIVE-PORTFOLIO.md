@@ -29,3 +29,6 @@ Engineered for the most stringent regulatory environments, the platform maintain
 * **[Disaster Recovery Plan](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs)**: Implements a legally defensible Active-Active business continuity strategy across globally distributed, quantum-safe cloud clusters.
 * **Financial Data Protection**: Tokenization-first architecture for cardholder data, segregation of duties for SOX compliance, and automated PCI-DSS scope validation.
 
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

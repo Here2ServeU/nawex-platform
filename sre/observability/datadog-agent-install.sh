@@ -1,8 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 #
 # Datadog Agent Deployment Script
 # Description: Deploys the Datadog Agent (DaemonSet) and Cluster Agent via Helm.
-#              Automatically enables APM, Logs, and Process Monitoring.
+# Automatically enables APM, Logs, and Process Monitoring.
 # Usage: ./datadog-agent-install.sh [-n <namespace>] [-s <site>]
 #
 # Prerequisite: DD_API_KEY environment variable must be set.
@@ -31,12 +36,12 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 usage() {
     echo -e "${BLUE}Usage:${NC} $0 [OPTIONS]"
     echo -e "\nOptions:"
-    echo -e "  -n, --namespace <ns>   Kubernetes namespace (Default: $DEFAULT_NAMESPACE)"
-    echo -e "  -s, --site <site>      Datadog Site (e.g., datadoghq.eu) (Default: $DEFAULT_SITE)"
-    echo -e "  -h, --help             Show this help message"
+    echo -e " -n, --namespace <ns> Kubernetes namespace (Default: $DEFAULT_NAMESPACE)"
+    echo -e " -s, --site <site> Datadog Site (e.g., datadoghq.eu) (Default: $DEFAULT_SITE)"
+    echo -e " -h, --help Show this help message"
     echo -e "\n${BLUE}Example:${NC}"
-    echo -e "  export DD_API_KEY=your_key_here"
-    echo -e "  $0 -n monitoring -s datadoghq.com"
+    echo -e " export DD_API_KEY=your_key_here"
+    echo -e " $0 -n monitoring -s datadoghq.com"
     exit 1
 }
 
@@ -126,11 +131,11 @@ kubectl rollout status deployment/"$RELEASE_NAME"-cluster-agent -n "$NAMESPACE" 
 kubectl rollout status daemonset/"$RELEASE_NAME" -n "$NAMESPACE" --timeout=60s
 
 if [[ $? -eq 0 ]]; then
-    echo -e "\n${GREEN}✔ Datadog Agent deployed successfully!${NC}"
-    echo -e "  • Logs: Enabled"
-    echo -e "  • APM: Enabled"
-    echo -e "  • Process Agent: Enabled"
+    echo -e "\n${GREEN} Datadog Agent deployed successfully!${NC}"
+    echo -e " • Logs: Enabled"
+    echo -e " • APM: Enabled"
+    echo -e " • Process Agent: Enabled"
 else
-    echo -e "\n${RED}✘ Verification failed. Check pods with: kubectl get pods -n $NAMESPACE${NC}"
+    echo -e "\n${RED} Verification failed. Check pods with: kubectl get pods -n $NAMESPACE${NC}"
     exit 1
 fi

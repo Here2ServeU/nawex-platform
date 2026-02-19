@@ -33,5 +33,9 @@ The included simulator demonstrates a **"Latent Failure"** scenario:
 
 ---
 
-**Author:** [Emmanuel Naweji, Ph.D. Candidate (AI/ML)](https://www.emmanuelnaweji.com/)
+**Author:** [Rev. Dr. Emmanuel Naweji](https://www.emmanuelnaweji.com/)
 *Focusing on the intersection of Autonomous Reliability and Clinical Safety.*
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

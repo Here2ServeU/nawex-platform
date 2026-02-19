@@ -23,3 +23,7 @@ graph LR
     
     B -->|OTLP| C[Grafana Tempo]
     B -->|Datadog Exporter| D[Datadog APM]
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

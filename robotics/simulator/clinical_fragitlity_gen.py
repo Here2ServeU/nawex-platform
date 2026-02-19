@@ -1,3 +1,8 @@
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 import json
 import time
 import random
@@ -7,7 +12,7 @@ class ClinicalSafetySimulator:
     def __init__(self, device_id="SURG-ROBOT-01"):
         self.device_id = device_id
         self.base_temp = 37.0
-        self.base_rtt = 12.0  # ms
+        self.base_rtt = 12.0 # ms
         self.step = 0
 
     def generate_telemetry(self, anomaly=False):
@@ -20,9 +25,9 @@ class ClinicalSafetySimulator:
         # Inject "Latent Fragility" (The $500k Secret Sauce)
         # As latency climbs, motor vibration increases due to desynced feedback loops
         if anomaly:
-            rtt += (self.step * 0.8)        # Creeping network latency
+            rtt += (self.step * 0.8) # Creeping network latency
             vibration += (self.step * 0.015) # Increasing micro-vibrations
-            temp += (self.step * 0.12)       # Thermal buildup from mechanical stress
+            temp += (self.step * 0.12) # Thermal buildup from mechanical stress
 
         return {
             "timestamp": datetime.utcnow().isoformat(),

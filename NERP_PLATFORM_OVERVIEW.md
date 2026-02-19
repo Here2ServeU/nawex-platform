@@ -1,6 +1,6 @@
 # Naweji Enterprise Reliability Platform (NERP)
 
-> **The Enterprise-Grade Reliability Platform for Financial Systems & Healthcare**  
+> **The Enterprise-Grade Reliability Platform for Financial Systems & Healthcare** 
 > Built for 99.999% availability. Architected for regulatory compliance (HIPAA, PCI-DSS, SOX). Designed for the next 20 years.
 
 ## Overview
@@ -9,11 +9,11 @@
 
 ### Core Capabilities
 
-- **Fintech Engine** - Real-time transaction processing, fraud detection, payment resilience  
-- **Healthcare Engine** - FHIR R4 clinical data, patient monitoring, decision support  
-- **AI Brain** - Predictive anomaly detection (LSTM/TCN) for proactive failure prevention  
-- **Multi-Cloud** - AWS, Azure, GCP, OCI with automatic failover  
-- **Multi-Tenant** - Enterprise SaaS architecture with complete data isolation  
+- **Fintech Engine** - Real-time transaction processing, fraud detection, payment resilience 
+- **Healthcare Engine** - FHIR R4 clinical data, patient monitoring, decision support 
+- **AI Brain** - Predictive anomaly detection (LSTM/TCN) for proactive failure prevention 
+- **Multi-Cloud** - AWS, Azure, GCP, OCI with automatic failover 
+- **Multi-Tenant** - Enterprise SaaS architecture with complete data isolation 
 
 ---
 
@@ -47,7 +47,7 @@
 ### Architecture
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                  NERP Multi-Tenant Platform                 │
+│ NERP Multi-Tenant Platform │
 └─────────────────────────────────────────────────────────────┘
 
 [TENANTS]
@@ -59,71 +59,71 @@
 ↓ Tenant Context Injection
 
 ┌─────────────────────────────────────────────────────────────┐
-│ Multi-Tenancy Layer                                         │
-│ • Namespace Isolation                                       │
-│ • Row-Level Security (RLS)                                  │
-│ • Per-Tenant Encryption Keys                                │
-│ • Resource Quotas & Rate Controls                           │
+│ Multi-Tenancy Layer │
+│ • Namespace Isolation │
+│ • Row-Level Security (RLS) │
+│ • Per-Tenant Encryption Keys │
+│ • Resource Quotas & Rate Controls │
 └─────────────────────────────────────────────────────────────┘
 
 ↓ Secure Ingress
 
 ┌─────────────────────────────────────────────────────────────┐
-│ API Gateway                                                 │
-│ • REST / GraphQL / gRPC                                     │
-│ • OAuth2 / OIDC                                             │
-│ • Request Validation                                        │
-│ • Rate Limiting                                             │
-│ • Service Mesh (Istio / Linkerd mTLS)                       │
+│ API Gateway │
+│ • REST / GraphQL / gRPC │
+│ • OAuth2 / OIDC │
+│ • Request Validation │
+│ • Rate Limiting │
+│ • Service Mesh (Istio / Linkerd mTLS) │
 └─────────────────────────────────────────────────────────────┘
 
 ↓ Kubernetes Cluster (HA)
 
 ┌─────────────────────────────────────────────────────────────┐
-│ Core Engines                                                │
-│                                                             │
-│ FinTech Engine                                              │
-│ • Transaction Settlement                                    │
-│ • Fraud Detection (ML scoring <50ms)                        │
-│ • Payment Gateway Resilience                                │
-│                                                             │
-│ Healthcare Engine                                           │
-│ • FHIR R4 Ingestion                                         │
-│ • Clinical ML Decision Support                              │
-│ • PHI Secure Gateway                                        │
-│                                                             │
-│ AI Layer                                                    │
-│ • LSTM / TCN Anomaly Detection                              │
-│                                                             │
-│ Event Backbone                                              │
-│ • Kafka (Durable Event Processing)                          │
-│                                                             │
-│ Failover                                                    │
-│ • Multi-Region Active-Active                                │
-│ • RTO < 30 seconds                                          │
+│ Core Engines │
+│ │
+│ FinTech Engine │
+│ • Transaction Settlement │
+│ • Fraud Detection (ML scoring <50ms) │
+│ • Payment Gateway Resilience │
+│ │
+│ Healthcare Engine │
+│ • FHIR R4 Ingestion │
+│ • Clinical ML Decision Support │
+│ • PHI Secure Gateway │
+│ │
+│ AI Layer │
+│ • LSTM / TCN Anomaly Detection │
+│ │
+│ Event Backbone │
+│ • Kafka (Durable Event Processing) │
+│ │
+│ Failover │
+│ • Multi-Region Active-Active │
+│ • RTO < 30 seconds │
 └─────────────────────────────────────────────────────────────┘
 
 ↓ Telemetry Export
 
 ┌─────────────────────────────────────────────────────────────┐
-│ Observability                                               │
-│ • OpenTelemetry (Traces, Metrics, Logs)                     │
-│ • Prometheus + Grafana                                      │
-│ • Jaeger Distributed Tracing                                │
-│ • ELK Log Aggregation                                       │
-│ • SLO & Error Budget Tracking                               │
+│ Observability │
+│ • OpenTelemetry (Traces, Metrics, Logs) │
+│ • Prometheus + Grafana │
+│ • Jaeger Distributed Tracing │
+│ • ELK Log Aggregation │
+│ • SLO & Error Budget Tracking │
 └─────────────────────────────────────────────────────────────┘
 
 ↓ Governance & Controls
 
 ┌─────────────────────────────────────────────────────────────┐
-│ Security & Compliance                                       │
-│ • Zero-Trust Architecture                                   │
-│ • mTLS + RBAC + OPA Policies                                │
-│ • AES-256 Encryption                                        │
-│ • Vault Secrets Management                                  │
-│ • Immutable Audit Logging (WORM)                            │
-│ • Automated Compliance Mapping                              │
+│ Security & Compliance │
+│ • Zero-Trust Architecture │
+│ • mTLS + RBAC + OPA Policies │
+│ • AES-256 Encryption │
+│ • Vault Secrets Management │
+│ • Immutable Audit Logging (WORM) │
+│ • Automated Compliance Mapping │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -190,7 +190,7 @@ kubectl port-forward -n nerp svc/nerp-dashboard 8080:80
 
 ## Platform Modules
 
-### 🏦 Fintech Engine
+### Fintech Engine
 **Real-time fraud detection, payment processing, settlement**
 
 ```
@@ -215,7 +215,7 @@ Transaction Flow: Client → API → Fraud Detector → Payment Engine → Settl
 - `POST /api/v2/transactions/{id}/assess-fraud` - Manual assessment
 - `GET /api/v2/reports/fraud-patterns` - Analytics
 
-### 🏥 Healthcare Engine
+### Healthcare Engine
 **Clinical data ingestion, patient monitoring, decision support**
 
 ```
@@ -240,7 +240,7 @@ Patient Flow: EHR System → Ingestion → Clinical Pipeline → Decision Suppor
 - `GET /api/v2/patients/{id}/alerts` - Get clinical alerts
 - `POST /api/v2/clinical/decisions` - Request decision support
 
-### 🤖 AI/ML Pipeline
+### AI/ML Pipeline
 **Predictive anomaly detection, forecasting, optimization**
 
 **Dual-Model Ensemble:**
@@ -254,18 +254,18 @@ Patient Flow: EHR System → Ingestion → Clinical Pipeline → Decision Suppor
 - Resource utilization forecasting
 - Cost optimization recommendations
 
-### 📊 Observability Stack
+### Observability Stack
 **Unified logs, traces, metrics, SLOs**
 
 ```
 Application → OpenTelemetry Instrumentation
                     ↓
         ┌───────────┼───────────┐
-        ↓           ↓           ↓
-    Traces      Metrics      Logs
-        ↓           ↓           ↓
-    Jaeger    Prometheus   ELK Stack
-        ↓           ↓           ↓
+        ↓ ↓ ↓
+    Traces Metrics Logs
+        ↓ ↓ ↓
+    Jaeger Prometheus ELK Stack
+        ↓ ↓ ↓
     ───────────────────────────────
              Dashboard
         (Correlate all signals)
@@ -313,51 +313,51 @@ Application → OpenTelemetry Instrumentation
 ## For Engineers & Researchers
 
 ### Learning Materials (15k+ Value)
-- 📚 Comprehensive architecture guide (1000+ pages)
-- 🎓 Structured training curriculum (160 hours)
-- 🔬 Academic papers & research (PhD-level)
-- 💻 Hands-on labs & projects (120+ hours)
-- 🏆 Certification program (rigorous exam)
+- Comprehensive architecture guide (1000+ pages)
+- Structured training curriculum (160 hours)
+- Academic papers & research (PhD-level)
+- Hands-on labs & projects (120+ hours)
+- Certification program (rigorous exam)
 
 ### Open Source
-- ⭐ 5k+ GitHub stars
-- 🔨 MIT Licensed
-- 🤝 Active community
-- 📝 Clear contribution guidelines
-- 🏅 Industry adoption
+- 5k+ GitHub stars
+- MIT Licensed
+- Active community
+- Clear contribution guidelines
+- Industry adoption
 
 ---
 
 ## Roadmap
 
 ### Current (2026)
-✅ Multi-cloud deployment (AWS, Azure, GCP)
-✅ Multi-tenancy architecture
-✅ REST + GraphQL APIs
-✅ Zero-trust security
-✅ Observability stack
-✅ Testing framework
+ Multi-cloud deployment (AWS, Azure, GCP)
+ Multi-tenancy architecture
+ REST + GraphQL APIs
+ Zero-trust security
+ Observability stack
+ Testing framework
 
 ### Q2 2026
-🔜 Service mesh integration (Istio)
-🔜 Advanced cost optimization
-🔜 Quantum-ready scheduling
-🔜 Advanced chaos engineering
-🔜 AI-driven alerting
+ Service mesh integration (Istio)
+ Advanced cost optimization
+ Quantum-ready scheduling
+ Advanced chaos engineering
+ AI-driven alerting
 
 ### Q3-Q4 2026
-🔜 Enterprise training platform
-🔜 Certification program
-🔜 Research paper publications
-🔜 Google Cloud Public Dataset release
-🔜 Fortune 500 case studies
+ Enterprise training platform
+ Certification program
+ Research paper publications
+ Google Cloud Public Dataset release
+ Fortune 500 case studies
 
 ### 2027+
-🔜 Industry standardization
-🔜 CNCF sandbox project
-🔜 University partnerships
-🔜 Fortune 500 adoption (50%+)
-🔜 Training revenue $50M+
+ Industry standardization
+ CNCF sandbox project
+ University partnerships
+ Fortune 500 adoption (50%+)
+ Training revenue $50M+
 
 ---
 
@@ -402,11 +402,11 @@ Application → OpenTelemetry Instrumentation
 
 ## Community & Support
 
-- 📧 **Email**: nerp@here2serveu.com
-- 💬 **Slack**: [Join community](https://slack.naweji.io)
-- 🐦 **Twitter**: [@NawejPlatform](https://twitter.com/naweji)
-- 📺 **YouTube**: [NERP Tutorials](https://youtube.com/@naweji)
-- 🎓 **University**: [Academic partnerships](https://naweji.io/academic)
+- **Email**: nerp@here2serveu.com
+- **Slack**: [Join community](https://slack.naweji.io)
+- **Twitter**: [@NawejPlatform](https://twitter.com/naweji)
+- **YouTube**: [NERP Tutorials](https://youtube.com/@naweji)
+- **University**: [Academic partnerships](https://naweji.io/academic)
 
 ---
 
@@ -425,7 +425,7 @@ In academic papers and research:
 
 ```bibtex
 @software{naweji2026nerp,
-  author = {Naweji Development Team},
+  author = {Rev. Dr. Emmanuel Naweji},
   title = {Naweji Enterprise Reliability Platform: 
            Multi-Cloud, AI-Driven Reliability for Enterprise Systems},
   year = {2026},
@@ -499,20 +499,24 @@ In academic papers and research:
 
 ## The NERP Difference: 20-Year Vision
 
-**Year 1:** Enterprise foundation, 50+ deployments  
-**Year 5:** Industry leader, 1000+ deployments, $50M training revenue  
-**Year 10:** Standardized platform, 10k+ trained professionals  
-**Year 20:** Legacy for decades, 100k+ professionals trained, $500M+ revenue  
+**Year 1:** Enterprise foundation, 50+ deployments 
+**Year 5:** Industry leader, 1000+ deployments, $50M training revenue 
+**Year 10:** Standardized platform, 10k+ trained professionals 
+**Year 20:** Legacy for decades, 100k+ professionals trained, $500M+ revenue 
 
 ---
 
 **Ready to build the future of enterprise reliability?**
 
-⭐ **[Star us on GitHub](https://github.com/Here2ServeU/Naweji-Enterprise-Reliability-Platform)**  
-📖 **[Read the docs](docs/)**  
-🚀 **[Deploy to your cloud](docs/deployment/)**  
-💼 **[Contact enterprise sales](mailto:sales@naweji.io)**  
+ **[Star us on GitHub](https://github.com/Here2ServeU/Naweji-Enterprise-Reliability-Platform)** 
+ **[Read the docs](docs/)** 
+ **[Deploy to your cloud](docs/deployment/)** 
+ **[Contact enterprise sales](mailto:sales@naweji.io)** 
 
 ---
 
-**Naweji Enterprise Reliability Platform** - *The platform that survives the next 20 years.* 🚀
+**Naweji Enterprise Reliability Platform** - *The platform that survives the next 20 years.*
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -6,34 +6,34 @@ NERP implements the three pillars of observability: **Logs**, **Metrics**, and *
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│              NERP Observability Stack                    │
+│ NERP Observability Stack │
 ├──────────────────────────────────────────────────────────┤
-│                                                           │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
-│  │   Traces    │  │   Metrics   │  │    Logs     │     │
-│  │ (OpenTelem) │  │ (Prometheus)│  │ (ELK/Loki)  │     │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘     │
-│         │                │                │             │
-│         └────────────────┼────────────────┘             │
-│                          │                              │
-│                  ┌───────▼────────┐                    │
-│                  │   OpenTelemetry│                    │
-│                  │   Collector    │                    │
-│                  └───────┬────────┘                    │
-│                          │                              │
-│        ┌─────────────────┼─────────────────┐           │
-│        │                 │                 │           │
-│    ┌───▼───┐        ┌───▼────┐       ┌───▼──┐         │
-│    │Jaeger │        │Grafana │       │PagerDuty      │
-│    │(Trace)│        │(Visual)│       │(Alerts)       │
-│    └───────┘        └────────┘       └───────┘        │
-│                                                        │
-│  SLO/Error Budget Tracking                           │
-│  ├─ 99.999% availability target                       │
-│  ├─ 31 seconds downtime/year error budget             │
-│  ├─ Automatic alert on budget burn                    │
-│  └─ Compliance dashboard                             │
-│                                                       │
+│ │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ │
+│ │ Traces │ │ Metrics │ │ Logs │ │
+│ │ (OpenTelem) │ │ (Prometheus)│ │ (ELK/Loki) │ │
+│ └──────┬──────┘ └──────┬──────┘ └──────┬──────┘ │
+│ │ │ │ │
+│ └────────────────┼────────────────┘ │
+│ │ │
+│ ┌───────────────┐ │
+│ │ OpenTelemetry│ │
+│ │ Collector │ │
+│ └───────┬────────┘ │
+│ │ │
+│ ┌─────────────────┼─────────────────┐ │
+│ │ │ │ │
+│ ┌──────┐ ┌───────┐ ┌─────┐ │
+│ │Jaeger │ │Grafana │ │PagerDuty │
+│ │(Trace)│ │(Visual)│ │(Alerts) │
+│ └───────┘ └────────┘ └───────┘ │
+│ │
+│ SLO/Error Budget Tracking │
+│ ├─ 99.999% availability target │
+│ ├─ 31 seconds downtime/year error budget │
+│ ├─ Automatic alert on budget burn │
+│ └─ Compliance dashboard │
+│ │
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -296,7 +296,7 @@ class ServiceLevelObjective:
     """Define SLOs for NERP services"""
     
     service_name: str
-    availability_percent: float  # e.g., 99.999 for 99.999%
+    availability_percent: float # e.g., 99.999 for 99.999%
     latency_p99_ms: float
     latency_p95_ms: float
     error_budget_percent: float
@@ -311,17 +311,17 @@ class ServiceLevelObjective:
 # Define SLOs
 FINTECH_TRANSACTION_SLO = ServiceLevelObjective(
     service_name="fintech-processor",
-    availability_percent=99.999,      # 31 seconds downtime/year
-    latency_p99_ms=50,                # <50ms to process transaction
+    availability_percent=99.999, # 31 seconds downtime/year
+    latency_p99_ms=50, # <50ms to process transaction
     latency_p95_ms=30,
-    error_budget_percent=0.001,       # 0.001% of allowed errors
-    error_budget_period_days=30       # Monthly SLO window
+    error_budget_percent=0.001, # 0.001% of allowed errors
+    error_budget_period_days=30 # Monthly SLO window
 )
 
 HEALTHCARE_CLINICAL_SLO = ServiceLevelObjective(
     service_name="clinical-decision",
-    availability_percent=99.99,       # 52 minutes downtime/year
-    latency_p99_ms=100,               # <100ms clinical decision
+    availability_percent=99.99, # 52 minutes downtime/year
+    latency_p99_ms=100, # <100ms clinical decision
     latency_p95_ms=75,
     error_budget_percent=0.01,
     error_budget_period_days=30
@@ -421,7 +421,7 @@ class ErrorBudgetTracker:
         
         # Calculate if we'll exceed budget before period ends
         budget_required = burn_rate * minutes_remaining
-        return budget_required > 1.0  # True if we'll exceed budget
+        return budget_required > 1.0 # True if we'll exceed budget
 ```
 
 ### Alert Rules
@@ -438,7 +438,7 @@ groups:
     expr: |
       (
         increase(nerp_transaction_errors[5m]) / increase(nerp_transaction_total[5m])
-      ) / (1 - (99.999 / 100)) > 10  # 10x normal burn rate
+      ) / (1 - (99.999 / 100)) > 10 # 10x normal burn rate
     for: 5m
     labels:
       severity: critical
@@ -456,7 +456,7 @@ groups:
     expr: |
       (
         increase(nerp_transaction_errors[30d]) / increase(nerp_transaction_total[30d])
-      ) > (1 - (99.999 / 100))  # Exceeded threshold
+      ) > (1 - (99.999 / 100)) # Exceeded threshold
     for: 1m
     labels:
       severity: critical
@@ -471,7 +471,7 @@ groups:
   # Alert: Latency SLO violation
   - alert: LatencySLOViolation
     expr: |
-      histogram_quantile(0.99, nerp_transaction_latency_ms) > 50  # P99 > 50ms SLO
+      histogram_quantile(0.99, nerp_transaction_latency_ms) > 50 # P99 > 50ms SLO
     for: 5m
     labels:
       severity: warning
@@ -631,10 +631,10 @@ async def process_transaction(transaction_id: str):
     
     # Trace shows parent-child relationships:
     # process_transaction_full_trace
-    #   ├─ retrieve_transaction (10ms)
-    #   ├─ validate_transaction (5ms)
-    #   ├─ fraud_assessment (40ms) [external service call visible]
-    #   └─ process_settlement (20ms)
+    # ├─ retrieve_transaction (10ms)
+    # ├─ validate_transaction (5ms)
+    # ├─ fraud_assessment (40ms) [external service call visible]
+    # └─ process_settlement (20ms)
     # Total: 75ms
 ```
 
@@ -747,8 +747,8 @@ services:
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports:
-      - "16686:16686"  # UI
-      - "6831:6831/udp"  # OTLP receiver
+      - "16686:16686" # UI
+      - "6831:6831/udp" # OTLP receiver
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
 
@@ -773,8 +773,8 @@ services:
     volumes:
       - ./otel-collector-config.yaml:/etc/otel/config.yaml
     ports:
-      - "4317:4317"  # OTLP gRPC
-      - "4318:4318"  # OTLP HTTP
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
     command: ["--config", "/etc/otel/config.yaml"]
 ```
 
@@ -786,3 +786,7 @@ services:
 - [Prometheus Best Practices](https://prometheus.io/docs/practices/)
 - [SLO Best Practices](https://sre.google/sre-book/service-level-objectives/)
 - [Jaeger Distributed Tracing](https://www.jaegertracing.io/)
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

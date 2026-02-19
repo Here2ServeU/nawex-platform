@@ -35,3 +35,7 @@ Ensures transaction integrity and payment system resilience through real-time fr
 1. Create the file `docs/architecture/01-high-level-architecture.md`.
 2. Paste the content above.
 3. Update the hyperlinks to match the specific sub-directories in your repository for perfect navigation.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -5,17 +5,17 @@
 NERP uses a comprehensive testing pyramid to achieve 99.999% availability:
 
 ```
-                      ▲
-                     ╱ ╲  E2E & Chaos (10%)
-                    ╱   ╲ Large-scale scenarios
+                      
+                     ╱ ╲ E2E & Chaos (10%)
+                    ╱ ╲ Large-scale scenarios
                    ╱─────╲
-                  ╱       ╲
+                  ╱ ╲
                  ╱ ─────── ╲ Integration Tests (25%)
-                ╱   Multi-service scenarios
+                ╱ Multi-service scenarios
                ╱─────────────╲
-              ╱               ╲
+              ╱ ╲
              ╱ ──────────────── ╲ Unit Tests (65%)
-            ╱   Single function tests
+            ╱ Single function tests
            ╱───────────────────────╲
           
 Test Coverage Target: 85%+ with 99%+ reliability coverage
@@ -39,9 +39,9 @@ class TestFraudDetectionProperties:
         return FraudDetector(model_version="lstm-v3")
     
     @given(
-        st.floats(min_value=0, max_value=10000000),  # Transaction amount
-        st.text(min_size=1, max_size=20),             # Account ID
-        st.booleans()                                  # Is international
+        st.floats(min_value=0, max_value=10000000), # Transaction amount
+        st.text(min_size=1, max_size=20), # Account ID
+        st.booleans() # Is international
     )
     @settings(max_examples=1000, deadline=None)
     def test_fraud_score_is_bounded(self, detector, amount, account, is_intl):
@@ -114,8 +114,8 @@ class TestClinicalDecisionProperties:
     
     @given(
         heartrate=st.integers(min_value=30, max_value=200),
-        sbp=st.integers(min_value=80, max_value=250),  # Systolic BP
-        dbp=st.integers(min_value=40, max_value=150),  # Diastolic BP
+        sbp=st.integers(min_value=80, max_value=250), # Systolic BP
+        dbp=st.integers(min_value=40, max_value=150), # Diastolic BP
         temperature=st.floats(min_value=35.0, max_value=42.0)
     )
     @settings(max_examples=5000)
@@ -215,7 +215,7 @@ async def test_happy_path_transaction(transaction_pipeline):
         amount=1000.00
     )
     
-    assert fraud_decision.score < 0.3  # Low fraud score
+    assert fraud_decision.score < 0.3 # Low fraud score
     assert fraud_decision.decision == "APPROVE"
     
     # Step 3: Settlement completes
@@ -231,9 +231,9 @@ async def test_fraud_detection_blocks_suspicious_transaction(transaction_pipelin
     """Test: Suspicious transaction is flagged and held"""
     
     result = await transaction_pipeline["processor"].process(
-        amount=500000.00,  # Large amount
-        currency="BTC",    # Unusual currency
-        source_account="ACC-NEW"  # New account
+        amount=500000.00, # Large amount
+        currency="BTC", # Unusual currency
+        source_account="ACC-NEW" # New account
     )
     
     fraud_decision = await transaction_pipeline["fraud_detector"].assess(
@@ -241,7 +241,7 @@ async def test_fraud_detection_blocks_suspicious_transaction(transaction_pipelin
         amount=500000.00
     )
     
-    assert fraud_decision.score > 0.7  # High fraud score
+    assert fraud_decision.score > 0.7 # High fraud score
     assert fraud_decision.decision == "HOLD"
     assert fraud_decision.reasoning["velocity"] == "ANOMALOUS"
     assert fraud_decision.reasoning["currency"] == "HIGH_RISK"
@@ -254,7 +254,7 @@ async def test_concurrent_transactions_maintain_consistency(transaction_pipeline
         return await transaction_pipeline["processor"].process(
             amount=100.00 + i,
             currency="USD",
-            source_account=f"ACC-{i % 10}",  # 10 source accounts
+            source_account=f"ACC-{i % 10}", # 10 source accounts
             destination_account=f"ACC-{(i+1) % 10}"
         )
     
@@ -264,7 +264,7 @@ async def test_concurrent_transactions_maintain_consistency(transaction_pipeline
     )
     
     assert len(results) == 1000
-    assert len(set(r.id for r in results)) == 1000  # All unique IDs
+    assert len(set(r.id for r in results)) == 1000 # All unique IDs
     assert all(r.status == "PROCESSING" for r in results)
 
 @pytest.mark.asyncio
@@ -337,7 +337,7 @@ async def test_quota_enforcement_per_tenant(transaction_pipeline):
     # Set quota: 10 MPS for Tenant C
     await transaction_pipeline["processor"].set_tenant_quota(
         tenant_id="tenant-c",
-        quota_mps=10  # 10 million per second
+        quota_mps=10 # 10 million per second
     )
     
     # Process 15 concurrent high-value transactions (exceeds quota)
@@ -356,8 +356,8 @@ async def test_quota_enforcement_per_tenant(transaction_pipeline):
     succeeded = [r for r in results if not isinstance(r, Exception)]
     rate_limited = [r for r in results if isinstance(r, Exception) and "RATE_LIMITED" in str(r)]
     
-    assert len(succeeded) >= 10  # At least quota amount
-    assert len(rate_limited) >= 1  # Some exceeded quota
+    assert len(succeeded) >= 10 # At least quota amount
+    assert len(rate_limited) >= 1 # Some exceeded quota
 ```
 
 ---
@@ -383,20 +383,20 @@ class FinTechResilienceExperiments:
         experiment = ChaosExperiment(
             name="fraud-detector-latency",
             namespace="nerp-production",
-            duration_seconds=600  # 10 minutes
+            duration_seconds=600 # 10 minutes
         )
         
         # Inject latency into fraud-detector service
         experiment.inject_latency(
             target_service="fraud-detector",
             latency_ms=100,
-            percentage=50  # 50% of requests
+            percentage=50 # 50% of requests
         )
         
         # Collect metrics
         metrics = await self._stress_test_transactions(
             duration=600,
-            rps=1000  # 1000 requests per second
+            rps=1000 # 1000 requests per second
         )
         
         # Assertions
@@ -526,7 +526,7 @@ class FinTechResilienceExperiments:
         for service in services_to_fail:
             experiment.inject_errors(
                 target_service=service,
-                error_rate=0.5,  # 50% errors
+                error_rate=0.5, # 50% errors
                 error_duration_seconds=60
             )
         
@@ -560,15 +560,15 @@ class FinTechLoadTest(HttpUser):
     Success criteria: P99 latency < 500ms
     """
     
-    wait_time = between(1, 3)  # Wait 1-3 seconds between requests
+    wait_time = between(1, 3) # Wait 1-3 seconds between requests
     
     def on_start(self):
         # Login once per user
-        self.client.verify = False  # Ignore SSL for load testing
+        self.client.verify = False # Ignore SSL for load testing
         self.tenant_id = f"tenant-{self.client_id % 100}"
         self.token = self._get_token()
     
-    @task(7)  # 70% of traffic
+    @task(7) # 70% of traffic
     def process_transaction(self):
         """Process a transaction"""
         response = self.client.post(
@@ -585,14 +585,14 @@ class FinTechLoadTest(HttpUser):
         if response.status_code != 200:
             response.failure(f"Process transaction failed: {response.status_code}")
     
-    @task(2)  # 20% of traffic
+    @task(2) # 20% of traffic
     def list_transactions(self):
         """List recent transactions"""
         self.client.get(
             f"/api/v2/tenants/{self.tenant_id}/transactions?limit=100"
         )
     
-    @task(1)  # 10% of traffic
+    @task(1) # 10% of traffic
     def get_analytics(self):
         """Get transaction analytics"""
         self.client.get(
@@ -668,10 +668,10 @@ class TestLatencySLOs:
 pytest tests/ -v --cov=nerp --cov-report=html
 
 # Run specific test types
-pytest tests/unit/ -v                  # Unit tests only
-pytest tests/integration/ -v            # Integration tests
-pytest tests/chaos/ -m chaos -v         # Chaos tests only
-pytest tests/performance/ -m slo -v     # SLO verification
+pytest tests/unit/ -v # Unit tests only
+pytest tests/integration/ -v # Integration tests
+pytest tests/chaos/ -m chaos -v # Chaos tests only
+pytest tests/performance/ -m slo -v # SLO verification
 
 # Run with coverage report
 pytest tests/ --cov=nerp --cov-report=term-missing
@@ -702,7 +702,7 @@ metrics:
     target_latency_p99: 500ms
   
   chaos_engineering:
-    target_mttr: 60s  # Mean time to recover
+    target_mttr: 60s # Mean time to recover
     target_error_budget: >0
   
   performance:
@@ -718,3 +718,7 @@ metrics:
 - [Hypothesis Documentation](https://hypothesis.readthedocs.io/)
 - [Chaos Engineering Best Practices](https://www.gremlin.com/chaos-engineering/)
 - [Performance Testing Guide](../../docs/guides/)
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

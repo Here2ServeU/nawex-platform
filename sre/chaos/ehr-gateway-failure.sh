@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 # =============================================================================
 # Healthcare: EHR Gateway Failure Simulation
 # =============================================================================
@@ -25,9 +30,9 @@ echo "[1/5] Verifying baseline service health..."
 for svc in "$PATIENT_GATEWAY_URL/health" "$EHR_INGESTION_URL/health" "$CLINICAL_DECISION_URL/health"; do
     status=$(curl -s -o /dev/null -w "%{http_code}" "$svc" 2>/dev/null || echo "000")
     if [ "$status" = "200" ]; then
-        echo "  ✓ $svc is healthy"
+        echo " $svc is healthy"
     else
-        echo "  ✗ $svc returned $status (service may not be running)"
+        echo " $svc returned $status (service may not be running)"
     fi
 done
 echo ""
@@ -40,44 +45,44 @@ for i in $(seq 1 5); do
         -d "{\"patient_id\": \"patient-$(printf '%03d' $i)\", \"resource_type\": \"Observation\", \"department\": \"general\", \"phi_flag\": true}" \
         > /dev/null 2>&1 || true
 done
-echo "  ✓ 5 baseline EHR records ingested"
+echo " 5 baseline EHR records ingested"
 echo ""
 
 # Step 3: Inject patient data gateway latency
 echo "[3/5] Injecting FHIR gateway latency (500ms)..."
 curl -s -X POST "$PATIENT_GATEWAY_URL/ops/chaos/latency" \
     -H "Content-Type: application/json" \
-    -d '{"delay_ms": 500}' || echo "  (gateway not reachable - simulating)"
+    -d '{"delay_ms": 500}' || echo " (gateway not reachable - simulating)"
 echo ""
-echo "  ✓ Latency injection active"
+echo " Latency injection active"
 echo ""
 
 # Step 4: Inject patient data gateway errors
 echo "[4/5] Injecting FHIR gateway errors (20% error rate)..."
 curl -s -X POST "$PATIENT_GATEWAY_URL/ops/chaos/error" \
     -H "Content-Type: application/json" \
-    -d '{"error_rate": 0.20}' || echo "  (gateway not reachable - simulating)"
+    -d '{"error_rate": 0.20}' || echo " (gateway not reachable - simulating)"
 echo ""
-echo "  ✓ Error injection active"
+echo " Error injection active"
 echo ""
 
 # Step 5: Validate degraded metrics
 echo "[5/5] Collecting degraded-state metrics..."
 echo ""
-echo "  Patient Data Gateway:"
-curl -s "$PATIENT_GATEWAY_URL/metrics" 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "  (metrics endpoint not available)"
+echo " Patient Data Gateway:"
+curl -s "$PATIENT_GATEWAY_URL/metrics" 2>/dev/null | python3 -m json.tool 2>/dev/null || echo " (metrics endpoint not available)"
 echo ""
-echo "  EHR Ingestion Service:"
-curl -s "$EHR_INGESTION_URL/metrics" 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "  (metrics endpoint not available)"
+echo " EHR Ingestion Service:"
+curl -s "$EHR_INGESTION_URL/metrics" 2>/dev/null | python3 -m json.tool 2>/dev/null || echo " (metrics endpoint not available)"
 echo ""
 
 echo "=============================================="
 echo " Chaos injection complete."
 echo " Expected AIOps response:"
-echo "   → ehr_latency_risk rule should trigger"
-echo "   → Automated failover to secondary FHIR gateway"
-echo "   → In-flight clinical queries preserved in Kafka"
-echo "   → HIPAA audit trail continuity verified"
+echo " → ehr_latency_risk rule should trigger"
+echo " → Automated failover to secondary FHIR gateway"
+echo " → In-flight clinical queries preserved in Kafka"
+echo " → HIPAA audit trail continuity verified"
 echo ""
 echo " To reset: curl -X POST $PATIENT_GATEWAY_URL/ops/reset"
 echo "=============================================="

@@ -56,3 +56,7 @@
 **Symptoms**: `jq` missing, scripts fail
 - Install `jq` or remove `| jq .` in scripts
 - Ensure scripts are executable: `chmod +x scripts/*.sh`
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

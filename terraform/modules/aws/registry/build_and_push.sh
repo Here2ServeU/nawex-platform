@@ -1,16 +1,21 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 set -eu
 
 ###############################################
 # Multi-Image Builder for:
-#   1. Express Web App  (Node.js)
-#   2. AIOps API        (FastAPI/Python)
+# 1. Express Web App (Node.js)
+# 2. AIOps API (FastAPI/Python)
 #
 # Uses SAME build + push workflow for both images.
 ###############################################
 
 AWS_REGION="${AWS_REGION:-us-east-1}"
-PLATFORM="${PLATFORM:-linux/amd64}"   # EKS nodes are amd64
+PLATFORM="${PLATFORM:-linux/amd64}" # EKS nodes are amd64
 TAG="latest"
 
 # FOLDERS
@@ -29,18 +34,18 @@ command -v aws >/dev/null || { echo "aws CLI missing"; exit 1; }
 command -v docker >/dev/null || { echo "docker missing"; exit 1; }
 
 [ -d "$EXPRESS_DIR" ] || { echo "Express directory not found: $EXPRESS_DIR"; exit 1; }
-[ -d "$AIOPS_DIR" ]   || { echo "AIOps directory not found: $AIOPS_DIR"; exit 1; }
+[ -d "$AIOPS_DIR" ] || { echo "AIOps directory not found: $AIOPS_DIR"; exit 1; }
 
 # ---- AWS Account ----
 ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
 ECR="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
 echo "=============================================="
-echo "   MULTI-IMAGE BUILD & PUSH TO AWS ECR"
+echo " MULTI-IMAGE BUILD & PUSH TO AWS ECR"
 echo "=============================================="
-echo "AWS Account:  $ACCOUNT_ID"
-echo "Region:       $AWS_REGION"
-echo "Platform:     $PLATFORM"
+echo "AWS Account: $ACCOUNT_ID"
+echo "Region: $AWS_REGION"
+echo "Platform: $PLATFORM"
 echo
 
 # ---- Ensure ECR repositories ----
@@ -103,16 +108,16 @@ echo "Pushed AIOps API: $ECR/$AIOPS_REPO:$TAG"
 echo
 echo "===================================================="
 echo "SUCCESS! Both images pushed:"
-echo "  Express → $ECR/$EXPRESS_REPO:$TAG"
-echo "  AIOps   → $ECR/$AIOPS_REPO:$TAG"
+echo " Express → $ECR/$EXPRESS_REPO:$TAG"
+echo " AIOps → $ECR/$AIOPS_REPO:$TAG"
 echo "===================================================="
 
 echo
 echo "Next steps:"
-echo "  # Express redeploy"
-echo "  helm upgrade --install express-web-app ./charts/express-web-app -n apps"
+echo " # Express redeploy"
+echo " helm upgrade --install express-web-app ./charts/express-web-app -n apps"
 
 echo
-echo "  # AIOps redeploy"
-echo "  helm upgrade --install aiops ./charts/aiops -n aiops --create-namespace"
+echo " # AIOps redeploy"
+echo " helm upgrade --install aiops ./charts/aiops -n aiops --create-namespace"
 echo

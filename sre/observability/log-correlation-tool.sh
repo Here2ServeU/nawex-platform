@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 #
 # Log Correlation Tool
 # Description: specific CLI utility to search and correlate application logs using Trace IDs or Correlation IDs.
@@ -20,13 +25,13 @@ NC='\033[0m' # No Color
 usage() {
     echo -e "${BLUE}Usage:${NC} $0 [OPTIONS]"
     echo -e "\nOptions:"
-    echo -e "  -t, --trace-id <id>        Search by Datadog Trace ID"
-    echo -e "  -c, --correlation-id <id>  Search by Custom Correlation ID (UUID)"
-    echo -e "  -d, --dir <path>           Log directory to search (Default: $DEFAULT_LOG_DIR)"
-    echo -e "  -h, --help                 Show this help message"
+    echo -e " -t, --trace-id <id> Search by Datadog Trace ID"
+    echo -e " -c, --correlation-id <id> Search by Custom Correlation ID (UUID)"
+    echo -e " -d, --dir <path> Log directory to search (Default: $DEFAULT_LOG_DIR)"
+    echo -e " -h, --help Show this help message"
     echo -e "\n${BLUE}Example:${NC}"
-    echo -e "  $0 -t 1234567890"
-    echo -e "  $0 -c a1b2c3d4-e5f6 -d ./logs"
+    echo -e " $0 -t 1234567890"
+    echo -e " $0 -c a1b2c3d4-e5f6 -d ./logs"
     exit 1
 }
 

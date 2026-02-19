@@ -23,7 +23,7 @@ The platform avoids "Single Point of Failure" by distributing the [AI Brain](htt
 
 1. **Primary Execution**: Distributed across [EKS (AWS)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) and [AKS (Azure)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform).
 2. **Immediate Failover Target**: [GKE (GCP)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) and [OKE (OCI)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) maintain "Warm-Standby" capacity, ready to absorb 100% of clinical traffic.
-3. **Predictive Intervention**: The [Predictive Reliability Framework](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) initiates failover **before** an outage occurs, based on  risk scores.
+3. **Predictive Intervention**: The [Predictive Reliability Framework](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) initiates failover **before** an outage occurs, based on risk scores.
 
 ## Automated DR Procedures
 
@@ -45,3 +45,7 @@ To ensure plan effectiveness, the [SRE team](https://github.com/Here2ServeU/Nawe
 ### Strategy for your $500k+ Portfolio
 
 This DR plan is the "Legal Backbone" of your architecture. It tells an executive that you don't just build cool AI—you build systems that **literally cannot fail** when a patient's safety is on the line.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

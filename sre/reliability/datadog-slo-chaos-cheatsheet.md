@@ -108,3 +108,7 @@ This cheat sheet backs the `sre/` scripts and is used as:
 - A “prep deck” for interviews.
 - An internal SRE consultancy guide.
 - A training reference for teams learning Datadog, SLOs, and chaos engineering.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

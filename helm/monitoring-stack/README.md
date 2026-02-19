@@ -50,3 +50,7 @@ helm upgrade --install monitoring-stack ./monitoring-stack -f values.yaml -n mon
 
 ### Talking Point:
 > I use this `monitoring-stack` to ensure we have 'eyes on glass' from Day 1. While I use Splunk for deep log analysis, I rely on **Prometheus** for real-time alerting because it's fast and cheap. I also treat my Grafana dashboards as code—they are stored in this Git repo (in `templates/`), so if we accidentally delete a dashboard, I can restore it in seconds.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

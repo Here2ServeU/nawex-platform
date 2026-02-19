@@ -44,3 +44,7 @@ This chart is deployed via **ArgoCD**.
 1. Modify `values.yaml` (e.g., to add a new plugin or update the image tag).
 2. Commit changes to Git.
 3. ArgoCD will sync the new configuration automatically.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -25,3 +25,7 @@
 - Use Helm/GitOps to **scale consumer replicas back up** to the desired count.
 - **Monitor lag** immediately to ensure consumers are catching up quickly.
 - Monitor error rates, processing time, and application logs for any issues introduced by the new version.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

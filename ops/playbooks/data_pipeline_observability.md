@@ -94,3 +94,7 @@ FORMAT = timestamp::$1 level::$2 message::$3
 - [Kafka Healthcheck](./kafka_healthcheck.md)
 - [Queue Drain Kafka](./queue_drain_kafka.md)
 - [Observability Dashboards](./observability_dashboards.md)
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

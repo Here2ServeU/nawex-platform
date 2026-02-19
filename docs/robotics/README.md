@@ -28,3 +28,7 @@ DEMO_ROBOTICS=1 bash scripts/demo.sh
 
 ## Talking Point
 “This demo proves the AIOps pipeline can ingest **edge telemetry** in a healthcare setting and validate safety agent availability under load.”
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

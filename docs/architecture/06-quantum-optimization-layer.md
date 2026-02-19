@@ -35,3 +35,7 @@ The Quantum Optimization Layer provides a hybrid, quantum-inspired decision engi
 ## Future Expansion
 - Optional execution on quantum backends when available.
 - Plug-in interface for alternative optimizers (e.g., simulated annealing).
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

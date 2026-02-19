@@ -18,3 +18,7 @@ tools/kafka/kafka-healthcheck.sh
 - Broker metadata is returned.
 - Topic list is non-empty for active pipelines.
 - No connection errors or timeouts.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

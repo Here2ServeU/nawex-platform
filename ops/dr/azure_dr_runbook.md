@@ -19,22 +19,26 @@ Covers critical components of the NRP microservices platform:
 * Deployment: Application deployment managed via **GitOps** (ArgoCD/Flux).
 
 ## Steps (Region Failover)
-1.  **Assess Impact**
+1. **Assess Impact**
     * Verify that primary region is unavailable / severely degraded.
     * Activate communications plan.
-2.  **Failover Backstage Database**
+2. **Failover Backstage Database**
     * Promote the geo-replicated database replica (for Backstage) to primary.
     * Update connection secrets/credentials in Azure Key Vault (if needed).
-3.  **Deploy AKS in DR Region**
+3. **Deploy AKS in DR Region**
     * Apply Terraform/Bicep with DR-specific variables to deploy the new AKS cluster, networking, and ingress.
-4.  **Restore State**
+4. **Restore State**
     * Restore any missing Azure Storage state or configurations if required.
-5.  **Re-point GitOps & Deploy Applications**
+5. **Re-point GitOps & Deploy Applications**
     * Configure ArgoCD/Flux to target DR AKS cluster.
     * **Reconcile all applications from Git**, ensuring the Backstage chart and microservices deploy successfully.
-6.  **Switch Traffic & Validation**
+6. **Switch Traffic & Validation**
     * Update Azure Front Door / Traffic Manager / DNS to target DR endpoints.
     * Execute synthetic checks, SLO checks, and Post-Deployment Checklist.
-7.  **Post-Event**
+7. **Post-Event**
     * Document incident and DR effectiveness.
     * Plan failback when the primary region is healthy.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

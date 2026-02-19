@@ -33,10 +33,10 @@ These scripts bridge the gap between raw infrastructure signals and the deep lea
 
 The pipeline follows a strict **Data-Centric AI** workflow:
 
-1.  **Extraction:** `data_loader.py` pulls raw metrics.
-2.  **Vectorization:** `feature_engineering.py` normalizes and shapes the data.
-3.  **Training:** `train_tcn.py` produces a model artifact.
-4.  **Deployment:** `detect_anomalies.py` loads the artifact for real-time scoring.
+1. **Extraction:** `data_loader.py` pulls raw metrics.
+2. **Vectorization:** `feature_engineering.py` normalizes and shapes the data.
+3. **Training:** `train_tcn.py` produces a model artifact.
+4. **Deployment:** `detect_anomalies.py` loads the artifact for real-time scoring.
 
 ## Usage
 
@@ -48,3 +48,7 @@ python train_tcn.py --epochs 50 --batch_size 64 --data ./data/metrics.csv
 
 ### Interview Talking Point
 > "I built this pipeline directory to enforce MLOps best practices. A common pitfall in AIOps is 'training-serving skew,' where the data used to train the model looks different from live production data. By centralizing the logic in `feature_engineering.py`, I ensure that the exact same normalization code runs during both `train_lstm.py` (offline training) and `detect_anomalies.py` (online inference). I also implemented `log-cluster.py` to move beyond simple metric thresholds—it allows the system to understand *semantic* patterns in logs, reducing thousands of noisy lines into a single, actionable root cause.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -46,3 +46,6 @@ Logs are retained according to the following schedule to meet legal mandates:
 
 This policy proves you understand that **Observability is a Compliance Requirement**. By linking your [AI models](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai) to the auditing process, you demonstrate a "Security-First" engineering mindset.
 
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

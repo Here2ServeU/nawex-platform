@@ -45,3 +45,7 @@ The system is designed to run as a persistent daemon or a scheduled Kubernetes C
 # Initialize the control loop
 python orchestrator.py --config agent_config.yaml --mode active
 ````
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

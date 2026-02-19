@@ -47,3 +47,7 @@ For third-party service providers with access to NPI:
 ### Examination Readiness
 
 This mapping enables the platform to demonstrate compliance during regulatory examinations by OCC, FDIC, Federal Reserve, or state banking regulators, providing automated evidence collection and real-time compliance status dashboards.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

@@ -56,3 +56,7 @@ rules:
 ### Interview Talking Point
 
 > I designed the `ai/` directory to be modular. The **Agents** handle the lifecycle, but the intelligence comes from the **Models** and **Pipelines**. Recently, I added `log-cluster.py` to the pipelines folder to solve the 'Log Spam' problem—it uses ML to group similar logs so the AIOps engine isn't overwhelmed by noise during an outage.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

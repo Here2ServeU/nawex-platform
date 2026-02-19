@@ -21,3 +21,7 @@
 - Daily handoff notes recorded in Slack / Teams, summarizing shift status.
 - Review all open incidents, ongoing investigations, and high-risk platform areas during the handoff meeting.
 - Confirm next on-call engineer has access to all required tooling and documentation.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

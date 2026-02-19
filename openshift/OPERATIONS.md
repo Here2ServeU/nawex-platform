@@ -162,22 +162,22 @@ metadata:
 data:
   fluent-bit.conf: |
     [SERVICE]
-        Flush        5
-        Daemon       Off
-        Log_Level    info
+        Flush 5
+        Daemon Off
+        Log_Level info
 
     [INPUT]
-        Name              tail
-        Path              /var/log/containers/*.log
-        Parser            docker
-        Tag               kube.*
-        Refresh_Interval  5
+        Name tail
+        Path /var/log/containers/*.log
+        Parser docker
+        Tag kube.*
+        Refresh_Interval 5
 
     [OUTPUT]
-        Name   es
-        Match  kube.*
-        Host   elasticsearch.example.com
-        Port   9200
+        Name es
+        Match kube.*
+        Host elasticsearch.example.com
+        Port 9200
         HTTP_User elastic
         HTTP_Passwd ${ELASTICSEARCH_PASSWORD}
 EOF
@@ -205,7 +205,7 @@ metadata:
   name: backup-kafka
   namespace: nrp-platform
 spec:
-  schedule: "0 2 * * *"  # 2 AM daily
+  schedule: "0 2 * * *" # 2 AM daily
   jobTemplate:
     spec:
       template:
@@ -578,5 +578,9 @@ oc get configmaps
 
 ---
 
-**Last Updated**: February 2026  
+**Last Updated**: February 2026 
 **Platform Version**: Latest
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

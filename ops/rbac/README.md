@@ -15,3 +15,7 @@ This folder contains production-oriented RBAC templates for Kubernetes, ensuring
 | **SRE / Platform** | Incident response, infrastructure management, GitOps tool administration. | Full control over Namespace resources, exec access to specific platform pods (e.g., PostgreSQL for debug). | [`k8s_rbac_sre.yaml`](./k8s_rbac_sre.yaml) |
 | **App Developers** | Deploying/managing their own microservices, viewing logs/metrics. | CRUD (Create, Read, Update, Delete) on Deployment, Service, ConfigMap for *their* Namespace; Read-only for other infrastructure. | (Template not included, but defined) |
 | **Read-only Observers** | Auditing, monitoring, troubleshooting by viewing resources. | Read-only access to most resources (Pods, Events, Logs, Services) across non-sensitive Namespaces. | [`k8s_rbac_readonly.yaml`](./k8s_rbac_readonly.yaml) |
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

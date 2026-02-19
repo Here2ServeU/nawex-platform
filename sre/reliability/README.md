@@ -29,3 +29,7 @@ This directory serves as the operational playbook and tooling repository for the
 ---
 **Summary:** This module is the "Brain" of the SRE practice, transforming Reliability from a vague concept into a measurable, engineering-driven discipline.
 ```
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

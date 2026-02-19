@@ -63,3 +63,7 @@ kubectl get all -n apps
 While Helm is superior for packaging, raw manifests are critical for **debugging**. When a Helm install fails, I inspect the rendered YAML against these primitives to identify if the issue lies in the template logic or the Kubernetes object definition itself.
 
 ```
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

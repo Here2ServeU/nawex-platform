@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -6,7 +11,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 info() { echo "[INFO] $*"; }
 warn() { echo "[WARN] $*"; }
 
-info "Bootstrapping Express Reliability AIOps Platform"
+info "Bootstrapping Naweji Reliability Platform (NRP)"
 
 command -v node >/dev/null 2>&1 || { echo "Node.js is required."; exit 1; }
 command -v npm >/dev/null 2>&1 || { echo "npm is required."; exit 1; }

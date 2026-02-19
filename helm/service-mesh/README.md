@@ -66,3 +66,7 @@ spec:
 
 ### Talking Point:
 > I introduced a **Service Mesh** to solve the 'Encryption at Rest vs. Encryption in Transit' problem. Managing SSL certificates for 50 microservices is a nightmare, so I offloaded it to the mesh. Now, we have **Strict mTLS** everywhere by default. It also gave us 'Red/Black' deployment capabilities for free—we can shift traffic percentages with a few lines of YAML, which is how we maintain 99.99% availability during deployments.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

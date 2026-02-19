@@ -1,3 +1,8 @@
+# ===========================================================================
+# NERP - Naweji Enterprise Reliability Platform
+# Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
+# https://github.com/Here2ServeU/Naweji-Reliability-Platform
+# ===========================================================================
 import grpc
 import time
 import random
@@ -14,7 +19,7 @@ def generate_telemetry_stream():
         
         # Inject an anomaly every 10 packets to test the interceptor
         if random.random() > 0.9:
-            rtt = 35.0  # Above safety threshold
+            rtt = 35.0 # Above safety threshold
             vibration = 0.08
 
         packet = pb2.TelemetryPacket(

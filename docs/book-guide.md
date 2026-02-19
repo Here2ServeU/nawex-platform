@@ -281,10 +281,10 @@ These scripts bridge the gap between raw infrastructure signals and the deep lea
 
 The pipeline follows a strict **Data-Centric AI** workflow:
 
-1.  **Extraction:** `data_loader.py` pulls raw metrics.
-2.  **Vectorization:** `feature_engineering.py` normalizes and shapes the data.
-3.  **Training:** `train_tcn.py` produces a model artifact.
-4.  **Deployment:** `detect_anomalies.py` loads the artifact for real-time scoring.
+1. **Extraction:** `data_loader.py` pulls raw metrics.
+2. **Vectorization:** `feature_engineering.py` normalizes and shapes the data.
+3. **Training:** `train_tcn.py` produces a model artifact.
+4. **Deployment:** `detect_anomalies.py` loads the artifact for real-time scoring.
 
 ## Usage
 
@@ -328,11 +328,11 @@ The design prioritizes safety and determinism, ensuring that automated actions d
 
 The engine follows a strict **Trigger-Action-Validation** flow:
 
-1.  **Trigger:** The engine receives a `RemediationPlan` from the Planner Agent containing a `diagnosis_id` (e.g., `HIGH_LATENCY_FRONTEND`).
-2.  **Lookup:** It scans `remediation_rules.yaml` to find the matching policy.
-3.  **Constraints Check:** It verifies if the action is currently allowed (e.g., not during a blackout window, and not exceeding the rate limit).
-4.  **Execution:** It invokes the specific handler (e.g., `scale_deployment(service, count)`).
-5.  **Audit:** The action is logged with a correlation ID for post-incident review.
+1. **Trigger:** The engine receives a `RemediationPlan` from the Planner Agent containing a `diagnosis_id` (e.g., `HIGH_LATENCY_FRONTEND`).
+2. **Lookup:** It scans `remediation_rules.yaml` to find the matching policy.
+3. **Constraints Check:** It verifies if the action is currently allowed (e.g., not during a blackout window, and not exceeding the rate limit).
+4. **Execution:** It invokes the specific handler (e.g., `scale_deployment(service, count)`).
+5. **Audit:** The action is logged with a correlation ID for post-incident review.
 
 ## Configuration Example
 
@@ -790,10 +790,10 @@ The framework operates on a **Risk Probability (P)** scale to trigger specific o
 
 | Risk Level | Threshold | Automated Action | Response Tier |
 | --- | --- | --- | --- |
-| **Low** |  | Baseline Logging | Observability Only |
-| **Medium** |  | Dynamic Scaling | Infrastructure Warm-up |
-| **High** |  | Traffic Shadowing | Self-Healing Circuit |
-| **Critical** |  | **Automated Failover** | [GitOps Re-provisioning](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) |
+| **Low** | | Baseline Logging | Observability Only |
+| **Medium** | | Dynamic Scaling | Infrastructure Warm-up |
+| **High** | | Traffic Shadowing | Self-Healing Circuit |
+| **Critical** | | **Automated Failover** | [GitOps Re-provisioning](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) |
 
 ## Clinical Safety & Resilience
 
@@ -874,9 +874,9 @@ This directory contains the high-level diagrams and visual artifacts that docume
 ### 2. The AIOps Loop
 * **File:** `aiops-selfhealing-pipeline.png`
 * **Description:** Illustrates the closed-loop automation process:
-    1.  **Detect:** Telemetry data flows into the AIOps engine.
-    2.  **Predict:** The LSTM model forecasts an anomaly.
-    3.  **Act:** The system triggers an auto-scaling event or circuit breaker.
+    1. **Detect:** Telemetry data flows into the AIOps engine.
+    2. **Predict:** The LSTM model forecasts an anomaly.
+    3. **Act:** The system triggers an auto-scaling event or circuit breaker.
 * **Key Concept:** Visual proof of the transition from **Reactive** to **Predictive** reliability.
 
 ### 3. GitOps Workflow
@@ -1060,7 +1060,7 @@ The platform avoids "Single Point of Failure" by distributing the [AI Brain](htt
 
 1. **Primary Execution**: Distributed across [EKS (AWS)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) and [AKS (Azure)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform).
 2. **Immediate Failover Target**: [GKE (GCP)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) and [OKE (OCI)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) maintain "Warm-Standby" capacity, ready to absorb 100% of clinical traffic.
-3. **Predictive Intervention**: The [Predictive Reliability Framework](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) initiates failover **before** an outage occurs, based on  risk scores.
+3. **Predictive Intervention**: The [Predictive Reliability Framework](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) initiates failover **before** an outage occurs, based on risk scores.
 
 ## Automated DR Procedures
 
@@ -1303,10 +1303,10 @@ The Observability stack is built on a distributed forwarding model ensuring 100%
 
 ## Data Flow
 
-1.  **Generation:** The **Web App Workload** generates structured JSON logs (Latency, Errors, CPU).
-2.  **Collection:** The `splunk-forwarder` DaemonSet intercepts these logs at the node level.
-3.  **Ingestion:** Logs are encrypted and pushed to the central Splunk HEC endpoint.
-4.  **Analysis:**
+1. **Generation:** The **Web App Workload** generates structured JSON logs (Latency, Errors, CPU).
+2. **Collection:** The `splunk-forwarder` DaemonSet intercepts these logs at the node level.
+3. **Ingestion:** Logs are encrypted and pushed to the central Splunk HEC endpoint.
+4. **Analysis:**
     * **SRE Teams:** Use Splunk dashboards for historical trend analysis and incident post-mortems.
     * **AIOps Engine:** (Future Integration) The `ObserverAgent` can query Splunk APIs to retrain LSTM/TCN models with historical datasets.
 
@@ -1479,18 +1479,18 @@ Located in `policies/`. Documentation on how this architecture satisfies regulat
 
 To bootstrap the Application Layer using ArgoCD:
 
-1.  **Install ArgoCD** (if not already present):
+1. **Install ArgoCD** (if not already present):
     ```bash
     kubectl apply -n argocd -f [https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml](https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml)
     ```
 
-2.  **Apply Platform Manifests**:
+2. **Apply Platform Manifests**:
     ```bash
     kubectl apply -f gitops/argocd/namespace.yaml
     kubectl apply -f gitops/argocd/project-platform.yaml
     ```
 
-3.  **Deploy Applications**:
+3. **Deploy Applications**:
     ```bash
     kubectl apply -f gitops/argocd/app-express-app.yaml
     kubectl apply -f gitops/argocd/app-splunk-forwarder.yaml
@@ -1504,12 +1504,12 @@ To bootstrap the Application Layer using ArgoCD:
 
 To bootstrap the Infrastructure Layer using Flux:
 
-1.  **Install Flux CLI & Controllers**:
+1. **Install Flux CLI & Controllers**:
     ```bash
     flux install --namespace flux-system
     ```
 
-2.  **Apply Source & Kustomization**:
+2. **Apply Source & Kustomization**:
     ```bash
     kubectl apply -f gitops/flux/namespace.yaml
     kubectl apply -f gitops/flux/gitrepository-platform.yaml
@@ -1787,9 +1787,9 @@ In the event of a failure, the GitOps workflow provides an instant, tested recov
 
 When demonstrating compliance to external auditors, use the following artifacts:
 
-1.  **Change Log:** Export the Git commit history for the audit period.
-2.  **Access Review:** Show GitHub/GitLab permission settings to prove branch protection and PR requirements.
-3.  **Drift Proof:** Demonstrate the "Drift Detection" policy by manually modifying a resource and showing its automatic correction.
+1. **Change Log:** Export the Git commit history for the audit period.
+2. **Access Review:** Show GitHub/GitLab permission settings to prove branch protection and PR requirements.
+3. **Drift Proof:** Demonstrate the "Drift Detection" policy by manually modifying a resource and showing its automatic correction.
 
 
 ---
@@ -2648,10 +2648,10 @@ This directory contains cloud-specific DR runbooks for major providers:
 
 Each cloud-specific runbook outlines the following critical areas tailored to the NRP environment:
 
-1.  **RPO / RTO Targets:** Defines acceptable data loss and service restoration time for microservices and IDP.
-2.  **Backup Strategy:** Details the mechanism for backing up critical data, particularly the Backstage PostgreSQL instance.
-3.  **Restore & Failover:** Step-by-step procedures for restoring stateful data and executing service failover to the DR region.
-4.  **Validation & Cutback:** Procedures for validating service functionality post-restore and returning traffic to the primary region.
+1. **RPO / RTO Targets:** Defines acceptable data loss and service restoration time for microservices and IDP.
+2. **Backup Strategy:** Details the mechanism for backing up critical data, particularly the Backstage PostgreSQL instance.
+3. **Restore & Failover:** Step-by-step procedures for restoring stateful data and executing service failover to the DR region.
+4. **Validation & Cutback:** Procedures for validating service functionality post-restore and returning traffic to the primary region.
 
 
 ---
@@ -2680,23 +2680,23 @@ Covers critical components of the NRP microservices platform:
 * Deployment: Application deployment managed via **GitOps** (ArgoCD/Flux).
 
 ## Steps (Region Failover)
-1.  **Declare Disaster**
+1. **Declare Disaster**
     * Confirm region-wide impact (not a localized issue).
     * Activate communications plan.
-2.  **Promote Backstage Database**
+2. **Promote Backstage Database**
     * Promote the cross-region PostgreSQL replica (for Backstage) to primary.
     * Update connection secrets/credentials in AWS Secrets Manager (if needed).
-3.  **Provision Infra in DR Region**
+3. **Provision Infra in DR Region**
     * Run Terraform against DR workspace/vars to create: EKS cluster, Networking, Load balancers, Supporting services.
-4.  **Restore State**
+4. **Restore State**
     * Restore any missing S3 state or configurations if required.
-5.  **Deploy Applications via GitOps**
+5. **Deploy Applications via GitOps**
     * Point ArgoCD/Flux to the new EKS cluster/context.
     * **Reconcile all applications from Git**, ensuring the Backstage chart and microservices deploy successfully.
-6.  **Validate & Cutover**
+6. **Validate & Cutover**
     * Execute smoke tests, SLO checks, and Post-Deployment Checklist.
     * Switch DNS (Route 53) to the DR load balancer endpoints.
-7.  **Post-Event**
+7. **Post-Event**
     * Document incident and DR effectiveness.
     * Plan failback when the primary region is healthy.
 
@@ -2727,23 +2727,23 @@ Covers critical components of the NRP microservices platform:
 * Deployment: Application deployment managed via **GitOps** (ArgoCD/Flux).
 
 ## Steps (Region Failover)
-1.  **Assess Impact**
+1. **Assess Impact**
     * Verify that primary region is unavailable / severely degraded.
     * Activate communications plan.
-2.  **Failover Backstage Database**
+2. **Failover Backstage Database**
     * Promote the geo-replicated database replica (for Backstage) to primary.
     * Update connection secrets/credentials in Azure Key Vault (if needed).
-3.  **Deploy AKS in DR Region**
+3. **Deploy AKS in DR Region**
     * Apply Terraform/Bicep with DR-specific variables to deploy the new AKS cluster, networking, and ingress.
-4.  **Restore State**
+4. **Restore State**
     * Restore any missing Azure Storage state or configurations if required.
-5.  **Re-point GitOps & Deploy Applications**
+5. **Re-point GitOps & Deploy Applications**
     * Configure ArgoCD/Flux to target DR AKS cluster.
     * **Reconcile all applications from Git**, ensuring the Backstage chart and microservices deploy successfully.
-6.  **Switch Traffic & Validation**
+6. **Switch Traffic & Validation**
     * Update Azure Front Door / Traffic Manager / DNS to target DR endpoints.
     * Execute synthetic checks, SLO checks, and Post-Deployment Checklist.
-7.  **Post-Event**
+7. **Post-Event**
     * Document incident and DR effectiveness.
     * Plan failback when the primary region is healthy.
 
@@ -2773,21 +2773,21 @@ Covers critical components of the NRP microservices platform:
 * Deployment: Application restoration managed entirely via **GitOps** (ArgoCD/Flux).
 
 ## Steps (Region Failover)
-1.  **Confirm Outage**
+1. **Confirm Outage**
     * Validate issue is regional and not local.
     * Activate incident communications plan.
-2.  **Promote Backstage Database**
+2. **Promote Backstage Database**
     * Promote the cross-region Cloud SQL PostgreSQL replica to primary.
     * Update connection secrets/credentials in Secret Manager (if needed).
-3.  **Create/Scale GKE in DR Region**
+3. **Create/Scale GKE in DR Region**
     * Apply Terraform DR workspace configs to provision the GKE cluster, Load Balancers, and necessary networking.
-4.  **Reconcile via GitOps**
+4. **Reconcile via GitOps**
     * Point GitOps controllers (ArgoCD/Flux) at DR GKE cluster context.
     * **Deploy all apps and platform services from Git**, ensuring the Backstage chart starts successfully.
-5.  **Switch Traffic**
+5. **Switch Traffic**
     * Update **Cloud DNS** / load balancers to target the DR Ingress/Endpoints.
     * Confirm traffic flows correctly and smoke tests pass.
-6.  **Post-Event**
+6. **Post-Event**
     * Review DR performance and document lessons learned.
     * Plan the failback process when the primary region is restored.
 
@@ -2818,22 +2818,22 @@ Covers critical components of the NRP microservices platform:
 * Deployment: Application restoration managed entirely via **GitOps** (ArgoCD/Flux).
 
 ## Steps (Region Failover)
-1.  **Identify Disaster Event**
+1. **Identify Disaster Event**
     * Confirm primary region outage and activate communications plan.
-2.  **Database Recovery**
+2. **Database Recovery**
     * Restore Backstage DB from backups or activate standby/replica in the DR region.
     * Update connection secrets/credentials in OCI Vault (if needed).
-3.  **Provision OKE in DR Region**
+3. **Provision OKE in DR Region**
     * Run Terraform against DR variables to stand up the OKE cluster, networking, and load balancers.
-4.  **GitOps Deploy**
+4. **GitOps Deploy**
     * Configure ArgoCD/Flux to use DR OKE context.
     * **Redeploy all Helm charts from Git**, ensuring the Backstage chart and microservices deploy successfully.
-5.  **DNS / Traffic Cutover**
+5. **DNS / Traffic Cutover**
     * Update DNS and any global load balancers to point to DR endpoints.
     * Validate connectivity and execute Post-Deployment Checklist.
-6.  **Monitor & Validate**
+6. **Monitor & Validate**
     * Monitor SLOs and error budgets; ensure systems are stable.
-7.  **Failback Planning**
+7. **Failback Planning**
     * Once primary region is stable, plan migration back with minimal downtime.
 
 
@@ -3138,7 +3138,7 @@ The included simulator demonstrates a **"Latent Failure"** scenario:
 
 ---
 
-**Author:** [Emmanuel Naweji, Ph.D. Candidate (AI/ML)](https://www.emmanuelnaweji.com/)
+**Author:** [Rev. Dr. Emmanuel Naweji](https://www.emmanuelnaweji.com/)
 *Focusing on the intersection of Autonomous Reliability and Clinical Safety.*
 
 
@@ -3363,9 +3363,9 @@ All deployments must include these standard labels to correlate Traces, Logs, an
 
 ```yaml
 labels:
-  [tags.datadoghq.com/service](https://tags.datadoghq.com/service): "nerp-dashboard"  # Service name in APM
-  [tags.datadoghq.com/env](https://tags.datadoghq.com/env): "production"           # Environment filter
-  [tags.datadoghq.com/version](https://tags.datadoghq.com/version): "1.0.0"            # Version for deployment tracking
+  [tags.datadoghq.com/service](https://tags.datadoghq.com/service): "nerp-dashboard" # Service name in APM
+  [tags.datadoghq.com/env](https://tags.datadoghq.com/env): "production" # Environment filter
+  [tags.datadoghq.com/version](https://tags.datadoghq.com/version): "1.0.0" # Version for deployment tracking
 
 
 ---
@@ -3448,8 +3448,8 @@ graph LR
 
 ## 1. Overview
 This document defines the frontend observability standards for the Express AIOps platform. We utilize a dual-approach strategy:
-1.  **RUM (Real User Monitoring):** Captures *actual* user experience, including JavaScript errors, network latency, and session replays.
-2.  **Synthetic Testing:** Simulates user journeys and API calls from global locations to proactively detect downtime before real users are impacted.
+1. **RUM (Real User Monitoring):** Captures *actual* user experience, including JavaScript errors, network latency, and session replays.
+2. **Synthetic Testing:** Simulates user journeys and API calls from global locations to proactively detect downtime before real users are impacted.
 
 ---
 
@@ -3681,3 +3681,7 @@ This cheat sheet backs the `sre/` scripts and is used as:
 ## Source: sre/security/sso-integration-guide.md
 
 ## SSO guide for Okta, Azure AD, Google IdP.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

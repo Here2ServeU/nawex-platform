@@ -53,3 +53,7 @@ This directory contains the **Resilience Validation Framework** used to proactiv
 
 ---
 **Summary:** This suite implements **Continuous Verification**, moving beyond "hoping" systems are resilient to mathematically proving they can withstand production turbulence.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

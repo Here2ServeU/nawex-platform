@@ -22,3 +22,7 @@ This directory contains the "Security-as-Code" implementations that enforce a **
 
 ---
 **Summary:** This module shifts security left, treating Access Governance not as a bureaucracy, but as an automated reliability feature that scales with the organization.
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

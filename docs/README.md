@@ -161,3 +161,7 @@ This document covers the **Dynatrace** implementation, specifically focusing on 
 
 #### Interview Talking Point
 "I documented all four major platforms (Splunk, Prometheus, Datadog, Dynatrace) in my docs/ folder to demonstrate Tool Agnosticism. In my experience, large organizations rarely have just one tool—they might use Prometheus for cheap metrics, Splunk for security logs, and Dynatrace for AIOps. As a Senior SRE, my job isn't to be a fanboy of one tool, but to architect a platform that can integrate any of them based on business cost/value requirements."
+
+---
+
+*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*
