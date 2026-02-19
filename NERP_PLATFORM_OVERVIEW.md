@@ -46,40 +46,85 @@
 
 ### Architecture
 ```
-┌─────────────────────────────────────────────────┐
-│           NERP Multi-Tenant Platform              │
-├──────────────┬──────────────┬────────────────────┤
-│  Tenant A    │  Tenant B    │   Tenant C  ...    │
-│  (Bank)      │  (Hospital)  │   (Insurance)      │
-├──────────────┴──────────────┴────────────────────┤
-│   Multi-Tenancy Layer (Isolation, Quotas, Keys) │
-├──────────────────────────────────────────────────┤
-│  API Gateway (REST + GraphQL + gRPC)             │
-│  ├─ OAuth2/OIDC Authentication                  │
-│  ├─ Request Validation & Rate Limiting          │
-│  └─ Service Mesh (Istio/Linkerd)                │
-├──────────────────────────────────────────────────┤
-│  Core Services (Kubernetes)                      │
-│  ├─ Fintech Microservices (3x replicas, HA)     │
-│  ├─ Healthcare Microservices (HIPAA isolated)   │
-│  ├─ AI/ML Pipeline (LSTM/TCN anomaly detection) │
-│  ├─ Kafka Event Backbone (durable processing)   │
-│  └─ Multi-region Failover (sub-30s RTO)        │
-├──────────────────────────────────────────────────┤
-│  Observability Stack                             │
-│  ├─ OpenTelemetry (unified traces, metrics, logs)│
-│  ├─ Prometheus + Grafana (metrics)              │
-│  ├─ Jaeger (distributed tracing)                │
-│  ├─ ELK Stack (log aggregation)                 │
-│  └─ SLO Dashboard (error budgets)               │
-├──────────────────────────────────────────────────┤
-│  Security & Compliance                           │
-│  ├─ Zero-Trust Model (mTLS, RBAC, OPA)          │
-│  ├─ Data Encryption (AES-256)                   │
-│  ├─ Secrets Management (HashiCorp Vault)        │
-│  ├─ Audit Logging (immutable, WORM)             │
-│  └─ Compliance Automation (CIS, HIPAA, PCI-DSS) │
-└──────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                  NERP Multi-Tenant Platform                 │
+└─────────────────────────────────────────────────────────────┘
+
+[TENANTS]
+  ├── Bank (PCI-DSS)
+  ├── Hospital (HIPAA)
+  ├── Insurance (SOX)
+  └── Enterprise SaaS Clients
+
+↓ Tenant Context Injection
+
+┌─────────────────────────────────────────────────────────────┐
+│ Multi-Tenancy Layer                                         │
+│ • Namespace Isolation                                       │
+│ • Row-Level Security (RLS)                                  │
+│ • Per-Tenant Encryption Keys                                │
+│ • Resource Quotas & Rate Controls                           │
+└─────────────────────────────────────────────────────────────┘
+
+↓ Secure Ingress
+
+┌─────────────────────────────────────────────────────────────┐
+│ API Gateway                                                 │
+│ • REST / GraphQL / gRPC                                     │
+│ • OAuth2 / OIDC                                             │
+│ • Request Validation                                        │
+│ • Rate Limiting                                             │
+│ • Service Mesh (Istio / Linkerd mTLS)                       │
+└─────────────────────────────────────────────────────────────┘
+
+↓ Kubernetes Cluster (HA)
+
+┌─────────────────────────────────────────────────────────────┐
+│ Core Engines                                                │
+│                                                             │
+│ FinTech Engine                                              │
+│ • Transaction Settlement                                    │
+│ • Fraud Detection (ML scoring <50ms)                        │
+│ • Payment Gateway Resilience                                │
+│                                                             │
+│ Healthcare Engine                                           │
+│ • FHIR R4 Ingestion                                         │
+│ • Clinical ML Decision Support                              │
+│ • PHI Secure Gateway                                        │
+│                                                             │
+│ AI Layer                                                    │
+│ • LSTM / TCN Anomaly Detection                              │
+│                                                             │
+│ Event Backbone                                              │
+│ • Kafka (Durable Event Processing)                          │
+│                                                             │
+│ Failover                                                    │
+│ • Multi-Region Active-Active                                │
+│ • RTO < 30 seconds                                          │
+└─────────────────────────────────────────────────────────────┘
+
+↓ Telemetry Export
+
+┌─────────────────────────────────────────────────────────────┐
+│ Observability                                               │
+│ • OpenTelemetry (Traces, Metrics, Logs)                     │
+│ • Prometheus + Grafana                                      │
+│ • Jaeger Distributed Tracing                                │
+│ • ELK Log Aggregation                                       │
+│ • SLO & Error Budget Tracking                               │
+└─────────────────────────────────────────────────────────────┘
+
+↓ Governance & Controls
+
+┌─────────────────────────────────────────────────────────────┐
+│ Security & Compliance                                       │
+│ • Zero-Trust Architecture                                   │
+│ • mTLS + RBAC + OPA Policies                                │
+│ • AES-256 Encryption                                        │
+│ • Vault Secrets Management                                  │
+│ • Immutable Audit Logging (WORM)                            │
+│ • Automated Compliance Mapping                              │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Performance & Reliability
