@@ -1,6 +1,6 @@
 # Healthcare Services Module
 
-This directory contains the containerized microservices for the **Healthcare** vertical of the Express-Reliability AIOps Platform. These services handle electronic health record (EHR) ingestion, clinical decision support, and FHIR/HL7-compliant patient data exchange.
+This directory contains the containerized microservices for the **Healthcare** vertical of the Naweji Reliability Platform (NRP). These services handle electronic health record (EHR) ingestion, clinical decision support, and FHIR/HL7-compliant patient data exchange.
 
 ## Services
 

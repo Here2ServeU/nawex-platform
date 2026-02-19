@@ -1,7 +1,7 @@
-# OCI Disaster Recovery Runbook for Express T2S Platform
+# OCI Disaster Recovery Runbook for NRP Platform
 
 ## Scope
-Covers critical components of the Express T2S microservices platform:
+Covers critical components of the NRP microservices platform:
 * OKE (Oracle Kubernetes Engine) clusters (for all microservices and Backstage IDP)
 * Autonomous DB / DB Systems (for **Backstage PostgreSQL persistence**)
 * Object Storage (for state and assets)

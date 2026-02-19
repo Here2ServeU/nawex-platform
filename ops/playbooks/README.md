@@ -1,6 +1,6 @@
-# Operational Playbooks for Express T2S Platform
+# Operational Playbooks for NRP Platform
 
-This directory contains tactical, step-by-step procedures (**Playbooks**) designed to standardize routine and emergency operational tasks across the Express T2S microservices and Backstage IDP infrastructure. Adherence to these playbooks minimizes operational risk and ensures predictable outcomes.
+This directory contains tactical, step-by-step procedures (**Playbooks**) designed to standardize routine and emergency operational tasks across the NRP microservices and Backstage IDP infrastructure. Adherence to these playbooks minimizes operational risk and ensures predictable outcomes.
 
 ## Available Playbooks
 

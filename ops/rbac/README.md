@@ -1,6 +1,6 @@
-# Role-Based Access Control (RBAC) for Express T2S Platform
+# Role-Based Access Control (RBAC) for NRP Platform
 
-This folder contains production-oriented RBAC templates for Kubernetes, ensuring compliance with **least privilege** principles and supporting **SOC 2 control** objectives. Access is segmented based on operational need for the Express T2S microservices and the Backstage IDP infrastructure.
+This folder contains production-oriented RBAC templates for Kubernetes, ensuring compliance with **least privilege** principles and supporting **SOC 2 control** objectives. Access is segmented based on operational need for the NRP microservices and the Backstage IDP infrastructure.
 
 ## Core Principles
 

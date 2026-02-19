@@ -1,6 +1,6 @@
-# /ops — SRE & Platform Governance for Express T2S
+# /ops — SRE & Platform Governance for NRP
 
-This directory contains the central source of truth for **Site Reliability Engineering (SRE)** practices, **operational documentation**, and **platform governance** used to support the **Express T2S Microservices** and the **Backstage Internal Developer Platform (IDP)**. All procedures adhere to a GitOps-first, audit-ready framework.
+This directory contains the central source of truth for **Site Reliability Engineering (SRE)** practices, **operational documentation**, and **platform governance** used to support the **NRP Microservices** and the **Backstage Internal Developer Platform (IDP)**. All procedures adhere to a GitOps-first, audit-ready framework.
 
 ## Key Operational Areas
 

@@ -1,6 +1,6 @@
 # Visual Architecture & Design Assets
 
-This directory contains the high-level diagrams and visual artifacts that document the **Express Reliability AIOps Platform**. These images are referenced throughout the repository documentation to illustrate complex workflows, from the GitOps pipeline to the AIOps self-healing loops.
+This directory contains the high-level diagrams and visual artifacts that document the **Naweji Reliability Platform (NRP)**. These images are referenced throughout the repository documentation to illustrate complex workflows, from the GitOps pipeline to the AIOps self-healing loops.
 
 ## Asset Catalog
 

@@ -1,8 +1,8 @@
-# Escalation Paths for Express T2S Platform
+# Escalation Paths for NRP Platform
 
 ## Severity Levels
 *P1 – Critical*
-- Full outage of **Express T2S microservices** or **Backstage IDP**; major **PostgreSQL** data corruption/loss; confirmed security breach.
+- Full outage of **NRP microservices** or **Backstage IDP**; major **PostgreSQL** data corruption/loss; confirmed security breach.
 - Escalation:
 1. Primary on-call
 2. Secondary on-call

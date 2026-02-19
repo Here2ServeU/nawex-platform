@@ -48,7 +48,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: '[https://github.com/Here2ServeU/express-reliability-aiops-platform.git](https://github.com/Here2ServeU/express-reliability-aiops-platform.git)'
+    repoURL: '[https://github.com/Here2ServeU/Naweji-Reliability-Platform.git](https://github.com/Here2ServeU/Naweji-Reliability-Platform.git)'
     targetRevision: HEAD
     path: helm/splunk-forwarder
   destination:

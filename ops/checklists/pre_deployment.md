@@ -1,4 +1,4 @@
-# Pre-Deployment Checklist for Express T2S Platform
+# Pre-Deployment Checklist for NRP Platform
 
 - [ ] **Change Approval:** Change request / ticket approved by required stakeholders.
 - [ ] **Code Readiness:** Code merged to main branch and meets code standards.

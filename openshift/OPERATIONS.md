@@ -32,25 +32,25 @@ oc version
 
 ```bash
 # Update deployments without downtime
-oc set image deployment/express-web-app \
-  express=here2serveu/express-t2s-app:v1.1 \
+oc set image deployment/nerp-dashboard \
+  express=here2serveu/nrp-app:v1.1 \
   -n nrp-platform
 
 # Monitor rollout
-oc rollout status deployment/express-web-app -n nrp-platform
+oc rollout status deployment/nerp-dashboard -n nrp-platform
 
 # View deployment history
-oc rollout history deployment/express-web-app -n nrp-platform
+oc rollout history deployment/nerp-dashboard -n nrp-platform
 
 # Rollback if needed
-oc rollout undo deployment/express-web-app -n nrp-platform
+oc rollout undo deployment/nerp-dashboard -n nrp-platform
 ```
 
 ### Certificate Management
 
 ```bash
 # Check route TLS status
-oc describe route express-web-app -n nrp-platform
+oc describe route nerp-dashboard -n nrp-platform
 
 # Renew certificates (handled automatically by OpenShift/Let's Encrypt)
 # Monitor certificate expiration
@@ -67,19 +67,19 @@ oc create secret tls custom-cert \
 
 ```bash
 # Manual scaling
-oc scale deployment express-web-app --replicas=5 -n nrp-platform
+oc scale deployment nerp-dashboard --replicas=5 -n nrp-platform
 
 # Check HPA status
-oc get hpa express-web-app-hpa -n nrp-platform
-oc describe hpa express-web-app-hpa -n nrp-platform
+oc get hpa nerp-dashboard-hpa -n nrp-platform
+oc describe hpa nerp-dashboard-hpa -n nrp-platform
 
 # Adjust HPA limits
-oc patch hpa express-web-app-hpa -p \
+oc patch hpa nerp-dashboard-hpa -p \
   '{"spec":{"minReplicas":3,"maxReplicas":15}}' \
   -n nrp-platform
 
 # View HPA metrics
-oc get hpa express-web-app-hpa -n nrp-platform -w
+oc get hpa nerp-dashboard-hpa -n nrp-platform -w
 ```
 
 ---
@@ -343,7 +343,7 @@ flux create kustomization nrp \
 oc top pods -n nrp-platform
 
 # Adjust based on actual usage
-oc set resources deployment express-web-app \
+oc set resources deployment nerp-dashboard \
   --requests=cpu=300m,memory=256Mi \
   --limits=cpu=700m,memory=512Mi \
   -n nrp-platform
@@ -359,7 +359,7 @@ spec:
   targetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: express-web-app
+    name: nerp-dashboard
   updatePolicy:
     updateMode: "Auto"
   resourcePolicy:
@@ -475,7 +475,7 @@ echo -n 'my-secret' | kubectl seal -f - > secret.yaml
 oc top pods -A --containers | sort -k4 -rn
 
 # Set accurate requests based on historical usage
-oc set resources deployment express-web-app \
+oc set resources deployment nerp-dashboard \
   --requests=cpu=150m,memory=200Mi \
   -n nrp-platform
 ```
@@ -488,7 +488,7 @@ oc apply -f - <<EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: express-web-app
+  name: nerp-dashboard
   namespace: nrp-platform
 spec:
   template:

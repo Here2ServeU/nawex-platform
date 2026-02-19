@@ -1,7 +1,7 @@
-# GCP Disaster Recovery Runbook for Express T2S Platform
+# GCP Disaster Recovery Runbook for NRP Platform
 
 ## Scope
-Covers critical components of the Express T2S microservices platform:
+Covers critical components of the NRP microservices platform:
 * **GKE clusters** (for all microservices and **Backstage IDP**)
 * **Cloud SQL** (for Backstage PostgreSQL persistence) / Firestore
 * **GCS buckets** (for state and assets)

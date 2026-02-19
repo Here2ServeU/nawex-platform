@@ -163,7 +163,7 @@ After deployment, services are accessible via OpenShift routes:
 oc get routes -A
 
 # Example output:
-# Express App: https://express-web-app-nrp-platform.apps.<cluster>
+# Express App: https://nerp-dashboard-nrp-platform.apps.<cluster>
 # EHR Service: https://ehr-ingestion-nrp-healthcare.apps.<cluster>
 # Fraud Detection: https://fraud-detection-nrp-fintech.apps.<cluster>
 ```

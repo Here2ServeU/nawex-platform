@@ -27,7 +27,7 @@
 - Trigger the **GitOps deployment** to propagate the new connection string to the Backstage deployment.
 
 4. **Verify Application Health**
-- Run application smoke tests against core Express T2S services.
+- Run application smoke tests against core NRP services.
 - Check the Backstage health status (`/healthcheck` endpoint).
 - **Confirm Backstage Catalog Entities are being processed** without database connection errors.
 - Monitor application error rates and latency via observability dashboards.

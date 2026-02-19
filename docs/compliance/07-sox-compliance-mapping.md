@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document maps the **Express-Reliability AIOps Platform** controls to the **Sarbanes-Oxley Act (SOX)** requirements, specifically Sections 302 and 404 governing internal controls over financial reporting (ICFR). The platform ensures the integrity, availability, and auditability of financial data processing systems that feed into corporate reporting and regulatory filings.
+This document maps the **Naweji Reliability Platform (NRP)** controls to the **Sarbanes-Oxley Act (SOX)** requirements, specifically Sections 302 and 404 governing internal controls over financial reporting (ICFR). The platform ensures the integrity, availability, and auditability of financial data processing systems that feed into corporate reporting and regulatory filings.
 
 ## SOX Section 404: Internal Controls Mapping
 

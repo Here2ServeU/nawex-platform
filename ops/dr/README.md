@@ -1,6 +1,6 @@
-# Disaster Recovery Runbooks for Express T2S Platform
+# Disaster Recovery Runbooks for NRP Platform
 
-Disaster Recovery (DR) strategies are essential for maintaining the **availability** and **integrity** of the Express T2S microservices and the underlying Internal Developer Platform (IDP) (Backstage). This folder contains cloud-specific runbooks detailing the procedures required to restore service following a catastrophic event.
+Disaster Recovery (DR) strategies are essential for maintaining the **availability** and **integrity** of the NRP microservices and the underlying Internal Developer Platform (IDP) (Backstage). This folder contains cloud-specific runbooks detailing the procedures required to restore service following a catastrophic event.
 
 Our DR approach is focused on protecting the **stateful data** (primarily PostgreSQL) and quickly re-establishing service connectivity through GitOps pipelines.
 
@@ -15,7 +15,7 @@ This directory contains cloud-specific DR runbooks for major providers:
 
 ## Runbook Outline
 
-Each cloud-specific runbook outlines the following critical areas tailored to the Express T2S environment:
+Each cloud-specific runbook outlines the following critical areas tailored to the NRP environment:
 
 1.  **RPO / RTO Targets:** Defines acceptable data loss and service restoration time for microservices and IDP.
 2.  **Backup Strategy:** Details the mechanism for backing up critical data, particularly the Backstage PostgreSQL instance.

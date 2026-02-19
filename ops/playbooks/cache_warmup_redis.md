@@ -1,8 +1,8 @@
-# Redis Cache Warm-Up Playbook for Express T2S Microservices
+# Redis Cache Warm-Up Playbook for NRP Microservices
 
 ## Goals
 - Avoid cold-start performance degradation after deployment or restart of core services.
-- Pre-populate high-value keys for the Express T2S service and relevant Backstage plugins.
+- Pre-populate high-value keys for the NRP service and relevant Backstage plugins.
 
 ## Steps
 

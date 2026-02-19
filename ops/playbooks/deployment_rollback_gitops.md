@@ -1,4 +1,4 @@
-# Deployment Rollback with GitOps for Express T2S
+# Deployment Rollback with GitOps for NRP
 
 ## Principles
 * Rollbacks must be executed by reverting the Git commit or applying a known-good Helm chart tag.

@@ -1,6 +1,6 @@
 # AI Worker Isolated Helm Chart
 
-This chart deploys an isolated Celery worker environment as part of the [express-reliability-aiops-platform](https://github.com/Here2ServeU/express-reliability-aiops-platform).
+This chart deploys an isolated Celery worker environment as part of the [Naweji Reliability Platform](https://github.com/Here2ServeU/Naweji-Reliability-Platform).
 
 ## Features
 - **Namespace Isolation**: Deploys into a dedicated `ai-worker-isolated` namespace.
@@ -10,7 +10,7 @@ This chart deploys an isolated Celery worker environment as part of the [express
 ## Prerequisites
 - Kubernetes 1.19+
 - Helm 3+
-- Redis broker provisioned via [Terraform Redis module](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform/modules/redis).
+- Redis broker provisioned via [Terraform Redis module](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform/modules/redis).
 
 ## Installation
 To install the chart with the release name `my-worker`:

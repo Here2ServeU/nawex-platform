@@ -2,15 +2,15 @@
 
 ## Executive Summary: Bridging the Gap Between AI and Infrastructure
 
-The **Naweji Reliability Platform (NRP)** is an enterprise-grade ecosystem designed for high-availability **healthcare** and **fintech** environments. By integrating **Deep Learning (LSTM/TCN)** with a **Multi-Cloud Active-Active Resilience** strategy, the platform achieves 99.999% availability for critical [robotics telemetry streams](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics) and [financial transaction processing](fintech/README.md), effectively transforming infrastructure from reactive to predictive.
+The **Naweji Reliability Platform (NRP)** is an enterprise-grade ecosystem designed for high-availability **healthcare** and **fintech** environments. By integrating **Deep Learning (LSTM/TCN)** with a **Multi-Cloud Active-Active Resilience** strategy, the platform achieves 99.999% availability for critical [robotics telemetry streams](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics) and [financial transaction processing](fintech/README.md), effectively transforming infrastructure from reactive to predictive.
 
 ## Architectural Excellence (Golden Project Standard)
 
-This project utilizes the **T2S-Golden-Project** structure to ensure SOC 2, [HIPAA-compliant](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md), [PCI-DSS](docs/compliance/06-pci-dss-compliance-mapping.md), and [SOX-compliant](docs/compliance/07-sox-compliance-mapping.md) auditability and operational clarity.
+This project utilizes the **NRP-Golden-Project** structure to ensure SOC 2, [HIPAA-compliant](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md), [PCI-DSS](docs/compliance/06-pci-dss-compliance-mapping.md), and [SOX-compliant](docs/compliance/07-sox-compliance-mapping.md) auditability and operational clarity.
 
-* **[Core AI Brain](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai)**: Dual-model ensemble (LSTM for long-range trends; TCN for high-frequency anomalies) for 92%+ prediction precision.
-* **[Multi-Cloud Topology](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md)**: Global orchestration across **AWS, Azure, GCP, and OCI** using modular [Terraform](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) and [GitOps](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops).
-* **[Resilience Engine](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md)**: Sub-30 second RTO (Recovery Time Objective) driven by [predictive failover logic](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md).
+* **[Core AI Brain](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai)**: Dual-model ensemble (LSTM for long-range trends; TCN for high-frequency anomalies) for 92%+ prediction precision.
+* **[Multi-Cloud Topology](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md)**: Global orchestration across **AWS, Azure, GCP, and OCI** using modular [Terraform](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) and [GitOps](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops).
+* **[Resilience Engine](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/05-active-active-resilience.md)**: Sub-30 second RTO (Recovery Time Objective) driven by [predictive failover logic](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md).
 * **Kafka Event Backbone**: Internal Kafka + Zookeeper for durable telemetry buffering and async workflows (raw manifests in [k8s/kafka-zookeeper.yaml](k8s/kafka-zookeeper.yaml) and Helm chart in [helm/kafka-zookeeper](helm/kafka-zookeeper)).
 * **Quantum Optimization Layer**: Hybrid quantum-inspired scheduling for resource allocation and routing decisions, with classical fallbacks for deterministic execution (design in [docs/architecture/06-quantum-optimization-layer.md](docs/architecture/06-quantum-optimization-layer.md)).
 * **[Fintech Engine](fintech/README.md)**: Real-time transaction processing, ML-based fraud detection, and payment gateway resilience with PCI-DSS compliant data handling.
@@ -34,16 +34,16 @@ This project utilizes the **T2S-Golden-Project** structure to ensure SOC 2, [HIP
 
 Built for the most stringent regulatory environments, including **HIPAA**, **SOC 2**, **French HDS**, **PCI-DSS**, **SOX**, **PSD2**, and **GLBA**.
 
-* **[Audit Logging Policy](https://www.google.com/search?q=https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/03-audit-logging-policy.md)**: Immutable, WORM-protected telemetry and decision logs.
-* **[Disaster Recovery Plan](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/04-disaster-recovery-plan.md)**: Legally-defensible Active-Active business continuity strategy.
+* **[Audit Logging Policy](https://www.google.com/search?q=https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/03-audit-logging-policy.md)**: Immutable, WORM-protected telemetry and decision logs.
+* **[Disaster Recovery Plan](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/04-disaster-recovery-plan.md)**: Legally-defensible Active-Active business continuity strategy.
 
 ---
 
 ### Navigation
 
-* **[Architecture Deep Dives](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/architecture)**
-* **[Compliance Mapping](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/compliance)**
-* **[Operator Guides](https://www.google.com/search?q=https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/guides)**
+* **[Architecture Deep Dives](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs/architecture)**
+* **[Compliance Mapping](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs/compliance)**
+* **[Operator Guides](https://www.google.com/search?q=https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs/guides)**
 * **[Robotics Demo](docs/robotics/README.md)**
 * **[Healthcare Services](healthcare/README.md)**
 * **[Fintech Services](fintech/README.md)**

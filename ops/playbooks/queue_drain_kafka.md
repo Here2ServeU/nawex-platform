@@ -1,4 +1,4 @@
-# Kafka Queue Drain Playbook for Express T2S Microservices
+# Kafka Queue Drain Playbook for NRP Microservices
 
 ## When to Use
 - Before deploying breaking schema or code changes to consumers.

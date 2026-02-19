@@ -1,6 +1,6 @@
 # Fintech Services Module
 
-This directory contains the containerized microservices for the **Fintech** vertical of the Express-Reliability AIOps Platform. These services handle real-time transaction processing, fraud detection, and payment gateway simulation.
+This directory contains the containerized microservices for the **Fintech** vertical of the Naweji Reliability Platform (NRP). These services handle real-time transaction processing, fraud detection, and payment gateway simulation.
 
 ## Services
 

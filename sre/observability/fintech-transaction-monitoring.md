@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the observability configuration for the **Fintech** vertical of the Express-Reliability AIOps Platform. It extends the existing [OpenTelemetry](/sre/observability/opentelemetry-tracing-setup.md) and [Datadog](/sre/observability/datadog-apm-setup.md) setup with fintech-specific metrics, dashboards, and alerts.
+This document describes the observability configuration for the **Fintech** vertical of the Naweji Reliability Platform (NRP). It extends the existing [OpenTelemetry](/sre/observability/opentelemetry-tracing-setup.md) and [Datadog](/sre/observability/datadog-apm-setup.md) setup with fintech-specific metrics, dashboards, and alerts.
 
 ## Fintech Metrics Collection
 

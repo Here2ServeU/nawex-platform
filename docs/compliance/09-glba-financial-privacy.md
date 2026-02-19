@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document maps the **Express-Reliability AIOps Platform** controls to the **Gramm-Leach-Bliley Act (GLBA)** and its implementing regulations, including the FTC Safeguards Rule (16 CFR Part 314). The platform protects Nonpublic Personal Information (NPI) of financial services customers through comprehensive technical, administrative, and physical safeguards.
+This document maps the **Naweji Reliability Platform (NRP)** controls to the **Gramm-Leach-Bliley Act (GLBA)** and its implementing regulations, including the FTC Safeguards Rule (16 CFR Part 314). The platform protects Nonpublic Personal Information (NPI) of financial services customers through comprehensive technical, administrative, and physical safeguards.
 
 ## GLBA Safeguards Rule Mapping
 

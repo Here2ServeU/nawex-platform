@@ -1,7 +1,7 @@
 # On-Call Policy for Express Web Platform
 
 ## Objectives
-- Ensure 24/7 coverage for **Express T2S microservices** and the **Backstage IDP**.
+- Ensure 24/7 coverage for **NRP microservices** and the **Backstage IDP**.
 - Minimize mean-time-to-detect (MTTD) and mean-time-to-resolve (MTTR) for platform issues.
 - Provide a humane, sustainable rotation for engineers.
 

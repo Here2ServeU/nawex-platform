@@ -6,7 +6,7 @@ As medical robotics move from isolated hardware to cloud-connected agentic syste
 
 ## The Solution: Predictive Self-Healing Infrastructure
 
-This domain within the **Express Reliability Platform** serves as a specialized "Safety Guardrail" for medical robotics and EHR-integrated systems. By utilizing **Agentic AI**, the platform moves beyond reactive alerts to autonomous intervention.
+This domain within the **Naweji Reliability Platform (NRP)** serves as a specialized "Safety Guardrail" for medical robotics and EHR-integrated systems. By utilizing **Agentic AI**, the platform moves beyond reactive alerts to autonomous intervention.
 
 ### Core Capabilities:
 

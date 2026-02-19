@@ -21,7 +21,7 @@ datadogRum.init({
     applicationId: process.env.REACT_APP_DD_RUM_APP_ID,
     clientToken: process.env.REACT_APP_DD_CLIENT_TOKEN,
     site: 'datadoghq.com',
-    service: 'express-t2s-frontend',
+    service: 'nrp-frontend',
     env: process.env.NODE_ENV || 'production',
     version: process.env.REACT_APP_VERSION,
     sessionSampleRate: 100,

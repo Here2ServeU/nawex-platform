@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document provides a traceability matrix between the **Express-Reliability AIOps Platform** technical controls and the **Payment Card Industry Data Security Standard (PCI-DSS v4.0)**. The platform is designed to handle cardholder data (CHD), payment transactions, and financial telemetry streams by enforcing encryption, zero-trust networking, tokenization, and automated auditability.
+This document provides a traceability matrix between the **Naweji Reliability Platform (NRP)** technical controls and the **Payment Card Industry Data Security Standard (PCI-DSS v4.0)**. The platform is designed to handle cardholder data (CHD), payment transactions, and financial telemetry streams by enforcing encryption, zero-trust networking, tokenization, and automated auditability.
 
 ## PCI-DSS Requirements Mapping
 

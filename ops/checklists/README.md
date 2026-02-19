@@ -1,6 +1,6 @@
-# Operational Checklists for Express T2S Platform
+# Operational Checklists for NRP Platform
 
-Operational checklists are a critical component of our DevOps strategy, ensuring **consistency**, **auditability**, and **risk reduction** across all deployment and maintenance activities for the Express T2S platform. They formalize the process of managing the Internal Developer Platform (IDP) and associated microservices.
+Operational checklists are a critical component of our DevOps strategy, ensuring **consistency**, **auditability**, and **risk reduction** across all deployment and maintenance activities for the NRP platform. They formalize the process of managing the Internal Developer Platform (IDP) and associated microservices.
 
 ## Available Checklists
 

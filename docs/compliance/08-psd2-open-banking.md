@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document outlines the platform's compliance with the **Payment Services Directive 2 (PSD2)** and Open Banking standards. The [Express-Reliability AIOps Platform](/) implements Strong Customer Authentication (SCA), secure API access for Third-Party Providers (TPPs), and real-time transaction monitoring to meet EU regulatory requirements for payment service providers.
+This document outlines the platform's compliance with the **Payment Services Directive 2 (PSD2)** and Open Banking standards. The [Naweji Reliability Platform (NRP)](/) implements Strong Customer Authentication (SCA), secure API access for Third-Party Providers (TPPs), and real-time transaction monitoring to meet EU regulatory requirements for payment service providers.
 
 ## PSD2 Technical Requirements Mapping
 

@@ -27,6 +27,6 @@ All deployments must include these standard labels to correlate Traces, Logs, an
 
 ```yaml
 labels:
-  [tags.datadoghq.com/service](https://tags.datadoghq.com/service): "express-web-app"  # Service name in APM
+  [tags.datadoghq.com/service](https://tags.datadoghq.com/service): "nerp-dashboard"  # Service name in APM
   [tags.datadoghq.com/env](https://tags.datadoghq.com/env): "production"           # Environment filter
   [tags.datadoghq.com/version](https://tags.datadoghq.com/version): "1.0.0"            # Version for deployment tracking

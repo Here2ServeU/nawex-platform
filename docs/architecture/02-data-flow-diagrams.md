@@ -54,10 +54,10 @@ graph TD
 
 | Component | Technology Stack | Responsibility |
 | --- | --- | --- |
-| **Edge Layer** | [Robotics Module](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics) | Real-time kinematic telemetry ingestion and local safety mediation. |
-| **Predictive Engine** | [AI Brain (LSTM/TCN)](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai) | Time-series forecasting to identify "pre-failure" signatures in sensor data. |
-| **Resilience Engine** | [SRE / GitOps](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) | Automated re-provisioning and failover via [ArgoCD](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) based on risk scores. |
-| **Audit Plane** | [Compliance Docs](https://www.google.com/search?q=https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/compliance) | Ensures every automated action is logged for HIPAA and HDS regulatory standards. |
+| **Edge Layer** | [Robotics Module](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics) | Real-time kinematic telemetry ingestion and local safety mediation. |
+| **Predictive Engine** | [AI Brain (LSTM/TCN)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai) | Time-series forecasting to identify "pre-failure" signatures in sensor data. |
+| **Resilience Engine** | [SRE / GitOps](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) | Automated re-provisioning and failover via [ArgoCD](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) based on risk scores. |
+| **Audit Plane** | [Compliance Docs](https://www.google.com/search?q=https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs/compliance) | Ensures every automated action is logged for HIPAA and HDS regulatory standards. |
 
 ---
 

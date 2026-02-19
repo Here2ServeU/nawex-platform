@@ -1,4 +1,4 @@
-# Express Reliability AIOps Platform — Master Guide
+# Naweji Reliability Platform (NRP) — Master Guide
 
 
 ---
@@ -6,41 +6,41 @@
 
 ## Source: README.md
 
-# Express-Reliability AIOps: Predictive Clinical Safety Platform
+# Naweji Reliability Platform (NRP): Predictive Clinical Safety Platform
 
 ## Executive Summary: Bridging the Gap Between AI and Infrastructure
 
-The **Express-Reliability AIOps Platform** is an enterprise-grade ecosystem designed for high-availability healthcare environments. By integrating **Deep Learning (LSTM/TCN)** with a **Multi-Cloud Active-Active Resilience** strategy, the platform achieves 99.999% availability for critical [robotics telemetry streams](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics), effectively transforming infrastructure from reactive to predictive.
+The **Naweji Reliability Platform (NRP)** is an enterprise-grade ecosystem designed for high-availability healthcare environments. By integrating **Deep Learning (LSTM/TCN)** with a **Multi-Cloud Active-Active Resilience** strategy, the platform achieves 99.999% availability for critical [robotics telemetry streams](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics), effectively transforming infrastructure from reactive to predictive.
 
 ## Architectural Excellence (Golden Project Standard)
 
-This project utilizes the **T2S-Golden-Project** structure to ensure SOC 2 and [HIPAA-compliant](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md) auditability and operational clarity.
+This project utilizes the **NRP-Golden-Project** structure to ensure SOC 2 and [HIPAA-compliant](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md) auditability and operational clarity.
 
-* **[Core AI Brain](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai)**: Dual-model ensemble (LSTM for long-range trends; TCN for high-frequency anomalies) for 92%+ prediction precision.
-* **[Multi-Cloud Topology](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md)**: Global orchestration across **AWS, Azure, GCP, and OCI** using modular [Terraform](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) and [GitOps](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops).
-* **[Resilience Engine](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md)**: Sub-30 second RTO (Recovery Time Objective) driven by [predictive failover logic](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md).
+* **[Core AI Brain](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai)**: Dual-model ensemble (LSTM for long-range trends; TCN for high-frequency anomalies) for 92%+ prediction precision.
+* **[Multi-Cloud Topology](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md)**: Global orchestration across **AWS, Azure, GCP, and OCI** using modular [Terraform](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) and [GitOps](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops).
+* **[Resilience Engine](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/05-active-active-resilience.md)**: Sub-30 second RTO (Recovery Time Objective) driven by [predictive failover logic](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md).
 
 ## Ph.D. Research Implementation
 
 The platform serves as a production-hardened implementation of advanced AI research in healthcare resilience:
 
-* **Agentic Safety Mediation**: Real-time kinematic telemetry analysis at the [Robotics Edge](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics).
-* **MLOps Lifecycle**: Continuous model evolution using [GCP Vertex AI](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md) for compute-heavy re-training loops.
+* **Agentic Safety Mediation**: Real-time kinematic telemetry analysis at the [Robotics Edge](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics).
+* **MLOps Lifecycle**: Continuous model evolution using [GCP Vertex AI](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md) for compute-heavy re-training loops.
 
 ## Compliance & Governance
 
 Built for the most stringent regulatory environments, including **HIPAA**, **SOC 2**, and **French HDS**.
 
-* **[Audit Logging Policy](https://www.google.com/search?q=https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/03-audit-logging-policy.md)**: Immutable, WORM-protected telemetry and decision logs.
-* **[Disaster Recovery Plan](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/04-disaster-recovery-plan.md)**: Legally-defensible Active-Active business continuity strategy.
+* **[Audit Logging Policy](https://www.google.com/search?q=https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/03-audit-logging-policy.md)**: Immutable, WORM-protected telemetry and decision logs.
+* **[Disaster Recovery Plan](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/04-disaster-recovery-plan.md)**: Legally-defensible Active-Active business continuity strategy.
 
 ---
 
 ### Navigation
 
-* **[Architecture Deep Dives](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/architecture)**
-* **[Compliance Mapping](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/compliance)**
-* **[Operator Guides](https://www.google.com/search?q=https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/guides)**
+* **[Architecture Deep Dives](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs/architecture)**
+* **[Compliance Mapping](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs/compliance)**
+* **[Operator Guides](https://www.google.com/search?q=https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs/guides)**
 * **[Robotics Demo](docs/robotics/README.md)**
 
 ---
@@ -618,22 +618,22 @@ This document covers the **Dynatrace** implementation, specifically focusing on 
 
 ## Executive Overview
 
-The **Express-Reliability AIOps Platform** is a specialized ecosystem designed to bridge the gap between autonomous robotics and enterprise-grade infrastructure resilience. By integrating predictive machine learning models with real-time telemetry, the platform ensures 99.999% availability for critical healthcare applications.
+The **Naweji Reliability Platform (NRP)** is a specialized ecosystem designed to bridge the gap between autonomous robotics and enterprise-grade infrastructure resilience. By integrating predictive machine learning models with real-time telemetry, the platform ensures 99.999% availability for critical healthcare applications.
 
 ## Core Architectural Pillars
 
-1. **Predictive Intelligence**: Utilizing [LSTM and TCN models](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai) to forecast infrastructure and robotic kinematic failures before they manifest.
-2. **Autonomous Remediation**: A self-healing loop powered by [GitOps](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) and custom SRE controllers that re-provision resources based on risk probability scores.
-3. **Regulatory Compliance**: Native integration of [HIPAA and SOC 2](https://www.google.com/search?q=https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/compliance) guardrails within the CI/CD and deployment pipelines.
+1. **Predictive Intelligence**: Utilizing [LSTM and TCN models](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai) to forecast infrastructure and robotic kinematic failures before they manifest.
+2. **Autonomous Remediation**: A self-healing loop powered by [GitOps](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) and custom SRE controllers that re-provision resources based on risk probability scores.
+3. **Regulatory Compliance**: Native integration of [HIPAA and SOC 2](https://www.google.com/search?q=https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs/compliance) guardrails within the CI/CD and deployment pipelines.
 
 ## Functional Components
 
 | Layer | Component | Description |
 | --- | --- | --- |
-| **Inference** | [AI Brain](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai) | Deep learning engine processing time-series data for anomaly detection. |
-| **Telemetry** | [Robotics Collector](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics) | High-fidelity data ingestion from edge-based clinical devices. |
-| **Orchestration** | [Multi-Cloud IaC](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) | Automated provisioning across EKS, AKS, GCP, and OKE for geographical redundancy. |
-| **Operations** | [SRE Framework](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/sre) | SLO-driven alerting and automated incident response playbooks. |
+| **Inference** | [AI Brain](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai) | Deep learning engine processing time-series data for anomaly detection. |
+| **Telemetry** | [Robotics Collector](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics) | High-fidelity data ingestion from edge-based clinical devices. |
+| **Orchestration** | [Multi-Cloud IaC](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) | Automated provisioning across EKS, AKS, GCP, and OKE for geographical redundancy. |
+| **Operations** | [SRE Framework](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/sre) | SLO-driven alerting and automated incident response playbooks. |
 
 ## Strategic Value Proposition
 
@@ -709,10 +709,10 @@ graph TD
 
 | Component | Technology Stack | Responsibility |
 | --- | --- | --- |
-| **Edge Layer** | [Robotics Module](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics) | Real-time kinematic telemetry ingestion and local safety mediation. |
-| **Predictive Engine** | [AI Brain (LSTM/TCN)](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai) | Time-series forecasting to identify "pre-failure" signatures in sensor data. |
-| **Resilience Engine** | [SRE / GitOps](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) | Automated re-provisioning and failover via [ArgoCD](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) based on risk scores. |
-| **Audit Plane** | [Compliance Docs](https://www.google.com/search?q=https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs/compliance) | Ensures every automated action is logged for HIPAA and HDS regulatory standards. |
+| **Edge Layer** | [Robotics Module](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics) | Real-time kinematic telemetry ingestion and local safety mediation. |
+| **Predictive Engine** | [AI Brain (LSTM/TCN)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai) | Time-series forecasting to identify "pre-failure" signatures in sensor data. |
+| **Resilience Engine** | [SRE / GitOps](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) | Automated re-provisioning and failover via [ArgoCD](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) based on risk scores. |
+| **Audit Plane** | [Compliance Docs](https://www.google.com/search?q=https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs/compliance) | Ensures every automated action is logged for HIPAA and HDS regulatory standards. |
 
 ---
 
@@ -730,7 +730,7 @@ Notice that I added **Probability Thresholds** (e.g., `p > 0.85`) to the diagram
 
 ## Executive Overview
 
-This document outlines the global footprint of the **Express-Reliability AIOps Platform**. To ensure zero-downtime for clinical operations, the infrastructure utilizes a **Multi-Cloud Active-Active** strategy. The orchestration layer spans Amazon Web Services (AWS), Microsoft Azure, **Google Cloud Platform (GCP)**, and Oracle Cloud Infrastructure (OCI), managed via a unified [Terraform](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) and GitOps workflow.
+This document outlines the global footprint of the **Naweji Reliability Platform (NRP)**. To ensure zero-downtime for clinical operations, the infrastructure utilizes a **Multi-Cloud Active-Active** strategy. The orchestration layer spans Amazon Web Services (AWS), Microsoft Azure, **Google Cloud Platform (GCP)**, and Oracle Cloud Infrastructure (OCI), managed via a unified [Terraform](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) and GitOps workflow.
 
 ## Global Distribution Map
 
@@ -738,24 +738,24 @@ The platform is architected to survive a complete regional or provider outage by
 
 | Cloud Provider | Managed Service | Primary Region | Role |
 | --- | --- | --- | --- |
-| **AWS** | [Elastic Kubernetes Service (EKS)](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) | `us-east-1` | Primary Inference Plane |
-| **Azure** | [Azure Kubernetes Service (AKS)](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) | `eastus` | Disaster Recovery & Data Sync |
-| **GCP** | [Google Kubernetes Engine (GKE)](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) | `us-central1` | **AI/ML Model Training & Big Data Analytics** |
-| **OCI** | [Oracle Container Engine (OKE)](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) | `us-ashburn-1` | High-Performance Robotics Edge Aggregator |
+| **AWS** | [Elastic Kubernetes Service (EKS)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) | `us-east-1` | Primary Inference Plane |
+| **Azure** | [Azure Kubernetes Service (AKS)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) | `eastus` | Disaster Recovery & Data Sync |
+| **GCP** | [Google Kubernetes Engine (GKE)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) | `us-central1` | **AI/ML Model Training & Big Data Analytics** |
+| **OCI** | [Oracle Container Engine (OKE)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) | `us-ashburn-1` | High-Performance Robotics Edge Aggregator |
 
 ## Networking & Interconnectivity
 
 * **Global Traffic Management**: Utilizes an Anycast-based Global Load Balancer (GLB) to route clinical telemetry to the nearest healthy cluster based on latency and health checks.
 * **Service Mesh Architecture**: An Istio-based service mesh facilitates secure, cross-cluster communication with mTLS, ensuring sensitive healthcare data is encrypted in transit between clouds.
-* **GCP Cloud Interconnect**: Leverages Google’s dedicated backbone for high-speed synchronization of [robotics telemetry](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics) datasets used in training the [LSTM/TCN models](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai).
+* **GCP Cloud Interconnect**: Leverages Google’s dedicated backbone for high-speed synchronization of [robotics telemetry](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics) datasets used in training the [LSTM/TCN models](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai).
 * **Private Interconnects**: Where available, Equinix Fabric or provider-specific interconnects (e.g., AWS Direct Connect to Azure ExpressRoute) are leveraged to minimize latency.
 
 ## Infrastructure as Code (IaC) Standards
 
-All infrastructure is declared using modular [Terraform](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) code.
+All infrastructure is declared using modular [Terraform](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) code.
 
 * **Module Reusability**: Standardized modules for VPC/VNet/VPC (GCP), IAM/RBAC, and K8s node groups ensure environmental parity.
-* **State Management**: Remote state is stored in encrypted buckets with object locking to prevent race conditions during high-frequency [GitOps](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) deployments.
+* **State Management**: Remote state is stored in encrypted buckets with object locking to prevent race conditions during high-frequency [GitOps](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) deployments.
 
 ---
 
@@ -774,15 +774,15 @@ By adding **GCP (GKE)** specifically for **Model Training**, you demonstrate a s
 
 ## Executive Overview
 
-The **Predictive Reliability Framework (PRF)** is the core intelligence of the platform. It transitions the infrastructure from a reactive state (incident response) to a proactive state (pre-emptive remediation). By processing high-fidelity [kinematic telemetry](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics), the framework identifies "pre-failure" signatures that humans and traditional monitoring tools miss.
+The **Predictive Reliability Framework (PRF)** is the core intelligence of the platform. It transitions the infrastructure from a reactive state (incident response) to a proactive state (pre-emptive remediation). By processing high-fidelity [kinematic telemetry](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics), the framework identifies "pre-failure" signatures that humans and traditional monitoring tools miss.
 
 ## The Multi-Cloud Dual-Model Approach
 
-The platform utilizes a hybrid inference strategy across [AWS/Azure/GCP/OCI/](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md) to balance accuracy and performance:
+The platform utilizes a hybrid inference strategy across [AWS/Azure/GCP/OCI/](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md) to balance accuracy and performance:
 
 1. **LSTM (Long Short-Term Memory)**: Used for long-range trend analysis of system health and resource consumption to identify gradual degradation.
 2. **TCN (Temporal Convolutional Network)**: Optimized for detecting rapid, high-frequency anomalies in robotics sensor data where local context is critical for safety.
-3. **GCP Vertex AI / TPU Integration**: Compute-heavy model training and re-training loops are offloaded to **Google Cloud Platform** to leverage high-performance TPU clusters, ensuring that [inference weights](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/02-data-flow-diagrams.md) are constantly optimized based on global telemetry.
+3. **GCP Vertex AI / TPU Integration**: Compute-heavy model training and re-training loops are offloaded to **Google Cloud Platform** to leverage high-performance TPU clusters, ensuring that [inference weights](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/02-data-flow-diagrams.md) are constantly optimized based on global telemetry.
 
 ## Predictive Action Lifecycle
 
@@ -793,17 +793,17 @@ The framework operates on a **Risk Probability (P)** scale to trigger specific o
 | **Low** |  | Baseline Logging | Observability Only |
 | **Medium** |  | Dynamic Scaling | Infrastructure Warm-up |
 | **High** |  | Traffic Shadowing | Self-Healing Circuit |
-| **Critical** |  | **Automated Failover** | [GitOps Re-provisioning](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) |
+| **Critical** |  | **Automated Failover** | [GitOps Re-provisioning](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) |
 
 ## Clinical Safety & Resilience
 
-In healthcare environments, downtime is life-critical. This framework maps infrastructure reliability directly to **Clinical SLOs**. If the AI predicts a failure in the [robotics telemetry stream](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics), the platform triggers a sub-second handover to a redundant cloud region—such as shifting critical workloads from EKS to [GKE](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md)—ensuring zero interruption for surgical edge devices.
+In healthcare environments, downtime is life-critical. This framework maps infrastructure reliability directly to **Clinical SLOs**. If the AI predicts a failure in the [robotics telemetry stream](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics), the platform triggers a sub-second handover to a redundant cloud region—such as shifting critical workloads from EKS to [GKE](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md)—ensuring zero interruption for surgical edge devices.
 
 ## Performance Metrics
 
 * **Prediction Lead Time**: Goal of >5 minutes before critical failure.
 * **Precision/Recall**: Targeted at >92% for clinical safety-critical anomalies.
-* **False Positive Rate**: Minimized to <2% to prevent "alert fatigue" in the [SRE team](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/sre).
+* **False Positive Rate**: Minimized to <2% to prevent "alert fatigue" in the [SRE team](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/sre).
 
 ---
 
@@ -822,36 +822,36 @@ This document signals that you don't just "do AI"—you know how to make AI **us
 
 ## Executive Overview
 
-This document details the **Active-Active Resilience Strategy** for the [express-reliability-aiops-platform](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main). Unlike traditional Active-Passive setups, this architecture utilizes simultaneous traffic processing across multiple cloud providers (AWS, Azure, OCI) to ensure zero RTO (Recovery Time Objective) and near-zero RPO (Recovery Point Objective) for critical healthcare workloads.
+This document details the **Active-Active Resilience Strategy** for the [Naweji Reliability Platform](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main). Unlike traditional Active-Passive setups, this architecture utilizes simultaneous traffic processing across multiple cloud providers (AWS, Azure, OCI) to ensure zero RTO (Recovery Time Objective) and near-zero RPO (Recovery Point Objective) for critical healthcare workloads.
 
 ## Global Traffic Orchestration
 
-Traffic is distributed using a Global Server Load Balancing (GSLB) layer that performs real-time health checks on the [multi-cloud infrastructure](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md).
+Traffic is distributed using a Global Server Load Balancing (GSLB) layer that performs real-time health checks on the [multi-cloud infrastructure](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md).
 
-* **Latency-Based Routing**: Clinical telemetry from [robotics edge nodes](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main) is routed to the lowest-latency cluster.
-* **Failover Automation**: If the [predictive reliability framework](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) identifies a high probability of failure (), the GSLB automatically drains traffic from the compromised region before an outage occurs.
+* **Latency-Based Routing**: Clinical telemetry from [robotics edge nodes](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main) is routed to the lowest-latency cluster.
+* **Failover Automation**: If the [predictive reliability framework](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) identifies a high probability of failure (), the GSLB automatically drains traffic from the compromised region before an outage occurs.
 
 ## Data Synchronization & Consistency
 
-To maintain a unified state across [EKS, AKS, and OKE](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md), the platform employs a multi-region data mesh:
+To maintain a unified state across [EKS, AKS, and OKE](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md), the platform employs a multi-region data mesh:
 
-1. **Eventual Consistency for Analytics**: Telemetry data is asynchronously replicated to regional [TSDBs (Time Series Databases)](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/02-data-flow-diagrams.md) for AI training.
+1. **Eventual Consistency for Analytics**: Telemetry data is asynchronously replicated to regional [TSDBs (Time Series Databases)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/02-data-flow-diagrams.md) for AI training.
 2. **Synchronous Replication for State**: Critical clinical state and configuration are managed via a globally distributed database with strictly defined quorum requirements to prevent "Split-Brain" scenarios.
 
 ## Predictive Failover Workflow
 
-The integration between the [AI Brain](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main) and the [GitOps Engine](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main) allows for "pre-emptive" resilience:
+The integration between the [AI Brain](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main) and the [GitOps Engine](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main) allows for "pre-emptive" resilience:
 
 | Stage | Trigger | Action |
 | --- | --- | --- |
-| **Detection** | [TCN Model Anomaly](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) | Flagging of high-risk resource in Region A. |
-| **Preparation** | [GitOps Sync](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main) | Scaling up redundant capacity in Region B. |
+| **Detection** | [TCN Model Anomaly](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) | Flagging of high-risk resource in Region A. |
+| **Preparation** | [GitOps Sync](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main) | Scaling up redundant capacity in Region B. |
 | **Execution** | **GSLB Shift** | Seamless transition of 100% of traffic to healthy clusters. |
-| **Recovery** | [Self-Healing Script](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main) | Automated root-cause analysis and re-provisioning of Region A. |
+| **Recovery** | [Self-Healing Script](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main) | Automated root-cause analysis and re-provisioning of Region A. |
 
 ## Compliance & Auditability
 
-Every failover event, whether manual or automated by AI, is captured in the [HIPAA-compliant immutable logs](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs). This ensures that even during high-velocity resilience maneuvers, the platform maintains a full audit trail for regulatory bodies.
+Every failover event, whether manual or automated by AI, is captured in the [HIPAA-compliant immutable logs](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs). This ensures that even during high-velocity resilience maneuvers, the platform maintains a full audit trail for regulatory bodies.
 
 
 
@@ -862,7 +862,7 @@ Every failover event, whether manual or automated by AI, is captured in the [HIP
 
 # Visual Architecture & Design Assets
 
-This directory contains the high-level diagrams and visual artifacts that document the **Express Reliability AIOps Platform**. These images are referenced throughout the repository documentation to illustrate complex workflows, from the GitOps pipeline to the AIOps self-healing loops.
+This directory contains the high-level diagrams and visual artifacts that document the **Naweji Reliability Platform (NRP)**. These images are referenced throughout the repository documentation to illustrate complex workflows, from the GitOps pipeline to the AIOps self-healing loops.
 
 ## Asset Catalog
 
@@ -911,27 +911,27 @@ These images are embedded in the root `README.md` and module-specific documentat
 
 ## Executive Summary
 
-This document provides a traceability matrix between the **Express-Reliability AIOps Platform** technical controls and the **HIPAA Security Rule** (45 CFR § 164.312). The platform is designed to handle Protected Health Information (PHI) within clinical robotics and telemetry streams by enforcing encryption, zero-trust networking, and automated auditability.
+This document provides a traceability matrix between the **Naweji Reliability Platform (NRP)** technical controls and the **HIPAA Security Rule** (45 CFR § 164.312). The platform is designed to handle Protected Health Information (PHI) within clinical robotics and telemetry streams by enforcing encryption, zero-trust networking, and automated auditability.
 
 ## Technical Safeguards Mapping
 
 | HIPAA Standard | Platform Control Implementation | Evidence Location |
 | --- | --- | --- |
-| **Access Control** (164.312.a.1) | RBAC-enforced access to Kubernetes clusters and AI inference engines using OIDC providers. | [`/terraform/iam`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform%5D(https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform)) |
-| **Audit Controls** (164.312.b) | Immutable logging of all [GitOps](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) changes and AI-driven failover events in a centralized TSDB. | [`/docs/architecture/05`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md%5D(https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md)) |
-| **Integrity** (164.312.c.1) | Digital signing of [container images](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/scripts) and checksum verification of robotics telemetry packets. | [`/robotics/safety`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics%5D(https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics)) |
-| **Transmission Security** (164.312.e.1) | Mandatory **mTLS 1.3** for all service-to-service communication via Istio Service Mesh across multi-cloud regions. | [`/docs/architecture/02`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/02-data-flow-diagrams.md%5D(https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/02-data-flow-diagrams.md)) |
+| **Access Control** (164.312.a.1) | RBAC-enforced access to Kubernetes clusters and AI inference engines using OIDC providers. | [`/terraform/iam`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform%5D(https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform)) |
+| **Audit Controls** (164.312.b) | Immutable logging of all [GitOps](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) changes and AI-driven failover events in a centralized TSDB. | [`/docs/architecture/05`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/05-active-active-resilience.md%5D(https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/05-active-active-resilience.md)) |
+| **Integrity** (164.312.c.1) | Digital signing of [container images](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/scripts) and checksum verification of robotics telemetry packets. | [`/robotics/safety`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics%5D(https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics)) |
+| **Transmission Security** (164.312.e.1) | Mandatory **mTLS 1.3** for all service-to-service communication via Istio Service Mesh across multi-cloud regions. | [`/docs/architecture/02`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/02-data-flow-diagrams.md%5D(https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/02-data-flow-diagrams.md)) |
 
 ## AI-Driven Compliance Monitoring
 
-Unlike traditional platforms, this system leverages the [Predictive Reliability Framework](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) to detect security anomalies:
+Unlike traditional platforms, this system leverages the [Predictive Reliability Framework](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) to detect security anomalies:
 
-* **Predictive Anomaly Detection**: The [LSTM/TCN models](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai) monitor telemetry access patterns to identify potential unauthorized PHI exfiltration or "man-in-the-middle" attacks at the robotics edge.
-* **Automated Remediation**: If a security threshold is breached (), the [Resilience Engine](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md) can automatically isolate the compromised node or rotate encryption keys via GitOps.
+* **Predictive Anomaly Detection**: The [LSTM/TCN models](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai) monitor telemetry access patterns to identify potential unauthorized PHI exfiltration or "man-in-the-middle" attacks at the robotics edge.
+* **Automated Remediation**: If a security threshold is breached (), the [Resilience Engine](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/05-active-active-resilience.md) can automatically isolate the compromised node or rotate encryption keys via GitOps.
 
 ## Data Residency & Sovereignty
 
-To support international healthcare standards (including **HDS** for French data), the [Multi-Cloud Topology](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md) ensures that patient data remains within geographically defined boundaries (e.g., `us-east-1` for US patients, `eu-west-1` for EU patients) through Kubernetes taints and affinity rules.
+To support international healthcare standards (including **HDS** for French data), the [Multi-Cloud Topology](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md) ensures that patient data remains within geographically defined boundaries (e.g., `us-east-1` for US patients, `eu-west-1` for EU patients) through Kubernetes taints and affinity rules.
 
 ---
 
@@ -949,7 +949,7 @@ This document signals to a **CISO or CTO** that you understand the liability and
 
 ## Executive Overview
 
-This document outlines the privacy controls implemented to meet the **HDS (Hébergement de Données de Santé)** certification requirements for the [express-reliability-aiops-platform](https://github.com/Here2ServeU/express-reliability-aiops-platform). These standards ensure that personal health data stored or processed within our [multi-cloud infrastructure](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md) remains secure, private, and under the control of the patient/provider.
+This document outlines the privacy controls implemented to meet the **HDS (Hébergement de Données de Santé)** certification requirements for the [Naweji Reliability Platform](https://github.com/Here2ServeU/Naweji-Reliability-Platform). These standards ensure that personal health data stored or processed within our [multi-cloud infrastructure](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md) remains secure, private, and under the control of the patient/provider.
 
 ## HDS Technical Requirements Mapping
 
@@ -957,24 +957,24 @@ As per the French Public Health Code, the platform satisfies the six main activi
 
 | Activity | Technical Implementation | Platform Evidence |
 | --- | --- | --- |
-| **PaaS / IaaS Security** | Provisioning of secure virtual infrastructure across [EKS, AKS, and GKE](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md). | [`/terraform`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform%5D(https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform)) |
-| **Application Hosting** | Secure container orchestration with automated [GitOps](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) deployment pipelines. | [`/gitops`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops%5D(https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops)) |
-| **Backup & DR** | Multi-region, multi-cloud [Active-Active Resilience](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md) with near-zero RPO. | [`/docs/compliance/04`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/04-disaster-recovery-plan.md%5D(https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/04-disaster-recovery-plan.md)) |
-| **Data Encryption** | Mandatory Encryption-at-Rest (AES-256) and Encryption-in-Transit (TLS 1.3) across all cloud providers. | [`/docs/architecture/02`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/02-data-flow-diagrams.md%5D(https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/02-data-flow-diagrams.md)) |
+| **PaaS / IaaS Security** | Provisioning of secure virtual infrastructure across [EKS, AKS, and GKE](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md). | [`/terraform`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform%5D(https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform)) |
+| **Application Hosting** | Secure container orchestration with automated [GitOps](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) deployment pipelines. | [`/gitops`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops%5D(https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops)) |
+| **Backup & DR** | Multi-region, multi-cloud [Active-Active Resilience](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/05-active-active-resilience.md) with near-zero RPO. | [`/docs/compliance/04`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/04-disaster-recovery-plan.md%5D(https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/04-disaster-recovery-plan.md)) |
+| **Data Encryption** | Mandatory Encryption-at-Rest (AES-256) and Encryption-in-Transit (TLS 1.3) across all cloud providers. | [`/docs/architecture/02`](https://www.google.com/search?q=%5Bhttps://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/02-data-flow-diagrams.md%5D(https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/02-data-flow-diagrams.md)) |
 
 ## Data Residency & Sovereignty
 
 To satisfy European GDPR and French HDS requirements, the platform enforces strict data residency rules:
 
 * **Region Pinning**: Critical clinical telemetry is pinned to specific EU regions (e.g., `eu-west-3` for France) to ensure data never leaves the required legal jurisdiction.
-* **Cross-Border Controls**: The [GCP Vertex AI training loop](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) utilizes anonymized data sets to ensure no PHI/PII is exposed during model optimization.
+* **Cross-Border Controls**: The [GCP Vertex AI training loop](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) utilizes anonymized data sets to ensure no PHI/PII is exposed during model optimization.
 
 ## Privacy by Design in AIOps
 
-Our [Predictive Reliability Framework](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) includes built-in privacy safeguards:
+Our [Predictive Reliability Framework](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) includes built-in privacy safeguards:
 
-* **Data Minimization**: Only essential kinematic telemetry required for safety inference is processed by the [AI Brain](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai).
-* **Automated Anonymization**: All telemetry streams are scrubbed of identifiable metadata at the [Robotics Edge](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics) before ingestion into the cloud control plane.
+* **Data Minimization**: Only essential kinematic telemetry required for safety inference is processed by the [AI Brain](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai).
+* **Automated Anonymization**: All telemetry streams are scrubbed of identifiable metadata at the [Robotics Edge](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics) before ingestion into the cloud control plane.
 
 ---
 
@@ -993,46 +993,46 @@ Adding **HDS** to your documentation highlights your ability to navigate complex
 
 ## Executive Overview
 
-This document defines the technical standards for capturing, protecting, and reviewing audit logs within the [express-reliability-aiops-platform](https://github.com/Here2ServeU/express-reliability-aiops-platform). Per [HIPAA §164.312(b)](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md), the platform implements hardware, software, and procedural mechanisms that record and examine activity in information systems that contain or use electronic protected health information (ePHI).
+This document defines the technical standards for capturing, protecting, and reviewing audit logs within the [Naweji Reliability Platform](https://github.com/Here2ServeU/Naweji-Reliability-Platform). Per [HIPAA §164.312(b)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md), the platform implements hardware, software, and procedural mechanisms that record and examine activity in information systems that contain or use electronic protected health information (ePHI).
 
 ## Scope of Logging
 
-The platform captures granular telemetry across the entire [multi-cloud stack](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md):
+The platform captures granular telemetry across the entire [multi-cloud stack](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md):
 
 | Log Category | Source Component | Data Captured |
 | --- | --- | --- |
-| **System Access** | [IAM / RBAC](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) | User ID, Timestamp, Source IP, Success/Failure status. |
-| **AI Decisioning** | [Predictive Brain](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai) | Risk probability scores (), input telemetry features, and triggered actions. |
-| **Infrastructure** | [GitOps (ArgoCD)](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) | Commit SHA, Author, and diffs of all environmental changes. |
-| **Clinical Safety** | [Robotics Edge](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics) | Kinematic anomaly flags and agentic safety mediation events. |
+| **System Access** | [IAM / RBAC](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) | User ID, Timestamp, Source IP, Success/Failure status. |
+| **AI Decisioning** | [Predictive Brain](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai) | Risk probability scores (), input telemetry features, and triggered actions. |
+| **Infrastructure** | [GitOps (ArgoCD)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) | Commit SHA, Author, and diffs of all environmental changes. |
+| **Clinical Safety** | [Robotics Edge](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics) | Kinematic anomaly flags and agentic safety mediation events. |
 
 ## Immutability & Protection
 
-To prevent log tampering and satisfy [HDS standards](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/02-data-privacy-hds.md), the following protections are enforced:
+To prevent log tampering and satisfy [HDS standards](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/02-data-privacy-hds.md), the following protections are enforced:
 
-* **Write-Once-Read-Many (WORM)**: Logs are streamed in real-time to encrypted, object-locked buckets in [GCP and AWS](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md).
+* **Write-Once-Read-Many (WORM)**: Logs are streamed in real-time to encrypted, object-locked buckets in [GCP and AWS](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md).
 * **Cryptographic Hashing**: Every log entry is hashed and chained to ensure any modification is immediately detectable during an audit.
-* **Separation of Duties**: The [SRE team](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/sre) cannot modify or delete logs; only the dedicated Security Auditor role has read-only access.
+* **Separation of Duties**: The [SRE team](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/sre) cannot modify or delete logs; only the dedicated Security Auditor role has read-only access.
 
 ## Predictive Audit Review
 
-Utilizing the [Predictive Reliability Framework](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md), the platform performs continuous, automated log analysis:
+Utilizing the [Predictive Reliability Framework](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md), the platform performs continuous, automated log analysis:
 
-* **Anomaly Detection**: The [AI Brain](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai) flags unusual administrative patterns that may indicate credential compromise.
-* **Automated Alerting**: High-risk security events () trigger immediate [Active-Active failover](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md) or resource isolation.
+* **Anomaly Detection**: The [AI Brain](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai) flags unusual administrative patterns that may indicate credential compromise.
+* **Automated Alerting**: High-risk security events () trigger immediate [Active-Active failover](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/05-active-active-resilience.md) or resource isolation.
 
 ## Retention Requirements
 
 Logs are retained according to the following schedule to meet legal mandates:
 
-* **Active Logs**: 90 days in high-performance [TSDB](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/02-data-flow-diagrams.md).
+* **Active Logs**: 90 days in high-performance [TSDB](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/02-data-flow-diagrams.md).
 * **Archive Logs**: 7 years in cold storage (GCS/S3) for HIPAA/HDS regulatory look-backs.
 
 ---
 
 ### Strategy for your Portfolio
 
-This policy proves you understand that **Observability is a Compliance Requirement**. By linking your [AI models](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai) to the auditing process, you demonstrate a "Security-First" engineering mindset.
+This policy proves you understand that **Observability is a Compliance Requirement**. By linking your [AI models](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai) to the auditing process, you demonstrate a "Security-First" engineering mindset.
 
 
 
@@ -1045,37 +1045,37 @@ This policy proves you understand that **Observability is a Compliance Requireme
 
 ## Executive Overview
 
-This document defines the formal **Disaster Recovery (DR)** strategy for the [express-reliability-aiops-platform](https://github.com/Here2ServeU/express-reliability-aiops-platform). To satisfy **HIPAA Security Rule §164.308(a)(7)**, this plan ensures that clinical robotics telemetry and AI inference services remain operational during catastrophic infrastructure failures through an [Active-Active Multi-Cloud](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md) architecture.
+This document defines the formal **Disaster Recovery (DR)** strategy for the [Naweji Reliability Platform](https://github.com/Here2ServeU/Naweji-Reliability-Platform). To satisfy **HIPAA Security Rule §164.308(a)(7)**, this plan ensures that clinical robotics telemetry and AI inference services remain operational during catastrophic infrastructure failures through an [Active-Active Multi-Cloud](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md) architecture.
 
 ## Recovery Objectives (RTO & RPO)
 
 In a healthcare context, "Downtime = Clinical Risk." Our targets are designed for near-instantaneous recovery:
 
 * **Recovery Time Objective (RTO)**: **< 30 Seconds**. Traffic is automatically re-routed via GSLB upon detection of regional failure.
-* **Recovery Point Objective (RPO)**: **Near-Zero**. Real-time [telemetry synchronization](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md) across AWS, Azure, OCI, and GCP ensures no patient data loss during handover.
+* **Recovery Point Objective (RPO)**: **Near-Zero**. Real-time [telemetry synchronization](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/05-active-active-resilience.md) across AWS, Azure, OCI, and GCP ensures no patient data loss during handover.
 
 ## Multi-Cloud Failover Strategy
 
-The platform avoids "Single Point of Failure" by distributing the [AI Brain](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/ai) and [Robotics Edge](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics) logic across physically isolated providers:
+The platform avoids "Single Point of Failure" by distributing the [AI Brain](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai) and [Robotics Edge](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics) logic across physically isolated providers:
 
-1. **Primary Execution**: Distributed across [EKS (AWS)](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) and [AKS (Azure)](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform).
-2. **Immediate Failover Target**: [GKE (GCP)](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) and [OKE (OCI)](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) maintain "Warm-Standby" capacity, ready to absorb 100% of clinical traffic.
-3. **Predictive Intervention**: The [Predictive Reliability Framework](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) initiates failover **before** an outage occurs, based on  risk scores.
+1. **Primary Execution**: Distributed across [EKS (AWS)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) and [AKS (Azure)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform).
+2. **Immediate Failover Target**: [GKE (GCP)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) and [OKE (OCI)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) maintain "Warm-Standby" capacity, ready to absorb 100% of clinical traffic.
+3. **Predictive Intervention**: The [Predictive Reliability Framework](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) initiates failover **before** an outage occurs, based on  risk scores.
 
 ## Automated DR Procedures
 
-All recovery actions are orchestrated via [GitOps](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) to eliminate human error during high-stress incidents:
+All recovery actions are orchestrated via [GitOps](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) to eliminate human error during high-stress incidents:
 
-* **Health Probes**: Global Load Balancers monitor [Istio Service Mesh](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/02-data-flow-diagrams.md) endpoints every 5 seconds.
+* **Health Probes**: Global Load Balancers monitor [Istio Service Mesh](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/02-data-flow-diagrams.md) endpoints every 5 seconds.
 * **Traffic Shedding**: Automatic isolation of the failing region to prevent "Cascading Failures".
-* **Immutable Audit Trail**: Every DR event is logged as a Git commit and an encrypted [HIPAA-compliant log entry](https://www.google.com/search?q=https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md).
+* **Immutable Audit Trail**: Every DR event is logged as a Git commit and an encrypted [HIPAA-compliant log entry](https://www.google.com/search?q=https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md).
 
 ## Testing & Validation
 
-To ensure plan effectiveness, the [SRE team](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/sre) conducts:
+To ensure plan effectiveness, the [SRE team](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/sre) conducts:
 
-* **Quarterly Chaos Drills**: Simulating total cloud region outages to verify automated [GSLB shifts](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md).
-* **Continuous Compliance Checks**: Automated [Terraform](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform) scans to ensure redundancy modules are never accidentally disabled.
+* **Quarterly Chaos Drills**: Simulating total cloud region outages to verify automated [GSLB shifts](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/05-active-active-resilience.md).
+* **Continuous Compliance Checks**: Automated [Terraform](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) scans to ensure redundancy modules are never accidentally disabled.
 
 ---
 
@@ -1093,7 +1093,7 @@ This DR plan is the "Legal Backbone" of your architecture. It tells an executive
 
 ## Executive Overview
 
-As quantum computing transitions from theoretical research to functional application, traditional asymmetric encryption (RSA, ECC) faces potential obsolescence. To ensure the long-term integrity of [clinical robotics telemetry](https://github.com/Here2ServeU/express-reliability-aiops-platform) and patient data, this platform implements **Post-Quantum Cryptography (PQC)**. This policy aligns with the **NIST Post-Quantum Cryptography Standardization** project to mitigate "harvest now, decrypt later" threats.
+As quantum computing transitions from theoretical research to functional application, traditional asymmetric encryption (RSA, ECC) faces potential obsolescence. To ensure the long-term integrity of [clinical robotics telemetry](https://github.com/Here2ServeU/Naweji-Reliability-Platform) and patient data, this platform implements **Post-Quantum Cryptography (PQC)**. This policy aligns with the **NIST Post-Quantum Cryptography Standardization** project to mitigate "harvest now, decrypt later" threats.
 
 ## Cryptographic Standards
 
@@ -1101,27 +1101,27 @@ The platform utilizes NIST-selected algorithms for high-stakes healthcare commun
 
 | Layer | Algorithm | Purpose |
 | --- | --- | --- |
-| **Key Encapsulation** | **CRYSTALS-Kyber** | Securing [mTLS 1.3](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/02-data-flow-diagrams.md) handshakes across multi-cloud regions. |
-| **Digital Signatures** | **CRYSTALS-Dilithium** | Verifying the integrity of [GitOps commits](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/gitops) and AI model weights. |
-| **Data-at-Rest** | **AES-256-GCM** | Quantum-resistant symmetric encryption for telemetry storage in [GCP and AWS](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/03-infrastructure-topology.md). |
+| **Key Encapsulation** | **CRYSTALS-Kyber** | Securing [mTLS 1.3](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/02-data-flow-diagrams.md) handshakes across multi-cloud regions. |
+| **Digital Signatures** | **CRYSTALS-Dilithium** | Verifying the integrity of [GitOps commits](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops) and AI model weights. |
+| **Data-at-Rest** | **AES-256-GCM** | Quantum-resistant symmetric encryption for telemetry storage in [GCP and AWS](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md). |
 
 ## Implementation Architecture
 
 Quantum-resistant security is integrated into the core infrastructure:
 
 * **Hybrid Key Exchange**: The platform employs a hybrid approach, combining classical Elliptic Curve Diffie-Hellman (ECDH) with **Kyber-768** to provide immediate security while transitioning to pure PQC.
-* **Quantum-Safe Identity**: All service-to-service identities within the [Istio Service Mesh](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/architecture/05-active-active-resilience.md) use Dilithium-based certificates for authentication.
-* **Immutable Audit Anchors**: [Audit Logs](https://www.google.com/search?q=https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/03-audit-logging-policy.md) are signed with PQC algorithms to ensure they remain non-repudiable in a post-quantum era.
+* **Quantum-Safe Identity**: All service-to-service identities within the [Istio Service Mesh](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/05-active-active-resilience.md) use Dilithium-based certificates for authentication.
+* **Immutable Audit Anchors**: [Audit Logs](https://www.google.com/search?q=https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/03-audit-logging-policy.md) are signed with PQC algorithms to ensure they remain non-repudiable in a post-quantum era.
 
 ## Compliance Alignment
 
-This policy serves as a strategic extension of our [HIPAA Compliance Mapping](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md) and [HDS Data Privacy](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/compliance/02-data-privacy-hds.md) standards. By adopting PQC early, the platform satisfies the "Technical Safeguards" requirements for long-term data durability in high-security healthcare sectors.
+This policy serves as a strategic extension of our [HIPAA Compliance Mapping](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md) and [HDS Data Privacy](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/02-data-privacy-hds.md) standards. By adopting PQC early, the platform satisfies the "Technical Safeguards" requirements for long-term data durability in high-security healthcare sectors.
 
 ---
 
 ### Integration Step
 
-Once you commit this file, your [EXECUTIVE-PORTFOLIO.md](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/docs/guides/EXECUTIVE-PORTFOLIO.md) will have a complete "Source of Truth" for its quantum claims.
+Once you commit this file, your [EXECUTIVE-PORTFOLIO.md](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/guides/EXECUTIVE-PORTFOLIO.md) will have a complete "Source of Truth" for its quantum claims.
 
 
 ---
@@ -1129,33 +1129,33 @@ Once you commit this file, your [EXECUTIVE-PORTFOLIO.md](https://github.com/Here
 
 ## Source: docs/guides/EXECUTIVE-PORTFOLIO.md
 
-# Express-Reliability AIOps: Quantum-Enhanced Clinical Safety Platform
+# Naweji Reliability Platform (NRP): Quantum-Enhanced Clinical Safety Platform
 
 ## Executive Summary: Bridging the Gap Between AI, Quantum, and Infrastructure
 
-The **Express-Reliability AIOps Platform** is a specialized, enterprise-grade ecosystem designed for high-availability healthcare environments. By integrating **Hybrid Quantum-Classical Learning (QNN/LSTM/TCN)** with a **Multi-Cloud Active-Active Resilience** strategy, the platform achieves 99.999% availability for critical [robotics telemetry streams](https://github.com/Here2ServeU/express-reliability-aiops-platform), effectively transitioning infrastructure from reactive to predictive through quantum-accelerated anomaly detection.
+The **Naweji Reliability Platform (NRP)** is a specialized, enterprise-grade ecosystem designed for high-availability healthcare environments. By integrating **Hybrid Quantum-Classical Learning (QNN/LSTM/TCN)** with a **Multi-Cloud Active-Active Resilience** strategy, the platform achieves 99.999% availability for critical [robotics telemetry streams](https://github.com/Here2ServeU/Naweji-Reliability-Platform), effectively transitioning infrastructure from reactive to predictive through quantum-accelerated anomaly detection.
 
 ## Architectural Excellence (Golden Project Standard)
 
-This project utilizes the [T2S-Golden-Project](https://github.com/Here2ServeU/express-reliability-aiops-platform/projects) structure to ensure SOC 2 and [HIPAA-compliant](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs) auditability and operational clarity.
+This project utilizes the [NRP-Golden-Project](https://github.com/Here2ServeU/Naweji-Reliability-Platform/projects) structure to ensure SOC 2 and [HIPAA-compliant](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs) auditability and operational clarity.
 
-* **[Core Hybrid Brain](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main)**: Features a tri-model ensemble—utilizing classical LSTM for long-range trends, TCN for high-frequency anomalies, and **Quantum Neural Networks (QNN)** for complex, non-linear pattern recognition in high-dimensional datasets—delivering 92% or greater prediction precision.
-* **[Multi-Cloud Topology](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs)**: Provides global orchestration across **AWS, Azure, GCP, and OCI** through modular [Terraform](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main) and [GitOps](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main) frameworks, now featuring quantum-safe network nodes.
-* **[Resilience Engine](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs)**: Ensures a sub-30 second Recovery Time Objective (RTO) powered by [predictive failover logic](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs) and **Quantum Approximate Optimization Algorithms (QAOA)** for sub-millisecond multi-cloud traffic routing decisions.
+* **[Core Hybrid Brain](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main)**: Features a tri-model ensemble—utilizing classical LSTM for long-range trends, TCN for high-frequency anomalies, and **Quantum Neural Networks (QNN)** for complex, non-linear pattern recognition in high-dimensional datasets—delivering 92% or greater prediction precision.
+* **[Multi-Cloud Topology](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs)**: Provides global orchestration across **AWS, Azure, GCP, and OCI** through modular [Terraform](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main) and [GitOps](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main) frameworks, now featuring quantum-safe network nodes.
+* **[Resilience Engine](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs)**: Ensures a sub-30 second Recovery Time Objective (RTO) powered by [predictive failover logic](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs) and **Quantum Approximate Optimization Algorithms (QAOA)** for sub-millisecond multi-cloud traffic routing decisions.
 
 ## Ph.D. Research Implementation
 
 The platform serves as a production-hardened implementation of advanced AI and Quantum research focused on healthcare resilience:
 
-* **Agentic Safety Mediation**: Conducts real-time kinematic telemetry analysis at the [Robotics Edge](https://github.com/Here2ServeU/express-reliability-aiops-platform) using quantum kernels to identify subtle pre-failure signatures.
-* **Quantum MLOps Lifecycle**: Enables continuous model evolution via [GCP Vertex AI](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs) and quantum simulators for compute-intensive hybrid re-training loops.
+* **Agentic Safety Mediation**: Conducts real-time kinematic telemetry analysis at the [Robotics Edge](https://github.com/Here2ServeU/Naweji-Reliability-Platform) using quantum kernels to identify subtle pre-failure signatures.
+* **Quantum MLOps Lifecycle**: Enables continuous model evolution via [GCP Vertex AI](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs) and quantum simulators for compute-intensive hybrid re-training loops.
 
 ## Compliance and Governance
 
 Engineered for the most stringent regulatory environments, the platform maintains adherence to **HIPAA**, **SOC 2**, and **French HDS** standards.
 
 * **Post-Quantum Cryptography (PQC)**: Protects the [Audit Logging Policy](https://github.com/notifications) with quantum-resistant encryption algorithms to safeguard immutable, WORM-protected telemetry and decision logs against future decryption threats.
-* **[Disaster Recovery Plan](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/docs)**: Implements a legally defensible Active-Active business continuity strategy across globally distributed, quantum-safe cloud clusters.
+* **[Disaster Recovery Plan](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs)**: Implements a legally defensible Active-Active business continuity strategy across globally distributed, quantum-safe cloud clusters.
 
 
 
@@ -1574,7 +1574,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: '[https://github.com/Here2ServeU/express-reliability-aiops-platform.git](https://github.com/Here2ServeU/express-reliability-aiops-platform.git)'
+    repoURL: '[https://github.com/Here2ServeU/Naweji-Reliability-Platform.git](https://github.com/Here2ServeU/Naweji-Reliability-Platform.git)'
     targetRevision: HEAD
     path: helm/splunk-forwarder
   destination:
@@ -2236,7 +2236,7 @@ Developers simply point their application SDKs to the local node:
 
 # AI Worker Isolated Helm Chart
 
-This chart deploys an isolated Celery worker environment as part of the [express-reliability-aiops-platform](https://github.com/Here2ServeU/express-reliability-aiops-platform).
+This chart deploys an isolated Celery worker environment as part of the [Naweji Reliability Platform](https://github.com/Here2ServeU/Naweji-Reliability-Platform).
 
 ## Features
 - **Namespace Isolation**: Deploys into a dedicated `ai-worker-isolated` namespace.
@@ -2246,7 +2246,7 @@ This chart deploys an isolated Celery worker environment as part of the [express
 ## Prerequisites
 - Kubernetes 1.19+
 - Helm 3+
-- Redis broker provisioned via [Terraform Redis module](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/terraform/modules/redis).
+- Redis broker provisioned via [Terraform Redis module](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform/modules/redis).
 
 ## Installation
 To install the chart with the release name `my-worker`:
@@ -2524,9 +2524,9 @@ While Helm is superior for packaging, raw manifests are critical for **debugging
 
 ## Source: ops/README.md
 
-# /ops — SRE & Platform Governance for Express T2S
+# /ops — SRE & Platform Governance for NRP
 
-This directory contains the central source of truth for **Site Reliability Engineering (SRE)** practices, **operational documentation**, and **platform governance** used to support the **Express T2S Microservices** and the **Backstage Internal Developer Platform (IDP)**. All procedures adhere to a GitOps-first, audit-ready framework.
+This directory contains the central source of truth for **Site Reliability Engineering (SRE)** practices, **operational documentation**, and **platform governance** used to support the **NRP Microservices** and the **Backstage Internal Developer Platform (IDP)**. All procedures adhere to a GitOps-first, audit-ready framework.
 
 ## Key Operational Areas
 
@@ -2545,9 +2545,9 @@ This directory contains the central source of truth for **Site Reliability Engin
 
 ## Source: ops/checklists/README.md
 
-# Operational Checklists for Express T2S Platform
+# Operational Checklists for NRP Platform
 
-Operational checklists are a critical component of our DevOps strategy, ensuring **consistency**, **auditability**, and **risk reduction** across all deployment and maintenance activities for the Express T2S platform. They formalize the process of managing the Internal Developer Platform (IDP) and associated microservices.
+Operational checklists are a critical component of our DevOps strategy, ensuring **consistency**, **auditability**, and **risk reduction** across all deployment and maintenance activities for the NRP platform. They formalize the process of managing the Internal Developer Platform (IDP) and associated microservices.
 
 ## Available Checklists
 
@@ -2567,12 +2567,12 @@ These documents should be utilized by all DevOps and SRE personnel prior to and 
 
 ## Source: ops/checklists/post_deployment.md
 
-# Post-Deployment Checklist for Express T2S Platform
+# Post-Deployment Checklist for NRP Platform
 
 - [ ] **GitOps Status:** Deployment completed successfully via ArgoCD/Flux and reconciliation is healthy.
 - [ ] **Infrastructure:** All sub-chart dependencies (e.g., PostgreSQL) are stable and healthy.
 - [ ] **App Config:** New ConfigMap (app-config.yaml) successfully mounted and accessible by Backstage container.
-- [ ] **Ingress/Connectivity:** Application is accessible via Ingress (`backstage.express-t2s.com`) and TLS certificate is valid.
+- [ ] **Ingress/Connectivity:** Application is accessible via Ingress (`backstage.nrp-platform.com`) and TLS certificate is valid.
 - [ ] **Health Probes:** Backstage Deployment Liveness and Readiness probes are passing consistently.
 - [ ] **Backstage Catalog:** Catalog Processor successfully ingested all entities and no errors are present on the Catalog page.
 - [ ] **SLOs/Telemetry:** No immediate increase in error rate or latency beyond defined SLO thresholds.
@@ -2587,7 +2587,7 @@ These documents should be utilized by all DevOps and SRE personnel prior to and 
 
 ## Source: ops/checklists/pre_deployment.md
 
-# Pre-Deployment Checklist for Express T2S Platform
+# Pre-Deployment Checklist for NRP Platform
 
 - [ ] **Change Approval:** Change request / ticket approved by required stakeholders.
 - [ ] **Code Readiness:** Code merged to main branch and meets code standards.
@@ -2629,9 +2629,9 @@ These documents should be utilized by all DevOps and SRE personnel prior to and 
 
 ## Source: ops/dr/README.md
 
-# Disaster Recovery Runbooks for Express T2S Platform
+# Disaster Recovery Runbooks for NRP Platform
 
-Disaster Recovery (DR) strategies are essential for maintaining the **availability** and **integrity** of the Express T2S microservices and the underlying Internal Developer Platform (IDP) (Backstage). This folder contains cloud-specific runbooks detailing the procedures required to restore service following a catastrophic event.
+Disaster Recovery (DR) strategies are essential for maintaining the **availability** and **integrity** of the NRP microservices and the underlying Internal Developer Platform (IDP) (Backstage). This folder contains cloud-specific runbooks detailing the procedures required to restore service following a catastrophic event.
 
 Our DR approach is focused on protecting the **stateful data** (primarily PostgreSQL) and quickly re-establishing service connectivity through GitOps pipelines.
 
@@ -2646,7 +2646,7 @@ This directory contains cloud-specific DR runbooks for major providers:
 
 ## Runbook Outline
 
-Each cloud-specific runbook outlines the following critical areas tailored to the Express T2S environment:
+Each cloud-specific runbook outlines the following critical areas tailored to the NRP environment:
 
 1.  **RPO / RTO Targets:** Defines acceptable data loss and service restoration time for microservices and IDP.
 2.  **Backup Strategy:** Details the mechanism for backing up critical data, particularly the Backstage PostgreSQL instance.
@@ -2659,10 +2659,10 @@ Each cloud-specific runbook outlines the following critical areas tailored to th
 
 ## Source: ops/dr/aws_dr_runbook.md
 
-# AWS Disaster Recovery Runbook for Express T2S Platform
+# AWS Disaster Recovery Runbook for NRP Platform
 
 ## Scope
-Covers critical components of the Express T2S microservices platform:
+Covers critical components of the NRP microservices platform:
 * EKS clusters (for all microservices and Backstage IDP)
 * **Backstage PostgreSQL RDS** / DynamoDB
 * S3 buckets (for state and assets)
@@ -2706,10 +2706,10 @@ Covers critical components of the Express T2S microservices platform:
 
 ## Source: ops/dr/azure_dr_runbook.md
 
-# Azure Disaster Recovery Runbook for Express T2S Platform
+# Azure Disaster Recovery Runbook for NRP Platform
 
 ## Scope
-Covers critical components of the Express T2S microservices platform:
+Covers critical components of the NRP microservices platform:
 * AKS clusters (for all microservices and Backstage IDP)
 * **Azure PostgreSQL** / Azure SQL / Cosmos DB
 * Azure Storage (for state and assets)
@@ -2753,10 +2753,10 @@ Covers critical components of the Express T2S microservices platform:
 
 ## Source: ops/dr/gcp_dr_runbook.md
 
-# GCP Disaster Recovery Runbook for Express T2S Platform
+# GCP Disaster Recovery Runbook for NRP Platform
 
 ## Scope
-Covers critical components of the Express T2S microservices platform:
+Covers critical components of the NRP microservices platform:
 * **GKE clusters** (for all microservices and **Backstage IDP**)
 * **Cloud SQL** (for Backstage PostgreSQL persistence) / Firestore
 * **GCS buckets** (for state and assets)
@@ -2797,10 +2797,10 @@ Covers critical components of the Express T2S microservices platform:
 
 ## Source: ops/dr/oci_dr_runbook.md
 
-# OCI Disaster Recovery Runbook for Express T2S Platform
+# OCI Disaster Recovery Runbook for NRP Platform
 
 ## Scope
-Covers critical components of the Express T2S microservices platform:
+Covers critical components of the NRP microservices platform:
 * OKE (Oracle Kubernetes Engine) clusters (for all microservices and Backstage IDP)
 * Autonomous DB / DB Systems (for **Backstage PostgreSQL persistence**)
 * Object Storage (for state and assets)
@@ -2842,11 +2842,11 @@ Covers critical components of the Express T2S microservices platform:
 
 ## Source: ops/on-call/escalation_paths.md
 
-# Escalation Paths for Express T2S Platform
+# Escalation Paths for NRP Platform
 
 ## Severity Levels
 *P1 – Critical*
-- Full outage of **Express T2S microservices** or **Backstage IDP**; major **PostgreSQL** data corruption/loss; confirmed security breach.
+- Full outage of **NRP microservices** or **Backstage IDP**; major **PostgreSQL** data corruption/loss; confirmed security breach.
 - Escalation:
 1. Primary on-call
 2. Secondary on-call
@@ -2883,7 +2883,7 @@ Covers critical components of the Express T2S microservices platform:
 # On-Call Policy for Express Web Platform
 
 ## Objectives
-- Ensure 24/7 coverage for **Express T2S microservices** and the **Backstage IDP**.
+- Ensure 24/7 coverage for **NRP microservices** and the **Backstage IDP**.
 - Minimize mean-time-to-detect (MTTD) and mean-time-to-resolve (MTTR) for platform issues.
 - Provide a humane, sustainable rotation for engineers.
 
@@ -2910,9 +2910,9 @@ Covers critical components of the Express T2S microservices platform:
 
 ## Source: ops/playbooks/README.md
 
-# Operational Playbooks for Express T2S Platform
+# Operational Playbooks for NRP Platform
 
-This directory contains tactical, step-by-step procedures (**Playbooks**) designed to standardize routine and emergency operational tasks across the Express T2S microservices and Backstage IDP infrastructure. Adherence to these playbooks minimizes operational risk and ensures predictable outcomes.
+This directory contains tactical, step-by-step procedures (**Playbooks**) designed to standardize routine and emergency operational tasks across the NRP microservices and Backstage IDP infrastructure. Adherence to these playbooks minimizes operational risk and ensures predictable outcomes.
 
 ## Available Playbooks
 
@@ -2929,11 +2929,11 @@ This directory contains tactical, step-by-step procedures (**Playbooks**) design
 
 ## Source: ops/playbooks/cache_warmup_redis.md
 
-# Redis Cache Warm-Up Playbook for Express T2S Microservices
+# Redis Cache Warm-Up Playbook for NRP Microservices
 
 ## Goals
 - Avoid cold-start performance degradation after deployment or restart of core services.
-- Pre-populate high-value keys for the Express T2S service and relevant Backstage plugins.
+- Pre-populate high-value keys for the NRP service and relevant Backstage plugins.
 
 ## Steps
 
@@ -2991,7 +2991,7 @@ This directory contains tactical, step-by-step procedures (**Playbooks**) design
 - Trigger the **GitOps deployment** to propagate the new connection string to the Backstage deployment.
 
 4. **Verify Application Health**
-- Run application smoke tests against core Express T2S services.
+- Run application smoke tests against core NRP services.
 - Check the Backstage health status (`/healthcheck` endpoint).
 - **Confirm Backstage Catalog Entities are being processed** without database connection errors.
 - Monitor application error rates and latency via observability dashboards.
@@ -3006,7 +3006,7 @@ This directory contains tactical, step-by-step procedures (**Playbooks**) design
 
 ## Source: ops/playbooks/deployment_rollback_gitops.md
 
-# Deployment Rollback with GitOps for Express T2S
+# Deployment Rollback with GitOps for NRP
 
 ## Principles
 * Rollbacks must be executed by reverting the Git commit or applying a known-good Helm chart tag.
@@ -3045,7 +3045,7 @@ This directory contains tactical, step-by-step procedures (**Playbooks**) design
 
 ## Source: ops/playbooks/queue_drain_kafka.md
 
-# Kafka Queue Drain Playbook for Express T2S Microservices
+# Kafka Queue Drain Playbook for NRP Microservices
 
 ## When to Use
 - Before deploying breaking schema or code changes to consumers.
@@ -3079,9 +3079,9 @@ This directory contains tactical, step-by-step procedures (**Playbooks**) design
 
 ## Source: ops/rbac/README.md
 
-# Role-Based Access Control (RBAC) for Express T2S Platform
+# Role-Based Access Control (RBAC) for NRP Platform
 
-This folder contains production-oriented RBAC templates for Kubernetes, ensuring compliance with **least privilege** principles and supporting **SOC 2 control** objectives. Access is segmented based on operational need for the Express T2S microservices and the Backstage IDP infrastructure.
+This folder contains production-oriented RBAC templates for Kubernetes, ensuring compliance with **least privilege** principles and supporting **SOC 2 control** objectives. Access is segmented based on operational need for the NRP microservices and the Backstage IDP infrastructure.
 
 ## Core Principles
 
@@ -3111,7 +3111,7 @@ As medical robotics move from isolated hardware to cloud-connected agentic syste
 
 ## The Solution: Predictive Self-Healing Infrastructure
 
-This domain within the **Express Reliability Platform** serves as a specialized "Safety Guardrail" for medical robotics and EHR-integrated systems. By utilizing **Agentic AI**, the platform moves beyond reactive alerts to autonomous intervention.
+This domain within the **Naweji Reliability Platform (NRP)** serves as a specialized "Safety Guardrail" for medical robotics and EHR-integrated systems. By utilizing **Agentic AI**, the platform moves beyond reactive alerts to autonomous intervention.
 
 ### Core Capabilities:
 
@@ -3149,7 +3149,7 @@ The included simulator demonstrates a **"Latent Failure"** scenario:
 
 ### **gRPC Infrastructure README (`robotics/grpc/README.md`)**
 
-Use the following content to explain how your [surgical_server.py](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/robotics/grpc/surgical_server.py) and [surgical_client.py](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/robotics/grpc/surgical_client.py) function as the nervous system of your platform:
+Use the following content to explain how your [surgical_server.py](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/robotics/grpc/surgical_server.py) and [surgical_client.py](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/robotics/grpc/surgical_client.py) function as the nervous system of your platform:
 
 ---
 
@@ -3157,20 +3157,20 @@ Use the following content to explain how your [surgical_server.py](https://githu
 
 ## The Challenge: The "Last-Mile" Jitter Gap
 
-In [connected medical robotics](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine), standard REST or JSON-over-HTTP protocols introduce overhead that can lead to kinematic desynchronization. A [3-second cloud disconnect](https://gemini.google.com/app/95037d332637f270) can result in a [surgical failure](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine).
+In [connected medical robotics](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine), standard REST or JSON-over-HTTP protocols introduce overhead that can lead to kinematic desynchronization. A [3-second cloud disconnect](https://gemini.google.com/app/95037d332637f270) can result in a [surgical failure](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine).
 
 ## The Solution: Bi-Directional gRPC Streams
 
-This directory houses the [gRPC implementation](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics/grpc) of our [surgical_telemetry.proto](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/robotics/proto/surgical_telemetry.proto). By utilizing **HTTP/2 bi-directional streaming**, we achieve the sub-millisecond precision required for [surgical robotics precision](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics#the-solution-predictive-self-healing-infrastructure).
+This directory houses the [gRPC implementation](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics/grpc) of our [surgical_telemetry.proto](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/robotics/proto/surgical_telemetry.proto). By utilizing **HTTP/2 bi-directional streaming**, we achieve the sub-millisecond precision required for [surgical robotics precision](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-solution-predictive-self-healing-infrastructure).
 
 ### Components:
 
-* **`surgical_server.py`**: The central hub that processes [high-fidelity telemetry](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/robotics/proto/surgical_telemetry.proto) and issues autonomous [safety commands](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/robotics/proto/surgical_telemetry.proto).
-* **`surgical_client.py`**: A simulator for the robotic end-effector, sending continuous kinematic data and reacting to [EMERGENCY_STOP](https://www.google.com/search?q=https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/robotics/agents/emergency_stop_handler.py) or [REROUTE_TO_EDGE](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/robotics/edge/edge_gateway_config.yaml) signals.
+* **`surgical_server.py`**: The central hub that processes [high-fidelity telemetry](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/robotics/proto/surgical_telemetry.proto) and issues autonomous [safety commands](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/robotics/proto/surgical_telemetry.proto).
+* **`surgical_client.py`**: A simulator for the robotic end-effector, sending continuous kinematic data and reacting to [EMERGENCY_STOP](https://www.google.com/search?q=https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/robotics/agents/emergency_stop_handler.py) or [REROUTE_TO_EDGE](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/robotics/edge/edge_gateway_config.yaml) signals.
 
 ## Deployment Instructions
 
-To demonstrate the [self-healing](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/README.md) clinical loop:
+To demonstrate the [self-healing](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/README.md) clinical loop:
 
 1. **Start the Server**:
 ```bash
@@ -3189,7 +3189,7 @@ python3 surgical_client.py
 
 ---
 
-**Strategic Value:** This setup demonstrates [Operational Alpha](https://gemini.google.com/app/95037d332637f270) by ensuring that even under [heavy network jitter](https://github.com/Here2ServeU/express-reliability-aiops-platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine), the [Express Reliability Platform](https://github.com/Here2ServeU/express-reliability-aiops-platform/blob/main/README.md) maintains full control over the clinical environment.
+**Strategic Value:** This setup demonstrates [Operational Alpha](https://gemini.google.com/app/95037d332637f270) by ensuring that even under [heavy network jitter](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine), the [Naweji Reliability Platform (NRP)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/README.md) maintains full control over the clinical environment.
 
 
 
@@ -3363,7 +3363,7 @@ All deployments must include these standard labels to correlate Traces, Logs, an
 
 ```yaml
 labels:
-  [tags.datadoghq.com/service](https://tags.datadoghq.com/service): "express-web-app"  # Service name in APM
+  [tags.datadoghq.com/service](https://tags.datadoghq.com/service): "nerp-dashboard"  # Service name in APM
   [tags.datadoghq.com/env](https://tags.datadoghq.com/env): "production"           # Environment filter
   [tags.datadoghq.com/version](https://tags.datadoghq.com/version): "1.0.0"            # Version for deployment tracking
 
@@ -3467,7 +3467,7 @@ datadogRum.init({
     applicationId: process.env.REACT_APP_DD_RUM_APP_ID,
     clientToken: process.env.REACT_APP_DD_CLIENT_TOKEN,
     site: 'datadoghq.com',
-    service: 'express-t2s-frontend',
+    service: 'nrp-frontend',
     env: process.env.NODE_ENV || 'production',
     version: process.env.REACT_APP_VERSION,
     sessionSampleRate: 100,

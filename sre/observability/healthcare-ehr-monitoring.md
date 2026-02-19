@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the observability configuration for the **Healthcare** vertical of the Express-Reliability AIOps Platform. It extends the existing [OpenTelemetry](/sre/observability/opentelemetry-tracing-setup.md) and [Datadog](/sre/observability/datadog-apm-setup.md) setup with healthcare-specific metrics, dashboards, and alerts.
+This document describes the observability configuration for the **Healthcare** vertical of the Naweji Reliability Platform (NRP). It extends the existing [OpenTelemetry](/sre/observability/opentelemetry-tracing-setup.md) and [Datadog](/sre/observability/datadog-apm-setup.md) setup with healthcare-specific metrics, dashboards, and alerts.
 
 ## Healthcare Metrics Collection
 

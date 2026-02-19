@@ -190,11 +190,11 @@ oc logs -f kafka-0 -n nrp-platform
 oc apply -f openshift/manifests/express-app-deployment.yaml -n nrp-platform
 
 # Monitor rollout
-oc rollout status deployment/express-web-app -n nrp-platform
+oc rollout status deployment/nerp-dashboard -n nrp-platform
 
 # Get route URL
-oc get route express-web-app -n nrp-platform
-# Access at: https://express-web-app-nrp-platform.apps.<cluster>/
+oc get route nerp-dashboard -n nrp-platform
+# Access at: https://nerp-dashboard-nrp-platform.apps.<cluster>/
 ```
 
 #### 6. Deploy Healthcare Services
@@ -379,7 +379,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: express-web-app
+      app: nerp-dashboard
   endpoints:
   - port: http
     interval: 30s
@@ -390,7 +390,7 @@ EOF
 
 ```bash
 # Stream logs from specific pod
-oc logs -f pod/express-web-app-xyz -n nrp-platform
+oc logs -f pod/nerp-dashboard-xyz -n nrp-platform
 
 # View logs from all pods in deployment
 oc logs -f deployment/fraud-detection-service -n nrp-fintech
@@ -399,7 +399,7 @@ oc logs -f deployment/fraud-detection-service -n nrp-fintech
 oc logs -f -l app=ehr-ingestion-service -n nrp-healthcare
 
 # Get logs with timestamps
-oc logs pod/express-web-app-xyz --timestamps=true -n nrp-platform
+oc logs pod/nerp-dashboard-xyz --timestamps=true -n nrp-platform
 ```
 
 ### OpenShift Web Console
@@ -481,7 +481,7 @@ oc rsh pod/<pod-name> -n <namespace>
 oc debug pod/<pod-name> -n <namespace>
 
 # Port forward for local testing
-oc port-forward service/express-web-app 3000:80 -n nrp-platform
+oc port-forward service/nerp-dashboard 3000:80 -n nrp-platform
 # Then access: http://localhost:3000
 ```
 
@@ -532,10 +532,10 @@ oc port-forward service/express-web-app 3000:80 -n nrp-platform
 ```bash
 # Verify HPA is active
 oc get hpa -n nrp-platform
-oc describe hpa express-web-app-hpa -n nrp-platform
+oc describe hpa nerp-dashboard-hpa -n nrp-platform
 
 # Manual scaling
-oc scale deployment express-web-app --replicas=5 -n nrp-platform
+oc scale deployment nerp-dashboard --replicas=5 -n nrp-platform
 
 # Scale fintech services during peak hours
 oc scale deployment fraud-detection-service --replicas=10 -n nrp-fintech
@@ -558,7 +558,7 @@ spec:
   targetRef:
     apiVersion: "apps/v1"
     kind: Deployment
-    name: express-web-app
+    name: nerp-dashboard
   updatePolicy:
     updateMode: "Auto"
 EOF

@@ -1,7 +1,7 @@
-# Azure Disaster Recovery Runbook for Express T2S Platform
+# Azure Disaster Recovery Runbook for NRP Platform
 
 ## Scope
-Covers critical components of the Express T2S microservices platform:
+Covers critical components of the NRP microservices platform:
 * AKS clusters (for all microservices and Backstage IDP)
 * **Azure PostgreSQL** / Azure SQL / Cosmos DB
 * Azure Storage (for state and assets)
