@@ -70,12 +70,143 @@ This FinTech Domain is composed of 5 bounded services:
 ## Quick Start
 
 ```bash
+# From the project root directory (not fintech/)
 # Start all fintech services (requires Kafka)
 docker compose up -d transaction-engine fraud-detector payment-gateway fintech-redis fintech-watchdog
 
 # Or use the convenience script
 scripts/start_fintech.sh
 ```
+
+## Verify Services
+
+Once the services are running, check their health in the browser or with `curl`:
+
+| Service            | Health Check URL                  |
+|--------------------|-----------------------------------|
+| Transaction Engine | http://localhost:8090/health       |
+| Fraud Detector     | http://localhost:8091/health       |
+| Payment Gateway    | http://localhost:8092/health       |
+
+## API Endpoints
+
+### Transaction Engine (`:8090`)
+
+| Method | Endpoint                     | Description             |
+|--------|------------------------------|-------------------------|
+| GET    | `/health`                    | Health status           |
+| GET    | `/metrics`                   | Prometheus metrics      |
+| POST   | `/api/v1/transactions`       | Submit a transaction    |
+| GET    | `/api/v1/transactions`       | List transactions       |
+| GET    | `/api/v1/settlement/status`  | Settlement status       |
+| POST   | `/ops/chaos/latency`         | Inject latency (chaos)  |
+| POST   | `/ops/chaos/error`           | Inject errors (chaos)   |
+
+### Fraud Detector (`:8091`)
+
+| Method | Endpoint       | Description                     |
+|--------|----------------|---------------------------------|
+| GET    | `/health`      | Health status                   |
+| GET    | `/metrics`     | Prometheus metrics              |
+| POST   | `/score`       | Score a transaction for fraud   |
+| POST   | `/model/swap`  | Hot-swap the fraud model        |
+
+### Payment Gateway (`:8092`)
+
+| Method | Endpoint                      | Description               |
+|--------|-------------------------------|---------------------------|
+| GET    | `/health`                     | Health status             |
+| GET    | `/metrics`                    | Prometheus metrics        |
+| POST   | `/api/v1/process`             | Process a payment         |
+| POST   | `/api/v1/settlement/trigger`  | Trigger settlement batch  |
+| GET    | `/api/v1/settlement/batches`  | List settlement batches   |
+| POST   | `/ops/chaos/latency`          | Inject latency (chaos)    |
+| POST   | `/ops/chaos/error`            | Inject errors (chaos)     |
+| POST   | `/ops/reset`                  | Reset chaos injections    |
+
+## Usage Examples
+
+**Submit a transaction:**
+```bash
+curl -X POST http://localhost:8090/api/v1/transactions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 150.00,
+    "currency": "USD",
+    "sender": "acct_001",
+    "receiver": "acct_002",
+    "type": "payment"
+  }'
+```
+
+**Score a transaction for fraud:**
+```bash
+curl -X POST http://localhost:8091/score \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transaction_id": "txn_123",
+    "amount": 150.00,
+    "sender": "acct_001",
+    "receiver": "acct_002"
+  }'
+```
+
+**Process a payment through the gateway:**
+```bash
+curl -X POST http://localhost:8092/api/v1/process \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 150.00,
+    "currency": "USD",
+    "method": "card",
+    "sender": "acct_001",
+    "receiver": "acct_002"
+  }'
+```
+
+## Validation
+
+After running the usage examples above, validate the results:
+
+**Check the transaction response (pretty-printed):**
+```bash
+curl -s -X POST http://localhost:8090/api/v1/transactions \
+  -H "Content-Type: application/json" \
+  -d '{"amount":150.00,"currency":"USD","sender":"acct_001","receiver":"acct_002","type":"payment"}' | python3 -m json.tool
+```
+
+**List transactions to confirm it was recorded:**
+```bash
+curl -s http://localhost:8090/api/v1/transactions | python3 -m json.tool
+```
+
+**Check settlement status:**
+```bash
+curl -s http://localhost:8090/api/v1/settlement/status | python3 -m json.tool
+```
+
+**Check health of all services:**
+```bash
+curl -s http://localhost:8090/health | python3 -m json.tool
+curl -s http://localhost:8091/health | python3 -m json.tool
+curl -s http://localhost:8092/health | python3 -m json.tool
+```
+
+**Check metrics:**
+```bash
+curl -s http://localhost:8090/metrics
+curl -s http://localhost:8091/metrics
+curl -s http://localhost:8092/metrics
+```
+
+**Check container logs for errors:**
+```bash
+docker compose logs transaction-engine --tail 20
+docker compose logs fraud-detector --tail 20
+docker compose logs payment-gateway --tail 20
+```
+
+> **Tip:** Piping through `python3 -m json.tool` pretty-prints JSON responses for easier reading.
 
 ## Compliance
 

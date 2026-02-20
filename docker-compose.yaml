@@ -1,4 +1,4 @@
-version: "3.8"
+# version: "3.8"
 
 services:
   # The Nervous System: High-frequency gRPC Server
@@ -72,15 +72,13 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "kafka-broker-api-versions.sh",
-          "--bootstrap-server",
-          "kafka:9092",
+          "CMD-SHELL",
+          "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1",
         ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 15s
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 30s
     networks:
       - clinical-net
 
