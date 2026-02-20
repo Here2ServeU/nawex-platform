@@ -717,7 +717,7 @@ metrics:
 
 - [Hypothesis Documentation](https://hypothesis.readthedocs.io/)
 - [Chaos Engineering Best Practices](https://www.gremlin.com/chaos-engineering/)
-- [Performance Testing Guide](../../docs/guides/)
+- [Performance Testing Guide](./)
 
 ---
 

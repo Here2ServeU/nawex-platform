@@ -613,11 +613,11 @@ Primary Region (US-East) failures detected
 
 ## References
 
-- [API Specifications](../api/API_SPECIFICATIONS.md)
-- [Zero-Trust Architecture](../security/ZERO_TRUST_ARCHITECTURE.md)
-- [Enterprise Testing](../testing/ENTERPRISE_TESTING_FRAMEWORK.md)
-- [Advanced Observability](../observability/ADVANCED_OBSERVABILITY.md)
-- [Multi-Tenancy Architecture](../multi-tenancy/ARCHITECTURE.md)
+- [API Specifications](../architecture/api-specifications.md)
+- [Zero-Trust Architecture](../architecture/zero-trust.md)
+- [Enterprise Testing](enterprise-testing.md)
+- [Advanced Observability](../architecture/advanced-observability.md)
+- [Multi-Tenancy Architecture](../architecture/multi-tenancy.md)
 
 ---
 

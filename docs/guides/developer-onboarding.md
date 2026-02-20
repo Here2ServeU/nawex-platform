@@ -11,7 +11,7 @@ Welcome to the Naweji Enterprise Reliability Platform (NERP) development team. T
 **Goal:** Understand what NERP does and how it's organized.
 
 #### Step 1: Read the Architecture (30 minutes)
-- Start: [Architecture Reference](ARCHITECTURE_REFERENCE.md)
+- Start: [Architecture Reference](../architecture/README.md)
 - Focus on: Purpose, Services, Technology Stack
 - Key concept: NERP = Reliability for Money & Healthcare
 
@@ -746,9 +746,9 @@ async def process_transaction(
 ## Continuation: Next Steps
 
 ### Week 2-4: Deeper Learning
-- [ ] Complete [Enterprise Testing Framework](../testing/ENTERPRISE_TESTING_FRAMEWORK.md)
-- [ ] Study [Security Architecture](../security/ZERO_TRUST_ARCHITECTURE.md)
-- [ ] Learn [Observability Stack](../observability/ADVANCED_OBSERVABILITY.md)
+- [ ] Complete [Enterprise Testing Framework](enterprise-testing.md)
+- [ ] Study [Security Architecture](../architecture/zero-trust.md)
+- [ ] Learn [Observability Stack](../architecture/advanced-observability.md)
 
 ### Month 2: Contribution Opportunities
 - [ ] Fix 5+ GitHub issues (labeled "good-first-issue")

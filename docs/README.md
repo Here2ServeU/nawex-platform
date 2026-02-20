@@ -6,7 +6,40 @@ Following the **"Docs-as-Code"** methodology, all documentation is version-contr
 
 ## Directory Structure
 
-### Architectural Deep Dives
+### Platform Architecture
+Core architectural documents covering NERP's design, security, and integration patterns.
+
+* **File:** [`architecture/api-specifications.md`](./architecture/api-specifications.md)
+    * **Focus:** **Three-API Strategy** (REST v2, GraphQL, gRPC).
+    * **Key Decisions:** JSON:API compliance, OAuth2/PKCE authentication, rate limiting tiers, SDK client libraries.
+
+* **File:** [`architecture/multi-tenancy.md`](./architecture/multi-tenancy.md)
+    * **Focus:** **Multi-Tenant Isolation Architecture.**
+    * **Key Decisions:** Namespace + encryption + RBAC isolation, PostgreSQL Row-Level Security, per-tenant billing & metering.
+
+* **File:** [`architecture/zero-trust.md`](./architecture/zero-trust.md)
+    * **Focus:** **Zero-Trust Security Model.**
+    * **Key Decisions:** OAuth2/OIDC + MFA, OPA/Rego ABAC policies, Istio mTLS, HashiCorp Vault secrets management, field-level encryption.
+
+* **File:** [`architecture/advanced-observability.md`](./architecture/advanced-observability.md)
+    * **Focus:** **Enterprise Observability Stack.**
+    * **Key Decisions:** OpenTelemetry instrumentation, SLO/error budget framework, Prometheus alert rules, Grafana dashboards-as-code.
+
+### Developer & Operations Guides
+
+* **File:** [`guides/developer-onboarding.md`](./guides/developer-onboarding.md)
+    * **Focus:** **3-Day Developer Onboarding.**
+    * **Key Content:** Local environment setup, codebase walkthrough, writing your first feature, production-readiness checklist.
+
+* **File:** [`guides/platform-integration.md`](./guides/platform-integration.md)
+    * **Focus:** **End-to-End Platform Integration.**
+    * **Key Content:** Full request path tracing ($1M transaction example), multi-tenant isolation layers, real-time patient monitoring flow, DR failover sequence.
+
+* **File:** [`guides/enterprise-testing.md`](./guides/enterprise-testing.md)
+    * **Focus:** **Enterprise Testing Framework.**
+    * **Key Content:** Property-based testing (Hypothesis), chaos engineering scenarios, load testing (1M+ TPS), SLO verification.
+
+### Observability Deep Dives
 These documents detail the implementation strategies for our observability backends.
 
 * **File:** [`splunk-observability.md`](./splunk-observability.md)

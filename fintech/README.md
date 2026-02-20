@@ -1,6 +1,46 @@
 # Fintech Services Module
 
-This directory contains the containerized microservices for the **Fintech** vertical of the Naweji Reliability Platform (NRP). These services handle real-time transaction processing, fraud detection, and payment gateway simulation.
+This directory contains the containerized microservices for the **Fintech** vertical of the **Naweji Reliability Platform (NERP)**. These services handle real-time transaction processing, fraud detection, and payment gateway simulation.
+
+**NERP** introduces a pre-settlement ML inference layer that intercepts transation flow before ledger finalization. 
+
+The fraud scoring engine executes ensemble-based anomaly detection within a strict 50ms latency boundary, ensuring risk mitigation without degrading payment throughput. 
+
+## Production-Grade Architecture
+```
+┌────────────────────────────────────────────────────┐
+│                   Presentation Layer               │
+│                Client / API Gateway                │
+└────────────────────────────────────────────────────┘
+                          │
+┌────────────────────────────────────────────────────┐
+│                Core Processing Layer               │
+│  Transaction Engine (Idempotent + Kafka-backed)    │
+└────────────────────────────────────────────────────┘
+            │                        │
+            ▼                        ▼
+┌──────────────────────┐   ┌──────────────────────┐
+│ Fraud Detection      │   │ Payment Gateway      │
+│ ML Inference <50ms   │   │ Processor Routing    │
+└──────────────────────┘   └──────────────────────┘
+            │
+            ▼
+┌──────────────────────┐
+│ Fintech Redis Cache  │
+└──────────────────────┘
+
+┌────────────────────────────────────────────────────┐
+│                Observability & Control             │
+│ Fintech Watchdog – SLO + Compliance Monitoring     │
+└────────────────────────────────────────────────────┘
+```
+
+This FinTech Domain is composed of 5 bounded services: 
+- **Transation Engine** acts as the orchestration core, implementing idempotent processing and Kafka-backed event sourcing to guarantee reliability and replay capability. 
+- Before any transction proceeds to settlement, it is intercepted by the **Fraud Detector**, which performs sub-50ms ML inference using LSTM and TCN models. 
+- **FinTech Redis** provides low-latency state caching for transation context and rate limiting. 
+- The **Payment Gateway Simulator** abstracts processor integrations and supports latency injection for resilience testing. 
+- The **FinTech Watchdog** continuously monitors SLO adherence, fraud latency tresholds, and compliance posture, ensuring PCI-DSS alignment. 
 
 ## Services
 

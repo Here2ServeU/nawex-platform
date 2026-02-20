@@ -652,9 +652,8 @@ audit_log.log_event({
 
 ## References
 
-- [OPA Policy Examples](policies/../)
-- [Vault Integration Guide](vault-integration.md)
-- [Compliance Documentation](../../docs/compliance/)
+- [OPA Policy Examples](../../gitops/policies/)
+- [Compliance Documentation](../compliance/)
 
 ---
 

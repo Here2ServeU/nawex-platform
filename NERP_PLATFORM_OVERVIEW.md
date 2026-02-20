@@ -20,6 +20,8 @@
 ## Why NERP?
 
 ### For Financial Institutions
+**NERP** introduces a pre-settlement ML inference layer that intercepts transaction flows before ledger finalization. The fraud scoring engine executes ensemble-based anomaly detection within a strict 50ms latency boundary, ensuring risk mitigation without degrading payment throughput.
+
 - **99.999% availability** = ~31 seconds downtime/year
 - **Sub-50ms fraud detection** with 95%+ accuracy
 - **PCI-DSS Level 1** compliance by design
