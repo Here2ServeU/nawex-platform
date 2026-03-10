@@ -1,144 +1,172 @@
-# Naweji Reliability Platform (NRP): Predictive Safety & Resilience Platform
+# Naweji Enterprise Reliability Platform (NERP)
 
-## Enterprise Canonical Layout (2026)
+AI-driven reliability platform for critical infrastructure in fintech and healthcare.
+Designed for enterprise scale, predictive intelligence, and multi-cloud resilience.
 
-The repository now includes a canonical enterprise structure that matches the target NERP layout while preserving every original folder for backward compatibility.
+## Executive Summary
 
-- Canonical docs domains: `docs/executive`, `docs/architecture`, `docs/compliance`, `docs/product`, `docs/operations`
-- Canonical AI domains: `ai/feature_engineering`, `ai/models/lstm`, `ai/models/tcn`, `ai/models/anomaly_detection`, `ai/models/fraud_detection`
-- Canonical platform domains: `platform/event_streams`, `platform/resilience_engine`, `platform/automation_engine`, `platform/notification_system`
-- Canonical vertical domains: `healthcare/ehr_ingestion`, `healthcare/clinical_monitoring`, `healthcare/compliance`, `fintech/transaction_engine`, `fintech/fraud_detection`, `fintech/payment_resilience`
-- Canonical SRE domains: `sre/slis_slos`, `sre/chaos_testing`, `sre/recovery`
-- Canonical startup path: `scripts/start_platform.sh`
+NERP combines AI/ML, observability, resilience automation, and regulated-domain controls to reduce downtime risk for mission-critical systems.
 
-For a full compatibility and migration map, see `STRUCTURE_MIGRATION.md`.
+- Reliability target: five-nines operating model (99.999%)
+- Fintech target: sub-50ms fraud scoring paths
+- Healthcare target: low-latency clinical signal processing with PHI-aware controls
+- Resilience target: rapid failover and controlled recovery workflows
 
-## Canonical Repository Structure
+## Why This Platform Wins
 
-This repository is aligned to the recommended NERP GitHub structure. New canonical folders now exist for docs, domain modules, integrations, infra, observability, security, SRE, tests, and assets.
+### Business Value
 
-To avoid breaking existing scripts and deployment paths, legacy directories are still present while migration is in progress.
+- Prevents revenue-impacting outages in payment and clinical workflows.
+- Improves incident economics through predictive detection and faster recovery.
+- Supports audit readiness with policy, traceability, and operational evidence paths.
 
-- Canonical scaffold: `docs/01-executive` through `docs/06-demos`, `platform/`, `integrations/`, `infra/`, `observability/`, `security/`, `tests/`, and `assets/`
-- Governance files added: `LICENSE`, `CODEOWNERS`, `CONTRIBUTING.md`, `SECURITY.md`, `ROADMAP.md`, `CHANGELOG.md`
-- Migration details: `STRUCTURE_MIGRATION.md`
+### Engineering Value
 
-## Executive Summary: Bridging the Gap Between AI and Infrastructure
+- Clear domain boundaries and enterprise repository structure.
+- Canonical migration model with backward-compatible legacy paths.
+- Makefile-first operations for faster local demos and repeatable workflows.
 
-The **Naweji Reliability Platform (NRP)** is an enterprise-grade ecosystem designed for high-availability **healthcare** and **fintech** environments. By integrating **Deep Learning (LSTM/TCN)** with a **Multi-Cloud Active-Active Resilience** strategy, the platform achieves 99.999% availability for critical [robotics telemetry streams](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics) and [financial transaction processing](fintech/README.md), effectively transforming infrastructure from reactive to predictive.
+## Core Platform Capabilities
 
-## Architectural Excellence (Golden Project Standard)
+- Fintech reliability services in [fintech/](fintech/)
+- Healthcare reliability services in [healthcare/](healthcare/)
+- AI model lifecycle and inference in [ai/](ai/)
+- Platform automation and resilience controls in [platform/](platform/)
+- Enterprise infrastructure and cloud deployment in [infra/](infra/)
+- Policy-driven delivery and promotion in [gitops/](gitops/)
+- Full-stack observability in [observability/](observability/)
+- Security controls and governance in [security/](security/)
+- SRE playbooks and reliability practices in [sre/](sre/)
 
-This project utilizes the **NRP-Golden-Project** structure to ensure SOC 2, [HIPAA-compliant](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md), [PCI-DSS](docs/compliance/06-pci-dss-compliance-mapping.md), and [SOX-compliant](docs/compliance/07-sox-compliance-mapping.md) auditability and operational clarity.
+## Architecture Snapshot
 
-* **[Core AI Brain](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/ai)**: Dual-model ensemble (LSTM for long-range trends; TCN for high-frequency anomalies) for 92%+ prediction precision.
-* **[Multi-Cloud Topology](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/03-infrastructure-topology.md)**: Global orchestration across **AWS, Azure, GCP, and OCI** using modular [Terraform](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/terraform) and [GitOps](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/gitops).
-* **[Resilience Engine](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/05-active-active-resilience.md)**: Sub-30 second RTO (Recovery Time Objective) driven by [predictive failover logic](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/architecture/04-predictive-reliability-framework.md).
-* **Kafka Event Backbone**: Internal Kafka + Zookeeper for durable telemetry buffering and async workflows (raw manifests in [k8s/kafka-zookeeper.yaml](k8s/kafka-zookeeper.yaml) and Helm chart in [helm/kafka-zookeeper](helm/kafka-zookeeper)).
-* **Quantum Optimization Layer**: Hybrid quantum-inspired scheduling for resource allocation and routing decisions, with classical fallbacks for deterministic execution (design in [docs/architecture/06-quantum-optimization-layer.md](docs/architecture/06-quantum-optimization-layer.md)).
-* **[Fintech Engine](fintech/README.md)**: Real-time transaction processing, ML-based fraud detection, and payment gateway resilience with PCI-DSS compliant data handling.
-* **[Healthcare Engine](healthcare/README.md)**: FHIR R4 clinical data ingestion, ML-based patient vital monitoring, and HIPAA-compliant PHI access controls with automated breach detection.
-
-## Industry Verticals
-
-### Healthcare
-* **[EHR Ingestion](healthcare/ehr_ingestion_service.py)**: FHIR R4 compliant clinical data ingestion with HIPAA audit logging.
-* **[Clinical Decision Support](healthcare/clinical_decision_service.py)**: Real-time ML-based patient vital monitoring and clinical anomaly detection.
-* **[Patient Data Gateway](healthcare/patient_data_gateway_service.py)**: FHIR/HL7 interoperability gateway with patient consent management (HIPAA §164.508).
-* **Compliance**: [HIPAA](docs/compliance/01-hipaa-compliance-mapping.md), [HDS](docs/compliance/02-data-privacy-hds.md), HITECH, SOC 2, FDA 21 CFR Part 11.
-
-### Fintech
-* **[Fraud Detection](ai/pipelines/detect_fraud.py)**: Real-time ML-based transaction scoring with sub-50ms latency and >95% precision.
-* **[Payment Resilience](fintech/payment_gateway_service.py)**: Automated payment gateway failover with zero transaction loss.
-* **[Settlement Processing](fintech/transaction_engine.py)**: Checkpoint/restart settlement batches with full audit trails.
-* **Compliance**: [PCI-DSS](docs/compliance/06-pci-dss-compliance-mapping.md), [SOX](docs/compliance/07-sox-compliance-mapping.md), [PSD2](docs/compliance/08-psd2-open-banking.md), [GLBA](docs/compliance/09-glba-financial-privacy.md).
-
-## Compliance & Governance
-
-Built for the most stringent regulatory environments, including **HIPAA**, **SOC 2**, **French HDS**, **PCI-DSS**, **SOX**, **PSD2**, and **GLBA**.
-
-* **[Audit Logging Policy](https://www.google.com/search?q=https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/03-audit-logging-policy.md)**: Immutable, WORM-protected telemetry and decision logs.
-* **[Disaster Recovery Plan](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/docs/compliance/04-disaster-recovery-plan.md)**: Legally-defensible Active-Active business continuity strategy.
-
----
-
-### Navigation
-
-* **[Architecture Deep Dives](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs/architecture)**
-* **[Compliance Mapping](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs/compliance)**
-* **[Operator Guides](https://www.google.com/search?q=https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/docs/guides)**
-* **[Robotics Demo](docs/robotics/README.md)**
-* **[Healthcare Services](healthcare/README.md)**
-* **[Fintech Services](fintech/README.md)**
-* **[DevSecOps Integration Guide](docs/guides/devsecops-integration.md)**
-* **[Quantum Optimization Layer](docs/architecture/06-quantum-optimization-layer.md)**
-
----
-
-## Operational Quickstart (Interview-Ready)
-
-* **[Quickstart Guide](docs/guides/quickstart.md)**
-* **[Interview Demo Runbook](docs/guides/interview-demo.md)**
-* **[Troubleshooting (All Domains)](docs/guides/troubleshooting.md)**
-
-### Unified DevSecOps Demo (Recommended)
-```bash
-# Complete end-to-end demo: Kafka → App → AIOps → Chaos → Recovery → Security (10–15 min)
-scripts/demo-devsecops.sh
-
-# With robotics simulation
-scripts/demo-devsecops.sh --robotics
+```text
+Tenants -> API Layer -> Domain Engines -> AI Inference -> Event Backbone -> Observability -> Governance
 ```
 
-### Fintech Demo
+- Domain engines: [fintech/](fintech/), [healthcare/](healthcare/)
+- AI domains: [ai/models/lstm](ai/models/lstm), [ai/models/tcn](ai/models/tcn), [ai/models/anomaly_detection](ai/models/anomaly_detection), [ai/models/fraud_detection](ai/models/fraud_detection)
+- Resilience domains: [platform/event_streams](platform/event_streams), [platform/resilience_engine](platform/resilience_engine), [platform/automation_engine](platform/automation_engine), [platform/notification_system](platform/notification_system)
+
+## Project Folders
+
+### Top-Level Repository Folders
+
+- [ai/](ai/)
+- [app/](app/)
+- [assets/](assets/)
+- [docs/](docs/)
+- [fintech/](fintech/)
+- [gitops/](gitops/)
+- [healthcare/](healthcare/)
+- [helm/](helm/)
+- [infra/](infra/)
+- [integrations/](integrations/)
+- [k8s/](k8s/)
+- [observability/](observability/)
+- [openshift/](openshift/)
+- [ops/](ops/)
+- [platform/](platform/)
+- [robotics/](robotics/)
+- [scripts/](scripts/)
+- [security/](security/)
+- [sre/](sre/)
+- [terraform/](terraform/)
+- [tests/](tests/)
+- [tools/](tools/)
+
+### Canonical Domain Structure
+
+- Docs: [docs/executive/](docs/executive/), [docs/architecture/](docs/architecture/), [docs/compliance/](docs/compliance/), [docs/product/](docs/product/), [docs/operations/](docs/operations/)
+- AI: [ai/feature_engineering/](ai/feature_engineering/), [ai/training/](ai/training/), [ai/inference/](ai/inference/), [ai/evaluation/](ai/evaluation/), [ai/models/](ai/models/)
+- Platform: [platform/telemetry/](platform/telemetry/), [platform/event_streams/](platform/event_streams/), [platform/resilience_engine/](platform/resilience_engine/), [platform/automation_engine/](platform/automation_engine/), [platform/notification_system/](platform/notification_system/)
+
+Migration details: [STRUCTURE_MIGRATION.md](STRUCTURE_MIGRATION.md)
+
+## OpenShift Integration
+
+OpenShift deployment is fully integrated and production-oriented.
+
+- Guides:
+  - [openshift/README.md](openshift/README.md)
+  - [openshift/QUICKSTART.md](openshift/QUICKSTART.md)
+  - [openshift/TROUBLESHOOTING.md](openshift/TROUBLESHOOTING.md)
+  - [openshift/OPERATIONS.md](openshift/OPERATIONS.md)
+- Deployment scripts:
+  - [scripts/deploy-openshift.sh](scripts/deploy-openshift.sh)
+  - [scripts/deploy-openshift-helm.sh](scripts/deploy-openshift-helm.sh)
+- Manifests and values:
+  - [openshift/manifests/](openshift/manifests/)
+  - [openshift/helm-values/](openshift/helm-values/)
+
+Quick deploy:
+
 ```bash
-# Start fintech services (Transaction Engine, Fraud Detector, Payment Gateway)
-scripts/start_fintech.sh
-
-# Generate simulated transaction traffic
-scripts/generate-transactions.sh 30 5 # 30 seconds at 5 TPS
-
-# Chaos: Payment gateway failure
-sre/chaos/payment-gateway-failure.sh
-
-# Chaos: Transaction fraud spike
-sre/chaos/transaction-fraud-spike.sh
+oc login --token=<token> --server=https://<api-server>:6443
+scripts/deploy-openshift.sh
+oc get pods -A -w
 ```
 
-### Healthcare Demo
+## Getting Started
+
+### Local Bootstrap
+
 ```bash
-# Start healthcare services (EHR Ingestion, Clinical Decision, Patient Data Gateway)
-scripts/start_healthcare.sh
-
-# Generate simulated clinical events
-scripts/generate-ehr-events.sh 30 5 # 30 seconds at 5 RPS
-
-# Chaos: EHR gateway failure
-sre/chaos/ehr-gateway-failure.sh
-
-# Chaos: PHI breach simulation
-sre/chaos/phi-breach-simulation.sh
+make bootstrap
+make platform-start
+make health
 ```
 
-### Individual Commands
+Cleanup local demo resources:
 
-**Bootstrap:**
 ```bash
-scripts/bootstrap.sh
+make cleanup
 ```
 
-**Start Services:**
+### Demo Flows (Separated by Domain)
+
+Healthcare demo:
+
 ```bash
-scripts/start_app.sh
-scripts/start_ai.sh
+make demo-healthcare
 ```
 
-**Chaos & Recovery:**
+- Starts healthcare services via [scripts/start_healthcare.sh](scripts/start_healthcare.sh)
+- Generates EHR traffic via [scripts/generate-ehr-events.sh](scripts/generate-ehr-events.sh)
+
+Fintech demo:
+
 ```bash
-scripts/chaos_demo.sh
-scripts/heal.sh
+make demo-fintech
 ```
 
----
+- Starts fintech services via [scripts/start_fintech.sh](scripts/start_fintech.sh)
+- Generates transaction traffic via [scripts/generate-transactions.sh](scripts/generate-transactions.sh)
 
-*Copyright (c) 2026 Naweji Enterprise Reliability Platform (NERP). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*
+## Testing and Quality
+
+- Unit tests: [tests/unit/](tests/unit/)
+- Integration tests: [tests/integration/](tests/integration/)
+- End-to-end scenarios: [tests/e2e/](tests/e2e/)
+- Performance tests: [tests/performance/](tests/performance/)
+- Security tests: [tests/security/](tests/security/)
+
+Test execution guide: [tests/README.md](tests/README.md)
+
+## Security and Compliance
+
+- Security controls: [security/](security/)
+- Compliance docs: [docs/compliance/](docs/compliance/)
+- Observability evidence: [observability/](observability/)
+- Reliability operations: [sre/](sre/)
+
+## Strategic Documents
+
+- [docs/executive/100M_PLATFORM_BLUEPRINT.md](docs/executive/100M_PLATFORM_BLUEPRINT.md)
+- [docs/product/PLATFORM_CAPABILITIES.md](docs/product/PLATFORM_CAPABILITIES.md)
+- [docs/operations/ENTERPRISE_RUNBOOK.md](docs/operations/ENTERPRISE_RUNBOOK.md)
+- [NERP_PLATFORM_OVERVIEW.md](NERP_PLATFORM_OVERVIEW.md)
+
+## License
+
+Licensed under [LICENSE](LICENSE).

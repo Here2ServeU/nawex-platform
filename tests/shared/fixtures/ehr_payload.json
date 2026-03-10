@@ -1,0 +1,7 @@
+{
+  "patient_id": "patient-20001",
+  "resource_type": "Observation",
+  "department": "icu",
+  "data_class": "clinical",
+  "phi_flag": true
+}
