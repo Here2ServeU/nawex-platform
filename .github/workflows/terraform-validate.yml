@@ -1,0 +1,50 @@
+name: terraform-validate
+on:
+    pull_request:
+        paths:
+            - "infra/terraform/**"
+            - "terraform/**"
+        push:
+                branches: [main]
+                paths:
+                        - "infra/terraform/**"
+                        - "terraform/**"
+jobs:
+    validate:
+        runs-on: ubuntu-latest
+        steps:
+                        - name: Checkout
+                            uses: actions/checkout@v4
+
+                        - name: Setup Terraform
+                            uses: hashicorp/setup-terraform@v3
+
+                        - name: Terraform fmt check
+                            shell: bash
+                            run: |
+                                    set -euo pipefail
+                                    dirs=()
+                                    [[ -d infra/terraform ]] && dirs+=(infra/terraform)
+                                    [[ -d terraform ]] && dirs+=(terraform)
+                                    if [[ ${#dirs[@]} -eq 0 ]]; then
+                                        echo "No Terraform directories found."
+                                        exit 0
+                                    fi
+                                    for d in "${dirs[@]}"; do
+                                        terraform fmt -check -recursive "$d"
+                                    done
+
+                        - name: Terraform validate (all modules/stacks)
+                            shell: bash
+                            run: |
+                                    set -euo pipefail
+                                    mapfile -t tf_dirs < <(find infra/terraform terraform -type f -name '*.tf' -not -path '*/.terraform/*' -print 2>/dev/null | xargs -n1 dirname | sort -u)
+                                    if [[ ${#tf_dirs[@]} -eq 0 ]]; then
+                                        echo "No Terraform files found."
+                                        exit 0
+                                    fi
+                                    for d in "${tf_dirs[@]}"; do
+                                        echo "Validating $d"
+                                        terraform -chdir="$d" init -backend=false -input=false -no-color
+                                        terraform -chdir="$d" validate -no-color
+                                    done

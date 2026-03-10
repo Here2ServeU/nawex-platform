@@ -1,0 +1,17 @@
+image:
+  repository: splunk/splunk
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+hec:
+  token: "changeme-token"
+  port: 8088
+  ssl: false
+
+service:
+  type: ClusterIP
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

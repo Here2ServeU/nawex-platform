@@ -1,0 +1,86 @@
+# Payment Gateway Service - Helm Values
+replicaCount: 3
+
+image:
+  repository: express-reliability/payment-gateway
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8092
+
+ingress:
+  enabled: false
+
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 15
+  targetCPUUtilizationPercentage: 65
+
+# Gateway configuration
+config:
+  kafkaBroker: "kafka:9092"
+  kafkaTopicPayments: "payments.processed"
+  kafkaTopicSettlement: "settlement.batches"
+  settlementBatchInterval: "300"
+  supportedCurrencies: "USD,EUR,GBP,JPY,CHF,CAD"
+
+# PCI-DSS Cardholder Data Environment (CDE) settings
+security:
+  networkPolicy:
+    enabled: true
+    allowedNamespaces:
+      - fintech
+    denyAll: true
+    allowIngress:
+      - from:
+          - namespaceSelector:
+              matchLabels:
+                name: fintech
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  containerSecurityContext:
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+# Strict health checks for payment processing
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8092
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8092
+  initialDelaySeconds: 5
+  periodSeconds: 3
+  failureThreshold: 2
+
+# High availability
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+topologySpreadConstraints:
+  enabled: true
+  maxSkew: 1
+  topologyKey: topology.kubernetes.io/zone

@@ -1,0 +1,11 @@
+apiVersion: v2
+name: ehr-service
+description: Helm chart for the EHR Ingestion and Clinical Data Service
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - healthcare
+  - ehr
+  - fhir
+  - hipaa

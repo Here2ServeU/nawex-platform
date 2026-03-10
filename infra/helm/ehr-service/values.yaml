@@ -1,0 +1,85 @@
+# EHR Ingestion Service - Helm Values
+replicaCount: 3
+
+image:
+  repository: express-reliability/ehr-ingestion
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8093
+
+ingress:
+  enabled: false
+
+resources:
+  limits:
+    cpu: "1000m"
+    memory: "2Gi"
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 15
+  targetCPUUtilizationPercentage: 65
+  targetMemoryUtilizationPercentage: 75
+
+# EHR ingestion configuration
+config:
+  fhirVersion: "R4"
+  phiAuditEnabled: "true"
+  kafkaBroker: "kafka:9092"
+  kafkaTopicInput: "ehr.events"
+  kafkaTopicOutput: "ehr.analyzed"
+  redisUrl: "redis://healthcare-redis:6379"
+  ehrQueryTimeoutMs: 200
+
+# HIPAA compliance settings
+security:
+  networkPolicy:
+    enabled: true
+    allowedNamespaces:
+      - healthcare
+      - monitoring
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  containerSecurityContext:
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+
+# Health checks with strict SLO enforcement
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8093
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8093
+  initialDelaySeconds: 5
+  periodSeconds: 3
+  failureThreshold: 2
+
+# Pod disruption budget for patient safety
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Topology spread for multi-AZ resilience
+topologySpreadConstraints:
+  enabled: true
+
+# PHI data encryption at rest
+encryption:
+  enabled: true
+  kmsKeyId: ""

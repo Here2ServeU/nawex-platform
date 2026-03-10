@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "platform.fullname" . }}-worker
+  namespace: {{ .Values.worker.namespace | default "ai-worker-isolated" }}
+spec:
+  template:
+    spec:
+      # Isolation via Node Affinity: Only runs on nodes labeled for workers
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: workload-type
+                operator: In
+                values:
+                - ai-worker
+      # Optional: Tolerations if your worker nodes are tainted
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "ai-worker"
+        effect: "NoSchedule"
+      containers:
+        - name: ai-worker
+          image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}"
+          # Connects to the isolated Redis broker created in your terraform module
+          env:
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.worker.env.redis_url_secret_name }}
+                  key: REDIS_URL

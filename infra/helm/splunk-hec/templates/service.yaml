@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "splunk-hec.fullname" . }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.hec.port }}
+      targetPort: {{ .Values.hec.port }}
+      protocol: TCP
+      name: hec
+  selector:
+    app.kubernetes.io/name: {{ include "splunk-hec.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

@@ -1,0 +1,76 @@
+name: deploy
+on:
+    workflow_dispatch:
+                inputs:
+                        target:
+                                description: Deployment target strategy
+                                required: true
+                                default: openshift-manifests
+                                type: choice
+                                options:
+                                        - openshift-manifests
+                                        - openshift-helm
+                        execute_deploy:
+                                description: Execute deployment scripts (requires cluster credentials)
+                                required: true
+                                default: false
+                                type: boolean
+
+jobs:
+        preflight:
+        runs-on: ubuntu-latest
+        steps:
+                        - name: Checkout
+                            uses: actions/checkout@v4
+
+                        - name: YAML syntax validation
+                            shell: bash
+                            run: |
+                                    set -euo pipefail
+                                    python -m pip install --upgrade pip pyyaml
+                                    python - <<'PY'
+                                    import pathlib
+                                    import sys
+                                    import yaml
+
+                                    roots = [pathlib.Path("openshift/manifests"), pathlib.Path("openshift/helm-values")]
+                                    files = []
+                                    for root in roots:
+                                            if root.exists():
+                                                    files.extend(root.rglob("*.yaml"))
+                                                    files.extend(root.rglob("*.yml"))
+
+                                    if not files:
+                                            print("No deployment YAML files found.")
+                                            sys.exit(1)
+
+                                    for file in files:
+                                            with file.open("r", encoding="utf-8") as fh:
+                                                    list(yaml.safe_load_all(fh))
+                                    print(f"Validated {len(files)} YAML files.")
+                                    PY
+
+                        - name: Verify deploy scripts
+                            shell: bash
+                            run: |
+                                    set -euo pipefail
+                                    [[ -x scripts/deploy-openshift.sh || -f scripts/deploy-openshift.sh ]]
+                                    [[ -x scripts/deploy-openshift-helm.sh || -f scripts/deploy-openshift-helm.sh ]]
+
+        deploy:
+                if: ${{ inputs.execute_deploy }}
+                needs: preflight
+                runs-on: ubuntu-latest
+                steps:
+                        - name: Checkout
+                            uses: actions/checkout@v4
+
+                        - name: Run deployment script
+                            shell: bash
+                            run: |
+                                    set -euo pipefail
+                                    if [[ "${{ inputs.target }}" == "openshift-helm" ]]; then
+                                        bash scripts/deploy-openshift-helm.sh
+                                    else
+                                        bash scripts/deploy-openshift.sh
+                                    fi

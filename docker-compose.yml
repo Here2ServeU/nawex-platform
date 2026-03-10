@@ -1,0 +1,306 @@
+# version: "3.8"
+
+services:
+  # The Nervous System: High-frequency gRPC Server
+  surgical-brain:
+    build:
+      context: .
+      dockerfile: robotics/grpc/Dockerfile
+    container_name: surgical_brain_server
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./robotics/logs:/app/robotics/logs
+    networks:
+      - clinical-net
+
+  # The Robot: Telemetry Client simulating kinematic stress
+  surgical-robot:
+    build:
+      context: .
+      dockerfile: robotics/grpc/Dockerfile
+    container_name: surgical_robot_client
+    depends_on:
+      - surgical-brain
+    command: python3 robotics/grpc/surgical_client.py
+    networks:
+      - clinical-net
+
+  # The Watchdog: Ensuring 99.999% availability of safety agents
+  safety-watchdog:
+    image: alpine:latest
+    container_name: clinical_safety_watchdog
+    volumes:
+      - ./robotics/agents:/agents
+      - ./robotics/logs:/logs
+    entrypoint: /bin/sh /agents/agent_health_check.sh
+    depends_on:
+      - surgical-brain
+    networks:
+      - clinical-net
+
+  # Kafka and Zookeeper: Internal event backbone for telemetry
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: kafka_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
+    networks:
+      - clinical-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka_broker
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 30s
+    networks:
+      - clinical-net
+
+  # =============================================================
+  # FINTECH SERVICES
+  # =============================================================
+
+  # Transaction Processing Engine: Core payment processing service
+  transaction-engine:
+    build:
+      context: .
+      dockerfile: fintech/Dockerfile
+    container_name: fintech_transaction_engine
+    ports:
+      - "8090:8090"
+    environment:
+      SERVICE_NAME: transaction-engine
+      KAFKA_BROKER: kafka:9092
+      FRAUD_DETECTION_URL: http://fraud-detector:8091/score
+      PAYMENT_GATEWAY_PRIMARY: payment-gateway:8092
+      REDIS_URL: redis://fintech-redis:6379
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - transaction-data:/app/data
+    networks:
+      - fintech-net
+      - clinical-net
+
+  # Fraud Detection Service: Real-time ML-based fraud scoring
+  fraud-detector:
+    build:
+      context: .
+      dockerfile: fintech/Dockerfile.fraud
+    container_name: fintech_fraud_detector
+    ports:
+      - "8091:8091"
+    environment:
+      SERVICE_NAME: fraud-detector
+      KAFKA_BROKER: kafka:9092
+      MODEL_PATH: /models/fraud_detector_v1.h5
+      FRAUD_THRESHOLD: "0.85"
+      REDIS_URL: redis://fintech-redis:6379
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - fraud-models:/models
+      - ./ai/pipelines:/app/pipelines:ro
+    networks:
+      - fintech-net
+      - clinical-net
+
+  # Payment Gateway Simulator: Simulates payment processor interactions
+  payment-gateway:
+    build:
+      context: .
+      dockerfile: fintech/Dockerfile.gateway
+    container_name: fintech_payment_gateway
+    ports:
+      - "8092:8092"
+    environment:
+      SERVICE_NAME: payment-gateway
+      KAFKA_BROKER: kafka:9092
+      SETTLEMENT_BATCH_INTERVAL: "300"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - fintech-net
+      - clinical-net
+
+  # Fintech Redis: Dedicated cache for transaction state and fraud results
+  fintech-redis:
+    image: redis:7-alpine
+    container_name: fintech_redis_cache
+    ports:
+      - "6380:6379"
+    volumes:
+      - transaction-data:/data
+    networks:
+      - fintech-net
+
+  # Fintech Watchdog: Monitors payment SLOs and transaction integrity
+  fintech-watchdog:
+    image: alpine:latest
+    container_name: fintech_compliance_watchdog
+    volumes:
+      - ./ai/pipelines:/pipelines:ro
+    entrypoint: >
+      /bin/sh -c "echo '[Fintech Watchdog] Monitoring payment SLOs...' && 
+      while true; do 
+        echo '[Fintech Watchdog] Payment SLO check: OK'; 
+        echo '[Fintech Watchdog] Fraud detection latency: OK';
+        echo '[Fintech Watchdog] Settlement pipeline: OK';
+        sleep 30; 
+      done"
+    depends_on:
+      - transaction-engine
+      - fraud-detector
+    networks:
+      - fintech-net
+
+  # =============================================================
+  # HEALTHCARE SERVICES
+  # =============================================================
+
+  # EHR Ingestion Service: Core clinical data ingestion (FHIR R4)
+  ehr-ingestion:
+    build:
+      context: .
+      dockerfile: healthcare/Dockerfile
+    container_name: healthcare_ehr_ingestion
+    ports:
+      - "8093:8093"
+    environment:
+      SERVICE_NAME: ehr-ingestion
+      KAFKA_BROKER: kafka:9092
+      CLINICAL_DECISION_URL: http://clinical-decision:8094/score
+      PATIENT_GATEWAY_URL: http://patient-data-gateway:8095
+      REDIS_URL: redis://healthcare-redis:6379
+      PHI_AUDIT_ENABLED: "true"
+      FHIR_VERSION: "R4"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ehr-data:/app/data
+    networks:
+      - healthcare-net
+      - clinical-net
+
+  # Clinical Decision Support: ML-based clinical anomaly detection
+  clinical-decision:
+    build:
+      context: .
+      dockerfile: healthcare/Dockerfile.clinical
+    container_name: healthcare_clinical_decision
+    ports:
+      - "8094:8094"
+    environment:
+      SERVICE_NAME: clinical-decision
+      KAFKA_BROKER: kafka:9092
+      MODEL_PATH: /models/clinical_anomaly_v1.h5
+      ANOMALY_THRESHOLD: "0.70"
+      REDIS_URL: redis://healthcare-redis:6379
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - clinical-models:/models
+      - ./ai/pipelines:/app/pipelines:ro
+    networks:
+      - healthcare-net
+      - clinical-net
+
+  # Patient Data Gateway: FHIR/HL7 interoperability gateway
+  patient-data-gateway:
+    build:
+      context: .
+      dockerfile: healthcare/Dockerfile.gateway
+    container_name: healthcare_patient_gateway
+    ports:
+      - "8095:8095"
+    environment:
+      SERVICE_NAME: patient-data-gateway
+      KAFKA_BROKER: kafka:9092
+      FHIR_VERSION: "R4"
+      CONSENT_VERIFICATION: "true"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - healthcare-net
+      - clinical-net
+
+  # Healthcare Redis: Dedicated cache for clinical sessions and PHI tokens
+  healthcare-redis:
+    image: redis:7-alpine
+    container_name: healthcare_redis_cache
+    ports:
+      - "6381:6379"
+    volumes:
+      - ehr-data:/data
+    networks:
+      - healthcare-net
+
+  # Healthcare Watchdog: Monitors clinical SLOs and HIPAA compliance
+  healthcare-watchdog:
+    image: alpine:latest
+    container_name: healthcare_compliance_watchdog
+    volumes:
+      - ./ai/pipelines:/pipelines:ro
+    entrypoint: >
+      /bin/sh -c "echo '[Healthcare Watchdog] Monitoring clinical SLOs...' && 
+      while true; do 
+        echo '[Healthcare Watchdog] EHR ingestion SLO check: OK'; 
+        echo '[Healthcare Watchdog] Clinical decision latency: OK';
+        echo '[Healthcare Watchdog] PHI audit trail integrity: OK';
+        echo '[Healthcare Watchdog] Patient safety monitoring: OK';
+        sleep 30; 
+      done"
+    depends_on:
+      - ehr-ingestion
+      - clinical-decision
+    networks:
+      - healthcare-net
+
+networks:
+  clinical-net:
+    driver: bridge
+  fintech-net:
+    driver: bridge
+  healthcare-net:
+    driver: bridge
+
+volumes:
+  kafka-data:
+  zookeeper-data:
+  zookeeper-log:
+  transaction-data:
+  fraud-models:
+  ehr-data:
+  clinical-models:

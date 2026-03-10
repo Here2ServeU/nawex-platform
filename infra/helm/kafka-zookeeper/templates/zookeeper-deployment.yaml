@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kafka-zookeeper.fullname" . }}-zookeeper
+  labels:
+    app: zookeeper
+spec:
+  replicas: {{ .Values.zookeeper.replicaCount }}
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+        - name: zookeeper
+          image: {{ .Values.zookeeper.image }}
+          env:
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: "yes"
+          ports:
+            - containerPort: {{ .Values.zookeeper.clientPort }}

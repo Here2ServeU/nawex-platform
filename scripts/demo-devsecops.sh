@@ -66,7 +66,7 @@ wait_for_port() {
     local timeout=$2
     local elapsed=0
     local interval=2
-
+    
     while ! nc -z localhost "$port" 2>/dev/null; do
         if [ $elapsed -ge $timeout ]; then
             error "Timeout waiting for port $port"
@@ -82,7 +82,7 @@ wait_for_kafka() {
     log "Waiting for Kafka broker to be ready (timeout: ${KAFKA_WAIT_TIMEOUT}s)..."
     local elapsed=0
     local interval=3
-
+    
     while ! docker exec kafka_broker kafka-broker-api-versions.sh --bootstrap-server localhost:9092 &>/dev/null; do
         if [ $elapsed -ge $KAFKA_WAIT_TIMEOUT ]; then
             error "Timeout waiting for Kafka"
@@ -104,15 +104,15 @@ while [[ $# -gt 0 ]]; do
         --robotics)
             DEMO_ROBOTICS=1
             shift
-            ;;
+        ;;
         --aws-audit)
             DEMO_AWS_AUDIT=1
             shift
-            ;;
+        ;;
         *)
             error "Unknown option: $1"
             exit 1
-            ;;
+        ;;
     esac
 done
 
@@ -283,7 +283,7 @@ bash scripts/policy-gate.sh && success "Policy gate PASSED" || warn "Policy gate
 log "Reviewing DevSecOps integration points..."
 echo ""
 log " SecurityHub + AWS Config modules wired to all environments"
-log " Location: terraform/modules/aws/securityhub/ and terraform/modules/aws/config/"
+log " Location: infra/terraform/modules/aws/securityhub/ and infra/terraform/modules/aws/config/"
 log ""
 log " Data Pipeline Observability playbook"
 log " Location: ops/playbooks/data_pipeline_observability.md"
@@ -303,7 +303,7 @@ log ""
 
 if [ $DEMO_AWS_AUDIT -eq 1 ]; then
     log "To enable AWS SecurityHub + Config audit (requires AWS credentials and Terraform):"
-    echo " cd terraform/live/aws/dev && terraform plan"
+    echo " cd infra/terraform/global/live/aws/dev && terraform plan"
     echo " (This would wire SecurityHub and Config to your AWS account)"
 fi
 
@@ -334,14 +334,14 @@ echo " • Config: ai/agents/agent_config.yaml"
 echo " • PID: $AI_PID"
 echo ""
 if [ $DEMO_ROBOTICS -eq 1 ]; then
-echo " Robotics Demo:"
-echo " • gRPC Server: localhost:50051"
-echo " • PID: $ROBOTICS_PID"
-echo ""
+    echo " Robotics Demo:"
+    echo " • gRPC Server: localhost:50051"
+    echo " • PID: $ROBOTICS_PID"
+    echo ""
 fi
 echo " Compliance & Security:"
-echo " • SecurityHub: terraform/modules/aws/securityhub/"
-echo " • AWS Config: terraform/modules/aws/config/"
+echo " • SecurityHub: infra/terraform/modules/aws/securityhub/"
+echo " • AWS Config: infra/terraform/modules/aws/config/"
 echo " • Trivy CI Scans: .github/workflows/ci.yml"
 echo ""
 log "To stop all services:"
@@ -350,10 +350,10 @@ echo " • Docker services: docker compose down"
 echo " • Full cleanup: scripts/cleanup.sh"
 echo ""
 log "Documentation:"
-echo " • Architecture: docs/architecture/"
+echo " • Architecture: docs/02-architecture/"
 echo " • Playbooks: ops/playbooks/"
-echo " • DevSecOps Guide: docs/guides/devsecops-integration.md"
-echo " • Quick Reference: docs/guides/quickstart.md"
+echo " • DevSecOps Guide: docs/05-operations/deployment-guide.md"
+echo " • Quick Reference: docs/05-operations/quickstart.md"
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 

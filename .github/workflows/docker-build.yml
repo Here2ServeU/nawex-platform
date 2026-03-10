@@ -1,0 +1,55 @@
+name: docker-build
+on:
+    pull_request:
+                paths:
+                        - "**/Dockerfile*"
+                        - "docker-compose.yml"
+                        - "docker-compose.yaml"
+    push:
+        branches: [main]
+                paths:
+                        - "**/Dockerfile*"
+                        - "docker-compose.yml"
+                        - "docker-compose.yaml"
+jobs:
+    build:
+        runs-on: ubuntu-latest
+                strategy:
+                        fail-fast: false
+                        matrix:
+                                include:
+                                        - name: app
+                                            dockerfile: app/Dockerfile
+                                            context: .
+                                        - name: fintech-core
+                                            dockerfile: fintech/Dockerfile
+                                            context: .
+                                        - name: fintech-fraud
+                                            dockerfile: fintech/Dockerfile.fraud
+                                            context: .
+                                        - name: fintech-gateway
+                                            dockerfile: fintech/Dockerfile.gateway
+                                            context: .
+                                        - name: healthcare-core
+                                            dockerfile: healthcare/Dockerfile
+                                            context: .
+                                        - name: healthcare-clinical
+                                            dockerfile: healthcare/Dockerfile.clinical
+                                            context: .
+                                        - name: healthcare-gateway
+                                            dockerfile: healthcare/Dockerfile.gateway
+                                            context: .
+        steps:
+                        - name: Checkout
+                            uses: actions/checkout@v4
+
+                        - name: Set up Docker Buildx
+                            uses: docker/setup-buildx-action@v3
+
+                        - name: Build ${{ matrix.name }} image
+                            uses: docker/build-push-action@v6
+                            with:
+                                    context: ${{ matrix.context }}
+                                    file: ${{ matrix.dockerfile }}
+                                    push: false
+                                    tags: nerp/${{ matrix.name }}:ci

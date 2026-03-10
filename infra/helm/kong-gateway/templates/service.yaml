@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kong-gateway.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "kong-gateway.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.service.httpPort }}
+      targetPort: {{ .Values.service.proxyPort }}
+    - name: admin
+      port: {{ .Values.service.adminPort }}
+      targetPort: {{ .Values.service.adminPort }}
+  selector:
+    app.kubernetes.io/name: {{ include "kong-gateway.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

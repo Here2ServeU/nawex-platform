@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  repository: kong
+  tag: "3.7"
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  httpPort: 80
+  proxyPort: 8000
+  adminPort: 8001
+
+env:
+  - name: KONG_DATABASE
+    value: "off"
+  - name: KONG_PROXY_LISTEN
+    value: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
+  - name: KONG_ADMIN_LISTEN
+    value: "0.0.0.0:8001"
+  - name: KONG_DECLARATIVE_CONFIG
+    value: "/kong/kong.yml"
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

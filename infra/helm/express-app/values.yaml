@@ -1,0 +1,47 @@
+replicaCount: 2
+
+image:
+  repository: here2serveu/express-t2s-app-v7
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+  hosts:
+    - host: express.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+podAnnotations: {}
+podLabels: {}
+
+env:
+  - name: NODE_ENV
+    value: production
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

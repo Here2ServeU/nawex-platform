@@ -1,5 +1,15 @@
 # Naweji Reliability Platform (NRP): Predictive Safety & Resilience Platform
 
+## Canonical Repository Structure
+
+This repository is aligned to the recommended NERP GitHub structure. New canonical folders now exist for docs, domain modules, integrations, infra, observability, security, SRE, tests, and assets.
+
+To avoid breaking existing scripts and deployment paths, legacy directories are still present while migration is in progress.
+
+- Canonical scaffold: `docs/01-executive` through `docs/06-demos`, `platform/`, `integrations/`, `infra/`, `observability/`, `security/`, `tests/`, and `assets/`
+- Governance files added: `LICENSE`, `CODEOWNERS`, `CONTRIBUTING.md`, `SECURITY.md`, `ROADMAP.md`, `CHANGELOG.md`
+- Migration details: `STRUCTURE_MIGRATION.md`
+
 ## Executive Summary: Bridging the Gap Between AI and Infrastructure
 
 The **Naweji Reliability Platform (NRP)** is an enterprise-grade ecosystem designed for high-availability **healthcare** and **fintech** environments. By integrating **Deep Learning (LSTM/TCN)** with a **Multi-Cloud Active-Active Resilience** strategy, the platform achieves 99.999% availability for critical [robotics telemetry streams](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics) and [financial transaction processing](fintech/README.md), effectively transforming infrastructure from reactive to predictive.

@@ -1,0 +1,34 @@
+# Default values for ai-worker-isolated.
+replicaCount: 2
+
+namespace: ai-worker-isolated
+
+image:
+  repository: your-registry/ai-worker
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# Environment variables for Celery
+worker:
+  env:
+    redis_url_secret_name: "celery-redis-config"
+
+# Node Affinity for physical isolation
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: workload-type
+          operator: In
+          values:
+          - ai-worker
+
+# Resource management for reliability
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
