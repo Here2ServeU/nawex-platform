@@ -1,0 +1,5 @@
+policies:
+  - role: admin
+    permissions: ["read", "write", "execute"]
+  - role: analyst
+    permissions: ["read"]

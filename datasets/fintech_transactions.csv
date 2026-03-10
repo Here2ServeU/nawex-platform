@@ -1,0 +1,2 @@
+timestamp,transaction_id,amount,currency,risk
+2026-01-01T00:00:00Z,txn_001,120.50,USD,0.14

@@ -48,6 +48,42 @@ Tenants -> API Layer -> Domain Engines -> AI Inference -> Event Backbone -> Obse
 - AI domains: [ai/models/lstm](ai/models/lstm), [ai/models/tcn](ai/models/tcn), [ai/models/anomaly_detection](ai/models/anomaly_detection), [ai/models/fraud_detection](ai/models/fraud_detection)
 - Resilience domains: [platform/event_streams](platform/event_streams), [platform/resilience_engine](platform/resilience_engine), [platform/automation_engine](platform/automation_engine), [platform/notification_system](platform/notification_system)
 
+## Canonical NERP Structure (2026)
+
+NERP now includes a canonical layout designed to support:
+
+1. SaaS platform operations
+2. PhD research workflows
+3. Engineering portfolio quality
+4. Training and education tracks
+5. Investor-ready architecture narratives
+
+Primary canonical paths:
+
+- `platform/`
+- `ai/`
+- `decision_engine/`
+- `automation/`
+- `data_platform/`
+- `api/`
+- `frontend/`
+- `infrastructure/`
+- `security/`
+- `compliance/`
+- `datasets/`
+- `models/`
+- `experiments/`
+- `demos/`
+- `verticals/`
+- `research/`
+- `education/`
+
+Reference docs:
+
+- [docs/architecture/nerp-platform-overview.md](docs/architecture/nerp-platform-overview.md)
+- [docs/architecture/canonical-path-index.md](docs/architecture/canonical-path-index.md)
+- [STRUCTURE_MIGRATION.md](STRUCTURE_MIGRATION.md)
+
 ## Project Folders
 
 ### Top-Level Repository Folders

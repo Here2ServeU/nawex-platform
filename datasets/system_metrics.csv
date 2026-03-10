@@ -1,0 +1,2 @@
+timestamp,service,cpu,memory,error_rate
+2026-01-01T00:00:00Z,api,0.22,0.63,0.01

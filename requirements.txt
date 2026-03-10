@@ -1,0 +1,3 @@
+# Root Python requirements for canonical NERP bootstrap.
+# Extend this file as platform-level Python services are added.
+-r ai/requirements.txt
