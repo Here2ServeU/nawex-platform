@@ -1,5 +1,18 @@
 # Naweji Reliability Platform (NRP): Predictive Safety & Resilience Platform
 
+## Enterprise Canonical Layout (2026)
+
+The repository now includes a canonical enterprise structure that matches the target NERP layout while preserving every original folder for backward compatibility.
+
+- Canonical docs domains: `docs/executive`, `docs/architecture`, `docs/compliance`, `docs/product`, `docs/operations`
+- Canonical AI domains: `ai/feature_engineering`, `ai/models/lstm`, `ai/models/tcn`, `ai/models/anomaly_detection`, `ai/models/fraud_detection`
+- Canonical platform domains: `platform/event_streams`, `platform/resilience_engine`, `platform/automation_engine`, `platform/notification_system`
+- Canonical vertical domains: `healthcare/ehr_ingestion`, `healthcare/clinical_monitoring`, `healthcare/compliance`, `fintech/transaction_engine`, `fintech/fraud_detection`, `fintech/payment_resilience`
+- Canonical SRE domains: `sre/slis_slos`, `sre/chaos_testing`, `sre/recovery`
+- Canonical startup path: `scripts/start_platform.sh`
+
+For a full compatibility and migration map, see `STRUCTURE_MIGRATION.md`.
+
 ## Canonical Repository Structure
 
 This repository is aligned to the recommended NERP GitHub structure. New canonical folders now exist for docs, domain modules, integrations, infra, observability, security, SRE, tests, and assets.

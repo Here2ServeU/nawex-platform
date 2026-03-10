@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 .RECIPEPREFIX := >
 
-.PHONY: help bootstrap app-start ai-start robotics-start health chaos heal traffic demo security-suite security-deps security-secrets security-iac security-container security-images security-policies
+.PHONY: help bootstrap app-start ai-start platform-start robotics-start health chaos heal traffic demo structure-check security-suite security-deps security-secrets security-iac security-container security-images security-policies
 
 help:
 > @echo "Express Reliability AIOps Platform"
@@ -10,12 +10,14 @@ help:
 > @echo "  demo            One-click demo launcher"
 > @echo "  app-start       Start the Express app"
 > @echo "  ai-start        Start the AI orchestrator"
+> @echo "  platform-start  Start platform domains together"
 > @echo "  robotics-start  Start robotics demo via Docker Compose"
 > @echo "  health          Run app health checks"
 > @echo "  chaos           Trigger chaos demo"
 > @echo "  heal            Reset app chaos state"
 > @echo "  traffic         Generate load"
 > @echo "  security-suite  Run all security checks"
+> @echo "  structure-check Validate canonical path policy"
 > @echo "  security-deps   Run dependency audit checks"
 > @echo "  security-secrets Run repository secrets scan"
 > @echo "  security-iac    Run IaC misconfiguration scan"
@@ -31,6 +33,9 @@ app-start:
 
 ai-start:
 > scripts/start_ai.sh
+
+platform-start:
+> scripts/start_platform.sh
 
 robotics-start:
 > scripts/start_robotics.sh
@@ -49,6 +54,9 @@ traffic:
 
 demo:
 > scripts/demo.sh
+
+structure-check:
+> scripts/check-canonical-structure.sh
 
 security-suite:
 > security/scripts/run-security-suite.sh

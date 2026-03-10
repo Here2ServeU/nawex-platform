@@ -1,42 +1,105 @@
 # Structure Migration Guide
 
-This repository now includes the canonical NERP scaffold alongside existing implementation paths.
+This repository now follows a canonical enterprise layout while preserving all original folders and runtime paths.
 
-## Current strategy
-- Preserve existing operational paths to avoid breaking scripts and runtime behavior.
-- Introduce canonical folders for long-term consistency and onboarding.
-- Gradually move active content into canonical paths in follow-up PRs.
+## Target Canonical Layout
 
-## Legacy to canonical mapping
-- `terraform/` -> `infra/terraform/`
-- `k8s/` + `openshift/` + top-level `helm/` -> `infra/kubernetes/` and `infra/helm/`
-- `docs/architecture/`, `docs/compliance/`, `docs/guides/` -> `docs/02-architecture/`, `docs/03-compliance/`, `docs/05-operations/`
-- `ops/playbooks/`, `ops/on-call/`, `ops/checklists/` -> `docs/05-operations/` and `sre/`
-- `tools/` observability assets -> `observability/`
+```text
+naweji-reliability-platform/
+├── README.md
+├── LICENSE
+├── ROADMAP.md
+├── CONTRIBUTING.md
+├── docs/
+│   ├── executive/
+│   ├── architecture/
+│   ├── compliance/
+│   ├── product/
+│   └── operations/
+├── ai/
+│   ├── datasets/
+│   ├── feature_engineering/
+│   ├── training/
+│   ├── inference/
+│   ├── evaluation/
+│   └── models/
+│       ├── lstm/
+│       ├── tcn/
+│       ├── anomaly_detection/
+│       └── fraud_detection/
+├── platform/
+│   ├── telemetry/
+│   ├── event_streams/
+│   ├── resilience_engine/
+│   ├── automation_engine/
+│   └── notification_system/
+├── healthcare/
+│   ├── ehr_ingestion/
+│   ├── clinical_monitoring/
+│   └── compliance/
+├── fintech/
+│   ├── transaction_engine/
+│   ├── fraud_detection/
+│   └── payment_resilience/
+├── infra/
+│   ├── terraform/
+│   ├── kubernetes/
+│   ├── helm/
+│   └── networking/
+├── gitops/
+│   ├── argocd/
+│   └── environments/
+├── observability/
+│   ├── prometheus/
+│   ├── grafana/
+│   └── alerting/
+├── security/
+│   ├── iam/
+│   ├── secrets/
+│   └── policies/
+├── sre/
+│   ├── slis_slos/
+│   ├── chaos_testing/
+│   └── recovery/
+├── scripts/
+│   ├── bootstrap.sh
+│   ├── start_platform.sh
+│   ├── start_ai.sh
+│   └── demo.sh
+└── tests/
+    ├── unit/
+    ├── integration/
+    └── performance/
+```
 
-## Next migration phases
-1. Update CI/CD and scripts to reference canonical paths.
-2. Move selected source/docs content from legacy paths into canonical folders.
-3. Keep compatibility shims until all references are updated.
-4. Remove legacy duplicates once verified in CI.
+## Non-Destructive Policy
 
-## Phase Status
+- Keep all original folders and files in place.
+- Add canonical folders for enterprise consistency and clearer onboarding.
+- Use wrapper scripts and mapping docs to avoid breaking existing workflows.
 
-### Phase 1 (completed in this PR)
-- Canonical docs populated from legacy sources:
-	- `docs/architecture/*` -> `docs/02-architecture/*`
-	- `docs/compliance/*` -> `docs/03-compliance/*`
-	- `docs/guides/*` and `ops/*` operational docs -> `docs/05-operations/*`
-- Canonical infra folders populated from legacy sources:
-	- `terraform/modules/*` -> `infra/terraform/modules/*`
-	- `terraform/live/*` -> `infra/terraform/global/live/*`
-	- `k8s/*` -> `infra/kubernetes/base/*`
-	- `helm/*` -> `infra/helm/*`
-- Scripts and workflows updated to use canonical-first path resolution with temporary legacy fallbacks.
+## Legacy to Canonical Mapping
 
-### Phase 2 (next PR)
-- Move active service code into canonical app/domain folders and update import/runtime paths.
-- Normalize docs links inside migrated files to canonical destinations.
+- `docs/01-executive/` and existing docs assets remain valid, with canonical entry at `docs/executive/`.
+- `ai/features/` remains available; canonical ML path is `ai/feature_engineering/`.
+- `platform/resilience-engine/` and `platform/notification-engine/` remain available; canonical names are `platform/resilience_engine/` and `platform/notification_system/`.
+- `fintech/transaction-engine/` and `fintech/fraud-detection/` remain available; canonical names are `fintech/transaction_engine/` and `fintech/fraud_detection/`.
+- `healthcare/ehr-ingestion/` and `healthcare/clinical-decision-support/` remain available; canonical names are `healthcare/ehr_ingestion/` and `healthcare/clinical_monitoring/`.
+- `sre/slis-slos/` and `sre/chaos/` remain available; canonical names are `sre/slis_slos/` and `sre/chaos_testing/`.
+- Top-level `terraform/`, `k8s/`, and `helm/` remain available while `infra/terraform/`, `infra/kubernetes/`, and `infra/helm/` are the canonical infrastructure roots.
 
-### Phase 3 (next PR)
-- Remove legacy path fallbacks after CI confirms all references are canonical.
+## Enterprise Architecture Intent
+
+NERP is organized as an AI-driven reliability platform for critical infrastructure with:
+
+- Predictive intelligence: LSTM/TCN and anomaly model domains in `ai/models/`.
+- Enterprise resilience: failover, event-stream, and automation capabilities under `platform/`.
+- Regulated verticals: explicit `healthcare/` and `fintech/` bounded contexts.
+- Multi-cloud readiness: infra, GitOps, and observability layers separated for AWS/Azure/GCP/OCI deployment patterns.
+
+## Next Migration Phases
+
+1. Move active workloads into canonical underscore paths where safe.
+2. Update CI pipelines and docs references to canonical-first paths.
+3. Keep compatibility aliases until validation passes across all environments.
+4. Archive legacy duplicates after enterprise regression testing completes.

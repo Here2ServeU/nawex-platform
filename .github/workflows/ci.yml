@@ -13,6 +13,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Canonical structure policy
+        run: bash scripts/check-canonical-structure.sh
 
       - name: Policy gate
         run: bash scripts/policy-gate.sh
