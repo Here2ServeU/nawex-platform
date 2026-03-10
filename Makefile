@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 .RECIPEPREFIX := >
 
-.PHONY: help bootstrap app-start ai-start robotics-start health chaos heal traffic demo
+.PHONY: help bootstrap app-start ai-start robotics-start health chaos heal traffic demo security-suite security-deps security-secrets security-iac security-container security-images security-policies
 
 help:
 > @echo "Express Reliability AIOps Platform"
@@ -15,6 +15,13 @@ help:
 > @echo "  chaos           Trigger chaos demo"
 > @echo "  heal            Reset app chaos state"
 > @echo "  traffic         Generate load"
+> @echo "  security-suite  Run all security checks"
+> @echo "  security-deps   Run dependency audit checks"
+> @echo "  security-secrets Run repository secrets scan"
+> @echo "  security-iac    Run IaC misconfiguration scan"
+> @echo "  security-container Run container image scan wrapper"
+> @echo "  security-images Run domain image scan list"
+> @echo "  security-policies Validate policy-as-code artifacts"
 
 bootstrap:
 > scripts/bootstrap.sh
@@ -42,3 +49,24 @@ traffic:
 
 demo:
 > scripts/demo.sh
+
+security-suite:
+> security/scripts/run-security-suite.sh
+
+security-deps:
+> security/scripts/dependency-audit.sh
+
+security-secrets:
+> security/scripts/secrets-scan.sh
+
+security-iac:
+> security/scripts/iac-scan.sh
+
+security-container:
+> security/scripts/container-scan.sh
+
+security-images:
+> security/container-scanning/scan-images.sh
+
+security-policies:
+> security/policies/validate-policies.sh

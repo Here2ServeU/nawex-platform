@@ -1,0 +1,8 @@
+# Add temporary suppressions here.
+# Format examples:
+# CVE-2024-12345
+# GHSA-xxxx-xxxx-xxxx
+#
+# Rules:
+# - Include issue ticket in commit message.
+# - Remove suppression after patched image/library is available.
