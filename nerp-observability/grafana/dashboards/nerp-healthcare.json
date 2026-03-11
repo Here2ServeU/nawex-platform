@@ -1,0 +1,118 @@
+{
+  "uid": "nerp-healthcare",
+  "title": "NERP Healthcare",
+  "tags": ["nerp", "healthcare"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "EHR Ingestion Rate (records/s)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "fieldConfig": { "defaults": { "unit": "ops" } },
+      "targets": [
+        {
+          "datasource": { "uid": "prometheus-nerp" },
+          "expr": "rate(ehr_records_ingested_total[5m])",
+          "legendFormat": "EHR Records/s"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "EHR Ingestion Lag (seconds)",
+      "type": "stat",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": 0 }, { "color": "yellow", "value": 60 }, { "color": "red", "value": 300 }] }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "uid": "prometheus-nerp" },
+          "expr": "ehr_ingestion_lag_seconds",
+          "legendFormat": "Ingestion Lag"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Clinical Decision Service — Request Rate",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "fieldConfig": { "defaults": { "unit": "reqps" } },
+      "targets": [
+        {
+          "datasource": { "uid": "prometheus-nerp" },
+          "expr": "rate(http_requests_total{job=\"healthcare-clinical-decision\"}[5m])",
+          "legendFormat": "Clinical Decision req/s"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Clinical Decision — p95 Latency (ms)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "fieldConfig": { "defaults": { "unit": "ms" } },
+      "targets": [
+        {
+          "datasource": { "uid": "prometheus-nerp" },
+          "expr": "1000 * histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket{job=\"healthcare-clinical-decision\"}[5m])))",
+          "legendFormat": "p95 latency"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Patient Gateway — Active Connections",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 16, "w": 6, "h": 4 },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [
+        {
+          "datasource": { "uid": "prometheus-nerp" },
+          "expr": "http_active_connections{job=\"healthcare-patient-gateway\"}",
+          "legendFormat": "Active Connections"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Compliance Watchdog Status",
+      "type": "stat",
+      "gridPos": { "x": 6, "y": 16, "w": 6, "h": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [{ "type": "value", "options": { "1": { "text": "COMPLIANT", "color": "green" }, "0": { "text": "VIOLATION", "color": "red" } } }],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": 0 }, { "color": "green", "value": 1 }] }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "uid": "prometheus-nerp" },
+          "expr": "healthcare_compliance_check_passing",
+          "legendFormat": "Compliance"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Healthcare Logs (HIPAA-safe)",
+      "type": "logs",
+      "gridPos": { "x": 0, "y": 20, "w": 24, "h": 8 },
+      "targets": [
+        {
+          "datasource": { "uid": "loki-nerp" },
+          "expr": "{vertical=\"healthcare\"} |= `` | line_format `{{.message}}`",
+          "legendFormat": ""
+        }
+      ]
+    }
+  ]
+}

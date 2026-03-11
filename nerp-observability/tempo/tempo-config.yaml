@@ -1,0 +1,95 @@
+stream_over_http_enabled: true
+
+server:
+  http_listen_port: 3200
+  log_level: info
+
+# ── Distributor ───────────────────────────────────────────────────────────────
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        http:
+          endpoint: 0.0.0.0:4318
+        grpc:
+          endpoint: 0.0.0.0:4317
+    jaeger:
+      protocols:
+        thrift_http:
+          endpoint: 0.0.0.0:14268
+        grpc:
+          endpoint: 0.0.0.0:14250
+    zipkin:
+      endpoint: 0.0.0.0:9411
+
+# ── Ingester ──────────────────────────────────────────────────────────────────
+ingester:
+  max_block_duration: 5m
+  trace_idle_period: 10s
+  max_block_bytes: 1073741824  # 1GiB
+
+# ── Compactor ─────────────────────────────────────────────────────────────────
+compactor:
+  compaction:
+    compaction_window: 1h
+    max_compaction_objects: 1000000
+    block_retention: 336h   # 14 days
+  ring:
+    kvstore:
+      store: memberlist
+
+# ── Storage ───────────────────────────────────────────────────────────────────
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/traces
+    wal:
+      path: /var/tempo/wal
+    pool:
+      max_workers: 100
+      queue_depth: 10000
+
+# ── Query Frontend ────────────────────────────────────────────────────────────
+query_frontend:
+  search:
+    duration_slo: 5s
+    throughput_bytes_slo: 1.073741824e+09
+  trace_by_id:
+    duration_slo: 5s
+
+# ── Metrics Generator (service graph & span metrics) ─────────────────────────
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+      platform: nerp
+  storage:
+    path: /var/tempo/generator/wal
+    remote_write:
+      - url: http://prometheus:9090/api/v1/write
+        send_exemplars: true
+  processor:
+    service_graphs:
+      histogram_buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
+      dimensions: ["http.method", "http.status_code"]
+      max_items: 10000
+    span_metrics:
+      histogram_buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
+      dimensions: ["http.method", "http.status_code", "service.name"]
+
+# ── Enabled Processors ────────────────────────────────────────────────────────
+overrides:
+  defaults:
+    metrics_generator:
+      processors: [service-graphs, span-metrics]
+    ingestion:
+      rate_limit_bytes: 15000000    # 15MB/s
+      burst_size_bytes: 20000000
+      max_traces_per_user: 10000
+
+# ── Memberlist (single node; extend for cluster) ─────────────────────────────
+memberlist:
+  abort_if_cluster_join_fails: false
+  bind_port: 7946
+  join_members: []
