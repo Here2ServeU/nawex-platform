@@ -51,7 +51,27 @@ rules:
     params:
       target: "frontend-service"
       replicas: 5
-````
+```
+
+## 5. One-Command Demo Run
+
+Run the full engine path from synthetic data to training, inference, evaluation, and explainability:
+
+```bash
+source .venv/bin/activate
+python demo_run.py --epochs 1 --output-dir .artifacts/demo
+```
+
+If `torch` is available, the command trains and saves both models before inference.
+If `torch` is missing, it runs in fallback mode and still produces a complete demo result JSON.
+
+Outputs:
+
+* `.artifacts/demo/lstm_model.pt`
+* `.artifacts/demo/tcn_model.pt`
+* `.artifacts/demo/demo_result.json`
+
+Use this when you need a fast interview walkthrough that proves end-to-end platform functionality.
 
 ### Interview Talking Point
 

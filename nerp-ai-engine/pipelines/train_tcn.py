@@ -6,7 +6,7 @@
 from __future__ import annotations
 import torch
 from torch.utils.data import DataLoader, TensorDataset
-from ..models.tcn_model import TCN
+from ..models.tcn_model import TCNSLIPredictor
 from .data_loader import load_sample_sli_slo
 from .feature_engineering import add_rolling_features, build_supervised_sequences
 
@@ -18,7 +18,7 @@ def train_tcn(epochs:int=3, lookback:int=24, horizon:int=1, batch_size:int=16, l
     X,y = build_supervised_sequences(df,feature_cols,target_col,lookback=lookback,horizon=horizon); y=y[:,0]
     X_t=torch.tensor(X,dtype=torch.float32); y_t=torch.tensor(y,dtype=torch.float32)
     ds=TensorDataset(X_t,y_t); dl=DataLoader(ds,batch_size=batch_size,shuffle=True)
-    m=TCN(input_size=len(feature_cols),num_channels=[32,32,64]).to(device); opt=torch.optim.Adam(m.parameters(),lr=lr); loss_fn=torch.nn.MSELoss()
+    m=TCNSLIPredictor(input_size=len(feature_cols),num_channels=[32,32,64]).to(device); opt=torch.optim.Adam(m.parameters(),lr=lr); loss_fn=torch.nn.MSELoss()
     m.train()
     for e in range(epochs):
         tot=0.0
