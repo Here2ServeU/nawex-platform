@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NERP — AI Research Platform | Executive Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ HEADER -->
+<header class="portal-header">
+  <div class="header-brand">
+    <div class="brand-logo">N</div>
+    <div>
+      <div class="brand-name">NERP Platform</div>
+      <div class="brand-tagline">AI Research Platform — Healthcare &amp; Financial Services</div>
+    </div>
+  </div>
+  <div class="header-center">
+    <div id="phaseBadge" class="phase-badge">System Normal</div>
+    <div class="conn-label" style="margin-top:6px">
+      <span id="connDot" class="conn-dot"></span>
+      <span id="connLabel">Connecting…</span>
+    </div>
+  </div>
+  <div class="vertical-toggle">
+    <button id="btnHospital" class="toggle-btn active" onclick="switchVertical('healthcare')">
+      🏥 Hospital
+    </button>
+    <button id="btnBank" class="toggle-btn" onclick="switchVertical('fintech')">
+      🏦 Financial Institution
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════ ALERT TICKER -->
+<div class="alert-ticker">
+  <div class="ticker-label">Live Alerts</div>
+  <div class="ticker-track">
+    <div id="tickerInner" class="ticker-inner">
+      <span class="ticker-item">
+        <span class="ticker-dot medium"></span>
+        <span>Awaiting live data stream…</span>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ MAIN -->
+<main class="portal-main">
+
+  <!-- Top Row: Risk Gauge | Research Provenance | ROI Panel -->
+  <div class="top-row">
+
+    <!-- Risk Gauge -->
+    <div class="card risk-gauge-card">
+      <div class="card-title">Composite AI Risk Score</div>
+      <div class="risk-gauge-wrap">
+        <canvas id="gaugeChart"></canvas>
+        <div class="risk-gauge-label">
+          <div id="gaugeValue" class="risk-gauge-value" style="color:#10B981">0.18</div>
+          <div class="risk-gauge-sub">Risk Index</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Research Provenance -->
+    <div class="card">
+      <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+        PhD Research Methodology
+        <span class="research-badge">✦ Peer-Reviewed AI</span>
+      </div>
+      <div id="provenanceGrid" class="provenance-grid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- ROI Panel -->
+    <div class="card roi-panel">
+      <div class="card-title">Contract ROI Justification</div>
+      <div id="roiMain" class="roi-main-number">27x</div>
+      <div id="roiSub" class="roi-sub">Return on Investment</div>
+      <div class="roi-row">
+        <span class="roi-row-label">Monthly Contract</span>
+        <span id="roiCost" class="roi-row-value cost">$17,500</span>
+      </div>
+      <div class="roi-row">
+        <span class="roi-row-label">Monthly Risk Protected</span>
+        <span id="roiProtected" class="roi-row-value positive">$480K</span>
+      </div>
+      <div class="roi-row">
+        <span class="roi-row-label">Payback Period</span>
+        <span id="roiPayback" class="roi-row-value">1.1 days</span>
+      </div>
+      <div class="roi-row">
+        <span class="roi-row-label">Annual Net Benefit</span>
+        <span id="roiAnnual" class="roi-row-value positive">$5.55M</span>
+      </div>
+      <div class="roi-breakdown" id="roiBreakdown">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Stat Cards Row -->
+  <div id="statsRow" class="stats-row">
+    <!-- populated by JS based on vertical -->
+  </div>
+
+  <!-- Charts + Explainability Row -->
+  <div class="charts-row">
+
+    <!-- Time Series Chart -->
+    <div class="card">
+      <div class="card-title">AI Risk Score — 60-Point Rolling Window</div>
+      <canvas id="riskChart" height="120"></canvas>
+    </div>
+
+    <!-- Explainability -->
+    <div class="card explainability-card">
+      <div id="explainTitle" class="card-title">Top Risk Contributing Factors</div>
+      <div id="explainFactors">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PhD Footer -->
+  <div class="phd-footer">
+    <div>
+      <div class="footer-author">Rev. Dr. Emmanuel Naweji — Principal Researcher</div>
+      <div class="footer-meta">Naweji Enterprise Reliability Platform · IEEE AI Reliability Standards 2024</div>
+    </div>
+    <div class="footer-pills">
+      <span class="footer-pill">HIPAA §164.312(b) Aligned</span>
+      <span class="footer-pill">PCI-DSS v4.0 Ready</span>
+      <span class="footer-pill">FHIR R4 Compliant</span>
+      <span class="footer-pill">BSA/AML Framework</span>
+      <span class="footer-pill">SOC 2 Type II Architecture</span>
+      <span class="footer-pill">NIST SP 800-66r2</span>
+    </div>
+  </div>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

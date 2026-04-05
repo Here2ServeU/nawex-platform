@@ -1,6 +1,0 @@
-apiVersion: v2
-name: splunk-forwarder
-description: Fluent Bit-based Splunk HEC forwarder DaemonSet
-type: application
-version: 0.1.0
-appVersion: "1.0.0"

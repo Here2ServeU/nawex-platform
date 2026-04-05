@@ -288,6 +288,23 @@ services:
     networks:
       - healthcare-net
 
+  # NERP Executive Client Portal: Branded demo dashboard for consulting clients
+  nerp-client-portal:
+    build:
+      context: ../nerp-client-portal
+      dockerfile: Dockerfile
+    container_name: nerp_client_portal
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: "3001"
+      NODE_ENV: production
+    networks:
+      - clinical-net
+      - fintech-net
+      - healthcare-net
+    restart: unless-stopped
+
 networks:
   clinical-net:
     driver: bridge

@@ -1,208 +1,129 @@
-# Naweji Enterprise Reliability Platform (NERP)
+# nerp-core
 
-AI-driven reliability platform for critical infrastructure in fintech and healthcare.
-Designed for enterprise scale, predictive intelligence, and multi-cloud resilience.
+Platform orchestration hub for the Naweji Enterprise Reliability Platform.
+Contains the consulting demo runner, PhD research documentation, shared
+orchestration scripts, observability configuration, and the full Docker
+Compose stack for local development.
 
-## Executive Summary
+---
 
-NERP combines AI/ML, observability, resilience automation, and regulated-domain controls to reduce downtime risk for mission-critical systems.
+## Quick Start
 
-- Reliability target: five-nines operating model (99.999%)
-- Fintech target: sub-50ms fraud scoring paths
-- Healthcare target: low-latency clinical signal processing with PHI-aware controls
-- Resilience target: rapid failover and controlled recovery workflows
+### Run the Consulting Demo
 
-## Why This Platform Wins
+```bash
+# From the monorepo root
+python nerp-core/demo_client.py --vertical hospital --client "City Medical Center"
+python nerp-core/demo_client.py --vertical bank     --client "National Finance Corp"
+```
 
-### Business Value
+### Launch the Full Platform Stack
 
-- Prevents revenue-impacting outages in payment and clinical workflows.
-- Improves incident economics through predictive detection and faster recovery.
-- Supports audit readiness with policy, traceability, and operational evidence paths.
+```bash
+cd nerp-core
+docker compose up -d
+```
 
-### Engineering Value
+Services started:
 
-- Clear domain boundaries and enterprise repository structure.
-- Canonical migration model with backward-compatible legacy paths.
-- Makefile-first operations for faster local demos and repeatable workflows.
+| Service | URL | Purpose |
+| ------- | --- | ------- |
+| nerp-client-portal | <http://localhost:3001> | Executive demo dashboard |
+| Grafana | <http://localhost:3000> | Observability |
+| Prometheus | <http://localhost:9090> | Metrics |
+| Healthcare (EHR / Clinical / Gateway) | ports 8093–8095 | Healthcare microservices |
+| Fintech (Transactions / Fraud / Gateway) | ports 8090–8092 | Fintech microservices |
+| Kafka | port 9092 | Event backbone |
+| Redis (fintech / healthcare) | ports 6380–6381 | Cache |
 
-## Core Platform Capabilities
+---
 
-- Fintech reliability services in [fintech/](fintech/)
-- Healthcare reliability services in [healthcare/](healthcare/)
-- AI model lifecycle and inference in [ai/](ai/)
-- Platform automation and resilience controls in [platform/](platform/)
-- Enterprise infrastructure and cloud deployment in [infra/](infra/)
-- Policy-driven delivery and promotion in [gitops/](gitops/)
-- Full-stack observability in [observability/](observability/)
-- Security controls and governance in [security/](security/)
-- SRE playbooks and reliability practices in [sre/](sre/)
-
-## Architecture Snapshot
+## Directory Structure
 
 ```text
-Tenants -> API Layer -> Domain Engines -> AI Inference -> Event Backbone -> Observability -> Governance
+nerp-core/
+├── demo_client.py              # Single-command consulting demo runner
+├── demo_report_template.html   # Jinja2 HTML leave-behind client report
+├── docker-compose.yaml         # Full platform stack (all services)
+│
+├── research/
+│   └── methodology/            # PhD research methodology documentation
+│       ├── lstm_sli_methodology.md
+│       ├── fraud_detection_methodology.md
+│       ├── phi_anomaly_methodology.md
+│       └── clinical_safety_methodology.md
+│
+├── docs/
+│   ├── consulting/             # Consulting playbook and sales materials
+│   ├── 01-executive/           # Investor and executive narrative docs
+│   ├── architecture/           # System architecture documentation
+│   ├── compliance/             # HIPAA, PCI-DSS, SOC2, SOX mapping docs
+│   ├── product/                # Platform capabilities and edition guides
+│   ├── 05-operations/          # Runbooks and operational guides
+│   ├── 06-demos/               # Demo scripts and runbooks
+│   └── guides/                 # Developer and operator guides
+│
+├── datasets/                   # Reference CSV datasets (SLI, fintech, healthcare)
+├── robotics/                   # gRPC surgical robot prototype (edge AI)
+├── tests/                      # Integration, unit, security, performance tests
+├── tools/                      # HTTP client files, k6 load tests, Kafka tools
+├── compliance/                 # Audit log and evidence scaffolding
+├── assets/                     # Platform branding and presentation assets
+├── verticals/                  # Vertical-specific orchestration stubs
+├── data_platform/              # Data pipeline scaffolding
+├── platform/                   # Platform services scaffolding
+└── experiments/                # Research experiment scaffolding
 ```
 
-- Domain engines: [fintech/](fintech/), [healthcare/](healthcare/)
-- AI domains: [ai/models/lstm](ai/models/lstm), [ai/models/tcn](ai/models/tcn), [ai/models/anomaly_detection](ai/models/anomaly_detection), [ai/models/fraud_detection](ai/models/fraud_detection)
-- Resilience domains: [platform/event_streams](platform/event_streams), [platform/resilience_engine](platform/resilience_engine), [platform/automation_engine](platform/automation_engine), [platform/notification_system](platform/notification_system)
+---
 
-## Canonical NERP Structure (2026)
+## Demo Runner Reference
 
-NERP now includes a canonical layout designed to support:
+`demo_client.py` orchestrates a 6-act narrated demo (~3 minutes):
 
-1. SaaS platform operations
-2. PhD research workflows
-3. Engineering portfolio quality
-4. Training and education tracks
-5. Investor-ready architecture narratives
+| Act | Duration | What It Shows |
+| --- | -------- | ------------- |
+| 1 — Platform Overview | ~20s | NERP positioning and AI capabilities |
+| 2 — Data Ingestion | ~30s | Synthetic patient vitals / transaction stream |
+| 3 — AI Detection | ~40s | Real `detect_fraud` / `detect_phi_anomalies` scoring |
+| 4 — Explainability | ~20s | Feature contributions in plain English |
+| 5 — Business Value | ~30s | Dollar impact via Bayesian expected-value methodology |
+| 6 — ROI Summary | ~20s | Contract justification + HTML report |
 
-Primary canonical paths:
+Output: HTML client report saved to `./demo_output/<client>/`
 
-- `platform/`
-- `ai/`
-- `decision_engine/`
-- `automation/`
-- `data_platform/`
-- `api/`
-- `frontend/`
-- `infrastructure/`
-- `security/`
-- `compliance/`
-- `datasets/`
-- `models/`
-- `experiments/`
-- `demos/`
-- `verticals/`
-- `research/`
-- `education/`
+---
 
-Reference docs:
+## Research Methodology
 
-- [docs/architecture/nerp-platform-overview.md](docs/architecture/nerp-platform-overview.md)
-- [docs/architecture/canonical-path-index.md](docs/architecture/canonical-path-index.md)
-- [STRUCTURE_MIGRATION.md](STRUCTURE_MIGRATION.md)
+All four PhD methodology documents in `research/methodology/` cite the actual
+model weights and thresholds in the code, written for specific client audiences:
 
-## Project Folders
+| Document | Audience | Regulatory Frame |
+| -------- | -------- | ---------------- |
+| `lstm_sli_methodology.md` | Bank CTO / Hospital CIO | SRE / IEEE standards |
+| `fraud_detection_methodology.md` | Bank Risk Officer | BSA/AML, PCI-DSS |
+| `phi_anomaly_methodology.md` | Hospital Compliance Officer | HIPAA §164.312(b) |
+| `clinical_safety_methodology.md` | CMIO / Patient Safety Officer | NEWS2, Sepsis-3 |
 
-### Top-Level Repository Folders
+---
 
-- [ai/](ai/)
-- [app/](app/)
-- [assets/](assets/)
-- [docs/](docs/)
-- [fintech/](fintech/)
-- [gitops/](gitops/)
-- [healthcare/](healthcare/)
-- [helm/](helm/)
-- [infra/](infra/)
-- [integrations/](integrations/)
-- [k8s/](k8s/)
-- [observability/](observability/)
-- [openshift/](openshift/)
-- [ops/](ops/)
-- [platform/](platform/)
-- [robotics/](robotics/)
-- [scripts/](scripts/)
-- [security/](security/)
-- [sre/](sre/)
-- [terraform/](terraform/)
-- [tests/](tests/)
-- [tools/](tools/)
-
-### Canonical Domain Structure
-
-- Docs: [docs/executive/](docs/executive/), [docs/architecture/](docs/architecture/), [docs/compliance/](docs/compliance/), [docs/product/](docs/product/), [docs/operations/](docs/operations/)
-- AI: [ai/feature_engineering/](ai/feature_engineering/), [ai/training/](ai/training/), [ai/inference/](ai/inference/), [ai/evaluation/](ai/evaluation/), [ai/models/](ai/models/)
-- Platform: [platform/telemetry/](platform/telemetry/), [platform/event_streams/](platform/event_streams/), [platform/resilience_engine/](platform/resilience_engine/), [platform/automation_engine/](platform/automation_engine/), [platform/notification_system/](platform/notification_system/)
-
-Migration details: [STRUCTURE_MIGRATION.md](STRUCTURE_MIGRATION.md)
-
-## OpenShift Integration
-
-OpenShift deployment is fully integrated and production-oriented.
-
-- Guides:
-  - [openshift/README.md](openshift/README.md)
-  - [openshift/QUICKSTART.md](openshift/QUICKSTART.md)
-  - [openshift/TROUBLESHOOTING.md](openshift/TROUBLESHOOTING.md)
-  - [openshift/OPERATIONS.md](openshift/OPERATIONS.md)
-- Deployment scripts:
-  - [scripts/deploy-openshift.sh](scripts/deploy-openshift.sh)
-  - [scripts/deploy-openshift-helm.sh](scripts/deploy-openshift-helm.sh)
-- Manifests and values:
-  - [openshift/manifests/](openshift/manifests/)
-  - [openshift/helm-values/](openshift/helm-values/)
-
-Quick deploy:
+## Makefile Targets
 
 ```bash
-oc login --token=<token> --server=https://<api-server>:6443
-scripts/deploy-openshift.sh
-oc get pods -A -w
+make bootstrap       # Install all dependencies across subprojects
+make platform-start  # docker compose up -d
+make health          # Health check all services
+make demo            # Run the hospital consulting demo
+make demo-bank       # Run the financial services consulting demo
+make test            # Run all tests
+make clean           # Stop and remove containers
 ```
 
-## Getting Started
+---
 
-### Local Bootstrap
+## Docker Compose Networking
 
-```bash
-make bootstrap
-make platform-start
-make health
-```
-
-Cleanup local demo resources:
-
-```bash
-make cleanup
-```
-
-### Demo Flows (Separated by Domain)
-
-Healthcare demo:
-
-```bash
-make demo-healthcare
-```
-
-- Starts healthcare services via [scripts/start_healthcare.sh](scripts/start_healthcare.sh)
-- Generates EHR traffic via [scripts/generate-ehr-events.sh](scripts/generate-ehr-events.sh)
-
-Fintech demo:
-
-```bash
-make demo-fintech
-```
-
-- Starts fintech services via [scripts/start_fintech.sh](scripts/start_fintech.sh)
-- Generates transaction traffic via [scripts/generate-transactions.sh](scripts/generate-transactions.sh)
-
-## Testing and Quality
-
-- Unit tests: [tests/unit/](tests/unit/)
-- Integration tests: [tests/integration/](tests/integration/)
-- End-to-end scenarios: [tests/e2e/](tests/e2e/)
-- Performance tests: [tests/performance/](tests/performance/)
-- Security tests: [tests/security/](tests/security/)
-
-Test execution guide: [tests/README.md](tests/README.md)
-
-## Security and Compliance
-
-- Security controls: [security/](security/)
-- Compliance docs: [docs/compliance/](docs/compliance/)
-- Observability evidence: [observability/](observability/)
-- Reliability operations: [sre/](sre/)
-
-## Strategic Documents
-
-- [docs/executive/100M_PLATFORM_BLUEPRINT.md](docs/executive/100M_PLATFORM_BLUEPRINT.md)
-- [docs/product/PLATFORM_CAPABILITIES.md](docs/product/PLATFORM_CAPABILITIES.md)
-- [docs/operations/ENTERPRISE_RUNBOOK.md](docs/operations/ENTERPRISE_RUNBOOK.md)
-- [NERP_PLATFORM_OVERVIEW.md](NERP_PLATFORM_OVERVIEW.md)
-
-## License
-
-Licensed under [LICENSE](LICENSE).
+The `nerp-client-portal` service joins all three networks (`clinical-net`,
+`fintech-net`, `healthcare-net`) so the executive dashboard can represent
+both the healthcare and financial services verticals from a single portal.

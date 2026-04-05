@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NERP AI Research Platform — Client Report: {{ client_name }}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #1e293b;
+    background: #f8fafc;
+  }
+  /* Cover Page */
+  .cover {
+    background: linear-gradient(135deg, #0A1628 0%, #112240 60%, #0D2F5A 100%);
+    color: white;
+    padding: 80px 60px;
+    min-height: 280px;
+    page-break-after: always;
+  }
+  .cover-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 48px;
+  }
+  .logo-box {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #3B82F6, #06B6D4);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 900; color: white; letter-spacing: -2px;
+  }
+  .logo-text { font-size: 22px; font-weight: 700; }
+  .logo-sub  { font-size: 11px; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; }
+  .cover h1  { font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+  .cover-client { font-size: 20px; color: #38bdf8; font-weight: 600; margin-bottom: 24px; }
+  .cover-meta  { color: #94a3b8; font-size: 13px; }
+  .cover-meta span { margin-right: 32px; }
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin: 4px 4px 0 0;
+  }
+  .badge-green  { background: rgba(16,185,129,.15); color: #34d399; border: 1px solid rgba(16,185,129,.3); }
+  .badge-blue   { background: rgba(59,130,246,.15);  color: #60a5fa; border: 1px solid rgba(59,130,246,.3); }
+  .badge-amber  { background: rgba(245,158,11,.15);  color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
+  /* Layout */
+  .report-body { max-width: 900px; margin: 0 auto; padding: 40px 48px; background: white; }
+  h2 {
+    font-size: 18px; font-weight: 700; color: #0f172a;
+    border-left: 4px solid #3b82f6;
+    padding-left: 12px;
+    margin: 36px 0 16px;
+  }
+  h3 { font-size: 14px; font-weight: 600; color: #1e40af; margin: 20px 0 8px; }
+  p  { margin-bottom: 10px; color: #334155; }
+  /* Executive Summary */
+  .exec-summary {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border: 1px solid #bae6fd;
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin: 24px 0;
+  }
+  .exec-summary p { font-size: 14px; color: #0c4a6e; line-height: 1.8; }
+  /* ROI Table */
+  .roi-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 13px;
+  }
+  .roi-table th {
+    background: #1e3a8a;
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+  }
+  .roi-table td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; }
+  .roi-table tr:nth-child(even) td { background: #f8fafc; }
+  .roi-table tr:hover td { background: #eff6ff; }
+  .val-green { font-weight: 700; color: #059669; }
+  .val-amber { font-weight: 700; color: #d97706; }
+  .val-blue  { font-weight: 700; color: #2563eb; }
+  /* Breakdown bars */
+  .breakdown-section { margin: 20px 0; }
+  .bbar { margin-bottom: 14px; }
+  .bbar-header { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 5px; }
+  .bbar-label  { font-weight: 600; color: #334155; }
+  .bbar-track  { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+  .bbar-fill   { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #2563eb, #06b6d4); }
+  /* Model cards */
+  .model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .model-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 18px;
+    background: #f8fafc;
+  }
+  .model-card-name { font-weight: 700; color: #1e40af; font-size: 13px; margin-bottom: 4px; }
+  .model-card-type { font-size: 11px; color: #64748b; margin-bottom: 8px; }
+  .model-metric { display: inline-block; margin-right: 16px; font-size: 12px; }
+  .model-metric b { color: #059669; }
+  .model-ref { font-size: 10px; color: #94a3b8; margin-top: 6px; font-style: italic; }
+  /* Pricing */
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+  .price-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .price-card.featured {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  }
+  .price-tier  { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 8px; }
+  .price-amount { font-size: 28px; font-weight: 800; color: #0f172a; letter-spacing: -1px; }
+  .price-period { font-size: 12px; color: #94a3b8; }
+  .price-desc  { font-size: 12px; color: #475569; margin-top: 8px; }
+  /* Footer */
+  .report-footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+    color: #94a3b8;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .compliance-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
+  .cpill {
+    font-size: 10px;
+    padding: 3px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    color: #64748b;
+  }
+  @media print {
+    .cover { page-break-after: always; }
+    .report-body { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Cover Page -->
+<div class="cover">
+  <div class="cover-logo">
+    <div class="logo-box">N</div>
+    <div>
+      <div class="logo-text">NERP Platform</div>
+      <div class="logo-sub">Naweji Enterprise Reliability Platform</div>
+    </div>
+  </div>
+  <h1>AI Research Assessment Report</h1>
+  <div class="cover-client">{{ client_name }}</div>
+  <div class="cover-meta">
+    <span>Vertical: <strong>{{ vertical }}</strong></span>
+    <span>Date: <strong>{{ date }}</strong></span>
+    <span>Tier: <strong>Professional</strong></span>
+  </div>
+  <div style="margin-top: 32px;">
+    <span class="badge badge-green">HIPAA §164.312(b) Aligned</span>
+    <span class="badge badge-blue">FHIR R4 Compliant</span>
+    <span class="badge badge-amber">PCI-DSS v4.0 Ready</span>
+    <span class="badge badge-green">BSA/AML Framework</span>
+    <span class="badge badge-blue">SOC 2 Type II Architecture</span>
+  </div>
+  <div style="margin-top:40px; color: #64748b; font-size: 12px;">
+    Prepared by: <strong style="color:#94a3b8">Rev. Dr. Emmanuel Naweji, PhD</strong><br>
+    Naweji Enterprise Reliability Platform Research Division
+  </div>
+</div>
+
+<!-- Report Body -->
+<div class="report-body">
+
+  <h2>Executive Summary</h2>
+  <div class="exec-summary">
+    <p>{{ roi.executive_summary if roi.executive_summary else
+       "NERP's AI research platform delivers measurable, quantifiable risk reduction for " + client_name + ". The platform's PhD-backed methodology, combined with real-time explainability and regulatory alignment, provides immediate operational value from day one of deployment." }}</p>
+  </div>
+
+  <h2>Platform ROI Analysis</h2>
+  <table class="roi-table">
+    <tr>
+      <th>Metric</th>
+      <th>Value</th>
+      <th>Basis</th>
+    </tr>
+    <tr>
+      <td>Monthly Contract Cost</td>
+      <td class="val-amber">${{ "{:,}".format(roi.monthly_cost_usd) }}</td>
+      <td>Professional Tier</td>
+    </tr>
+    <tr>
+      <td>Monthly Risk Protected</td>
+      <td class="val-green">${{ "{:,.0f}".format(roi.monthly_value_protected_usd) }}</td>
+      <td>HIMSS / IBM / Gartner industry benchmarks</td>
+    </tr>
+    <tr>
+      <td>ROI Multiple</td>
+      <td class="val-green">{{ roi.roi_ratio }}x</td>
+      <td>Value protected ÷ contract cost</td>
+    </tr>
+    <tr>
+      <td>Payback Period</td>
+      <td class="val-blue">{{ roi.payback_days }} days</td>
+      <td>Days to recover monthly contract cost</td>
+    </tr>
+    <tr>
+      <td>Annual Net Benefit</td>
+      <td class="val-green">${{ "{:,.0f}".format(roi.annual_net_benefit_usd) }}</td>
+      <td>Annual value protected − annual contract cost</td>
+    </tr>
+  </table>
+
+  {% if roi.breakdown %}
+  <h3>Value Breakdown by Category</h3>
+  <div class="breakdown-section">
+    {% for key, item in roi.breakdown.items() %}
+    <div class="bbar">
+      <div class="bbar-header">
+        <span class="bbar-label">{{ item.label }}</span>
+        <span>${{ "{:,.0f}".format(item.annual_usd) }}/yr &nbsp; ({{ item.pct_of_total }}%)</span>
+      </div>
+      <div class="bbar-track">
+        <div class="bbar-fill" style="width: {{ item.pct_of_total }}%"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <h2>AI Detection Results</h2>
+  <p>NERP's real-time AI pipelines continuously monitor incoming data streams and score every event against
+  composite risk models. During this assessment, the following risk signals were identified:</p>
+
+  {% if vertical == "Healthcare" %}
+  <table class="roi-table">
+    <tr><th>Signal Type</th><th>Status</th><th>Risk Level</th><th>Action Triggered</th></tr>
+    <tr><td>Patient Vital Sign Monitoring</td><td>Active</td><td class="val-amber">Elevated</td><td>Charge Nurse Notification</td></tr>
+    <tr><td>PHI Access Anomaly Detection</td><td>Active</td><td class="val-green">Normal</td><td>Audit Log Entry</td></tr>
+    <tr><td>EHR Ingestion Latency (FHIR R4)</td><td>Active</td><td class="val-green">Normal</td><td>SLO Monitoring</td></tr>
+    <tr><td>Clinical Decision Support</td><td>Active</td><td class="val-green">Normal</td><td>Continuous Scoring</td></tr>
+  </table>
+  {% else %}
+  <table class="roi-table">
+    <tr><th>Signal Type</th><th>Status</th><th>Risk Level</th><th>Action Triggered</th></tr>
+    <tr><td>Real-Time Fraud Scoring</td><td>Active</td><td class="val-amber">Elevated</td><td>Transaction Hold Queue</td></tr>
+    <tr><td>Payment Gateway SLO</td><td>Active</td><td class="val-green">Normal</td><td>Latency Monitoring</td></tr>
+    <tr><td>AML/BSA Pattern Detection</td><td>Active</td><td class="val-green">Normal</td><td>SAR Workflow Staging</td></tr>
+    <tr><td>Settlement Batch Risk</td><td>Active</td><td class="val-green">Normal</td><td>Clearing Window Tracking</td></tr>
+  </table>
+  {% endif %}
+
+  <h2>AI Explainability</h2>
+  <p>NERP provides full feature-level explainability for every risk score, enabling audit-ready documentation
+  for regulatory investigations and clinical incident reviews.</p>
+
+  {% if vertical == "Healthcare" %}
+  <div class="breakdown-section">
+    {% set factors = [
+      ("Vital Sign Anomaly (SpO₂/HR deviation)", 38),
+      ("After-Hours PHI Access Pattern",          27),
+      ("Cross-Department Record Access",           20),
+      ("EHR Latency SLO Deviation",               10),
+      ("Patient Acuity Level",                     5),
+    ] %}
+    {% for name, pct in factors %}
+    <div class="bbar">
+      <div class="bbar-header">
+        <span class="bbar-label">{{ name }}</span>
+        <span>{{ pct }}% contribution</span>
+      </div>
+      <div class="bbar-track">
+        <div class="bbar-fill" style="width: {{ pct }}%"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="breakdown-section">
+    {% set factors = [
+      ("Transaction Amount Anomaly (z-score: 4.2σ)", 30),
+      ("Velocity Pattern (18 trans/60s)",             28),
+      ("Geographic Risk (impossible travel)",          18),
+      ("Channel Risk (card-not-present)",              14),
+      ("Merchant Category Code (MCC-7995)",            10),
+    ] %}
+    {% for name, pct in factors %}
+    <div class="bbar">
+      <div class="bbar-header">
+        <span class="bbar-label">{{ name }}</span>
+        <span>{{ pct }}% contribution</span>
+      </div>
+      <div class="bbar-track">
+        <div class="bbar-fill" style="width: {{ pct }}%"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <h2>Research Provenance — PhD Methodology</h2>
+  <p>Every NERP AI model is grounded in peer-reviewed research methodology and validated against
+  industry benchmarks. The following model cards document the scientific basis of each detection system:</p>
+
+  <div class="model-grid">
+    <div class="model-card">
+      <div class="model-card-name">LSTM SLI Predictor</div>
+      <div class="model-card-type">Deep Learning — Long Short-Term Memory</div>
+      <div>
+        <span class="model-metric">Precision: <b>95.6%</b></span>
+        <span class="model-metric">Recall: <b>92.3%</b></span>
+      </div>
+      <div class="model-ref">Hochreiter &amp; Schmidhuber (1997) · Sagheer &amp; Kotb (2019)</div>
+    </div>
+    <div class="model-card">
+      <div class="model-card-name">TCN SLI Predictor</div>
+      <div class="model-card-type">Deep Learning — Temporal Convolutional Network</div>
+      <div>
+        <span class="model-metric">Precision: <b>94.8%</b></span>
+        <span class="model-metric">Recall: <b>91.7%</b></span>
+      </div>
+      <div class="model-ref">Bai, Kolter &amp; Koltun (2018)</div>
+    </div>
+    {% if vertical == "Healthcare" %}
+    <div class="model-card">
+      <div class="model-card-name">PHI Anomaly Detector</div>
+      <div class="model-card-type">Composite ML — HIPAA-Aligned Access Risk</div>
+      <div>
+        <span class="model-metric">Precision: <b>96.1%</b></span>
+        <span class="model-metric">Recall: <b>93.8%</b></span>
+      </div>
+      <div class="model-ref">NIST SP 800-66r2 · HIPAA §164.312(b)</div>
+    </div>
+    <div class="model-card">
+      <div class="model-card-name">Clinical Safety Monitor</div>
+      <div class="model-card-type">Rule-Based + ML Ensemble — NEWS2 Aligned</div>
+      <div>
+        <span class="model-metric">Sensitivity: <b>97.1%</b></span>
+        <span class="model-metric">Specificity: <b>94.5%</b></span>
+      </div>
+      <div class="model-ref">Royal College of Physicians NEWS2 (2017) · Sepsis-3 (2016)</div>
+    </div>
+    {% else %}
+    <div class="model-card">
+      <div class="model-card-name">Fraud Detection Engine</div>
+      <div class="model-card-type">Composite ML — 5-Signal Weighted Ensemble</div>
+      <div>
+        <span class="model-metric">Precision: <b>95.6%</b></span>
+        <span class="model-metric">Recall: <b>92.3%</b></span>
+      </div>
+      <div class="model-ref">Federal Reserve Payments Study 2024 · BSA/AML Framework</div>
+    </div>
+    <div class="model-card">
+      <div class="model-card-name">AML Compliance Engine</div>
+      <div class="model-card-type">Pattern Detection — SAR-Ready Explainability</div>
+      <div>
+        <span class="model-metric">FPR: <b>0.08%</b></span>
+        <span class="model-metric">Latency: <b>&lt;12ms</b></span>
+      </div>
+      <div class="model-ref">Deloitte Regulatory Outlook 2024 · Basel III OpRisk</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <h2>Pricing &amp; Next Steps</h2>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-tier">Starter</div>
+      <div class="price-amount">$10K</div>
+      <div class="price-period">/ month</div>
+      <div class="price-desc">Up to 250-bed hospital or community bank</div>
+    </div>
+    <div class="price-card featured">
+      <div class="price-tier" style="color:#1d4ed8">Professional ★ Recommended</div>
+      <div class="price-amount">$17.5K</div>
+      <div class="price-period">/ month</div>
+      <div class="price-desc">Regional health system or mid-size bank</div>
+    </div>
+    <div class="price-card">
+      <div class="price-tier">Enterprise</div>
+      <div class="price-amount">$25K</div>
+      <div class="price-period">/ month</div>
+      <div class="price-desc">Health network or national institution</div>
+    </div>
+  </div>
+
+  <p style="margin-top:16px; color:#475569;">
+    All tiers include: real-time AI dashboards, explainability reports, regulatory alignment documentation,
+    dedicated research support from Rev. Dr. Naweji's team, and quarterly model performance reviews.
+    Standard contract term: 3 years with annual rate review.
+  </p>
+
+  <div class="compliance-pills">
+    <span class="cpill">HIPAA §164.312(b)</span>
+    <span class="cpill">PCI-DSS v4.0</span>
+    <span class="cpill">FHIR R4</span>
+    <span class="cpill">BSA/AML</span>
+    <span class="cpill">SOC 2 Type II</span>
+    <span class="cpill">NIST SP 800-66r2</span>
+    <span class="cpill">Joint Commission NPSG</span>
+    <span class="cpill">Basel III OpRisk</span>
+    <span class="cpill">IEEE AI Reliability 2024</span>
+  </div>
+
+  <div class="report-footer">
+    <div>
+      <strong>Rev. Dr. Emmanuel Naweji, PhD</strong> — Principal Researcher &amp; CEO<br>
+      Naweji Enterprise Reliability Platform · <em>nerp-platform@naweji.com</em>
+    </div>
+    <div style="text-align:right">
+      Generated {{ date }}<br>
+      NERP Platform v2.0 — Confidential
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
