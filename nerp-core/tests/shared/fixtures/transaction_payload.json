@@ -1,9 +1,0 @@
-{
-  "account_id": "acct_10001",
-  "amount": 125.75,
-  "currency": "USD",
-  "merchant": "NERP Demo Merchant",
-  "merchant_category_code": "5732",
-  "channel": "online",
-  "fraud_score": 0.2
-}

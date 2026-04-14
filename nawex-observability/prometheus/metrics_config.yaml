@@ -1,0 +1,92 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+  external_labels:
+    platform: nawex
+    environment: production
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+rule_files:
+  - "rules/nawex_alerts.yml"
+  - "rules/slo_rules.yml"
+
+scrape_configs:
+  # ── Core API ─────────────────────────────────────────────────
+  - job_name: nawex-api
+    static_configs:
+      - targets: ["nawex-api:8000"]
+    metrics_path: /metrics
+
+  # ── Fintech Services ─────────────────────────────────────────
+  - job_name: fintech-transaction-engine
+    static_configs:
+      - targets: ["transaction-engine:8090"]
+    metrics_path: /metrics
+
+  - job_name: fintech-fraud-detector
+    static_configs:
+      - targets: ["fraud-detector:8091"]
+    metrics_path: /metrics
+
+  - job_name: fintech-payment-gateway
+    static_configs:
+      - targets: ["payment-gateway:8092"]
+    metrics_path: /metrics
+
+  # ── Healthcare Services ───────────────────────────────────────
+  - job_name: healthcare-ehr-ingestion
+    static_configs:
+      - targets: ["ehr-ingestion:8093"]
+    metrics_path: /metrics
+
+  - job_name: healthcare-clinical-decision
+    static_configs:
+      - targets: ["clinical-decision:8094"]
+    metrics_path: /metrics
+
+  - job_name: healthcare-patient-gateway
+    static_configs:
+      - targets: ["patient-gateway:8095"]
+    metrics_path: /metrics
+
+  # ── Robotics / Surgical Brain (gRPC) ─────────────────────────
+  - job_name: robotics-surgical-brain
+    static_configs:
+      - targets: ["surgical-brain:50051"]
+    metrics_path: /metrics
+
+  # ── Infrastructure ────────────────────────────────────────────
+  - job_name: kafka
+    static_configs:
+      - targets: ["kafka:9308"]   # kafka-exporter
+
+  - job_name: redis-fintech
+    static_configs:
+      - targets: ["redis-exporter-fintech:9121"]
+
+  - job_name: redis-healthcare
+    static_configs:
+      - targets: ["redis-exporter-healthcare:9121"]
+
+  # ── Prometheus self-monitoring ────────────────────────────────
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # ── Loki (log ingestion metrics) ─────────────────────────────
+  - job_name: loki
+    static_configs:
+      - targets: ["loki:3100"]
+    metrics_path: /metrics
+
+  # ── Tempo (trace ingestion metrics) ──────────────────────────
+  - job_name: tempo
+    static_configs:
+      - targets: ["tempo:3200"]
+    metrics_path: /metrics

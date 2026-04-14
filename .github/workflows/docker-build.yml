@@ -52,4 +52,4 @@ jobs:
                                     context: ${{ matrix.context }}
                                     file: ${{ matrix.dockerfile }}
                                     push: false
-                                    tags: nerp/${{ matrix.name }}:ci
+                                    tags: nawex/${{ matrix.name }}:ci

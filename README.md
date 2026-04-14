@@ -1,16 +1,16 @@
-# NERP Platform
+# NAWEX Platform
 
-**Naweji Enterprise Reliability Platform**
+**Nawex Platform**
 *PhD-Backed AI Research for Healthcare & Financial Services*
 
 **Rev. Dr. Emmanuel Naweji** | [GitHub](https://github.com/Here2ServeU/Naweji-Reliability-Platform)
 
 ---
 
-NERP is an enterprise AI research platform that provides real-time risk detection,
+NAWEX is an enterprise AI research platform that provides real-time risk detection,
 explainability, and ROI-quantified business value for hospitals and financial institutions.
 Built on peer-reviewed ML methodology (LSTM/TCN, composite risk scoring, Bayesian
-expected-value analysis), NERP is designed for consulting engagements at
+expected-value analysis), NAWEX is designed for consulting engagements at
 **$10,000–$25,000/month**.
 
 ---
@@ -21,16 +21,16 @@ expected-value analysis), NERP is designed for consulting engagements at
 
 ```bash
 # 1. Install AI engine dependencies
-cd nerp-ai-engine
+cd nawex-ai-engine
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cd ..
 
 # 2. Run the narrated hospital demo
-python nerp-core/demo_client.py --vertical hospital --client "City Medical Center"
+python nawex-core/demo_client.py --vertical hospital --client "City Medical Center"
 
 # 3. Or run the financial institution demo
-python nerp-core/demo_client.py --vertical bank --client "National Finance Corp"
+python nawex-core/demo_client.py --vertical bank --client "National Finance Corp"
 ```
 
 Output: 6-act narrated terminal walkthrough (~3 min) + HTML client report in `./demo_output/`
@@ -38,7 +38,7 @@ Output: 6-act narrated terminal walkthrough (~3 min) + HTML client report in `./
 ### Launch the Live Executive Dashboard
 
 ```bash
-cd nerp-client-portal
+cd nawex-client-portal
 npm install
 node server.js
 # → Open http://localhost:3001
@@ -50,11 +50,11 @@ ROI panel, and explainability bars update every 3 seconds.
 ### Run the Full Platform (Docker Compose)
 
 ```bash
-cd nerp-core
+cd nawex-core
 docker compose up -d
 
 # Services started:
-#   nerp-client-portal   → http://localhost:3001  (executive demo dashboard)
+#   nawex-client-portal   → http://localhost:3001  (executive demo dashboard)
 #   Grafana              → http://localhost:3000  (observability)
 #   Prometheus           → http://localhost:9090
 #   Healthcare services  → ports 8093–8095
@@ -65,15 +65,15 @@ docker compose up -d
 
 ## Platform Overview
 
-NERP serves five simultaneous purposes:
+NAWEX serves five simultaneous purposes:
 
 | Purpose | Description |
 | ------- | ----------- |
 | **Consulting Product** | AI research platform sold at $10K–$25K/month to hospitals and banks |
-| **PhD Research Platform** | Peer-reviewed methodology docs in `nerp-core/research/` |
+| **PhD Research Platform** | Peer-reviewed methodology docs in `nawex-core/research/` |
 | **Engineering Portfolio** | Production-quality AI pipelines, microservices, and IaC |
 | **Investor Narrative** | Defensible moat: regulated-domain AI + research credibility |
-| **Training Ecosystem** | AI foundations course in `nerp-ai-foundations-course/` |
+| **Training Ecosystem** | AI foundations course in `nawex-ai-foundations-course/` |
 
 ---
 
@@ -111,7 +111,7 @@ NERP serves five simultaneous purposes:
 | **Professional** | **$17,500** | **Regional health system / Mid-size bank** |
 | Enterprise | $25,000 | Health network / National institution |
 
-See [`nerp-core/docs/consulting/consulting_playbook.md`](nerp-core/docs/consulting/consulting_playbook.md)
+See [`nawex-core/docs/consulting/consulting_playbook.md`](nawex-core/docs/consulting/consulting_playbook.md)
 for the full sales playbook, objection handling, and meeting structure.
 
 ---
@@ -119,8 +119,8 @@ for the full sales playbook, objection handling, and meeting structure.
 ## Repository Structure
 
 ```text
-nerp-platform/
-├── nerp-core/                  # Orchestration, docs, demo runner, research
+nawex-platform/
+├── nawex-core/                  # Orchestration, docs, demo runner, research
 │   ├── demo_client.py          # Single-command consulting demo
 │   ├── demo_report_template.html
 │   ├── docker-compose.yaml     # Full platform stack
@@ -134,7 +134,7 @@ nerp-platform/
 │       └── consulting/
 │           └── consulting_playbook.md
 │
-├── nerp-ai-engine/             # AI models, pipelines, business value engine
+├── nawex-ai-engine/             # AI models, pipelines, business value engine
 │   ├── business_value/         # ROI calculator and impact estimator
 │   │   ├── dollar_thresholds.py
 │   │   ├── impact_estimator.py
@@ -147,34 +147,34 @@ nerp-platform/
 │   │   └── fintech_simulator.py
 │   └── explainability/         # model_report.py — feature contribution reports
 │
-├── nerp-client-portal/         # Executive demo dashboard (Node.js + WebSocket)
+├── nawex-client-portal/         # Executive demo dashboard (Node.js + WebSocket)
 │   ├── server.js               # Express + WebSocket, port 3001
 │   └── public/                 # index.html, styles.css, app.js
 │
-├── nerp-healthcare/            # FHIR R4 EHR ingestion, clinical decision support
-├── nerp-fintech/               # Fraud detector, transaction engine, payment gateway
-├── nerp-observability/         # Grafana, Prometheus, Loki, Tempo
-├── nerp-infrastructure/        # Helm, Terraform, GitOps (ArgoCD/Flux)
-├── nerp-api/                   # Python API bootstrap
-├── nerp-dashboard/             # Internal ops dashboard
-├── nerp-decision-engine/       # Risk-to-action router
-├── nerp-automation/            # Kubernetes + cloud automation scripts
-└── nerp-ai-foundations-course/ # Training materials
+├── nawex-healthcare/            # FHIR R4 EHR ingestion, clinical decision support
+├── nawex-fintech/               # Fraud detector, transaction engine, payment gateway
+├── nawex-observability/         # Grafana, Prometheus, Loki, Tempo
+├── nawex-infrastructure/        # Helm, Terraform, GitOps (ArgoCD/Flux)
+├── nawex-api/                   # Python API bootstrap
+├── nawex-dashboard/             # Internal ops dashboard
+├── nawex-decision-engine/       # Risk-to-action router
+├── nawex-automation/            # Kubernetes + cloud automation scripts
+└── nawex-ai-foundations-course/ # Training materials
 ```
 
 ---
 
 ## AI Research Methodology
 
-All NERP detection models are grounded in peer-reviewed research. Full methodology
-documents are in [`nerp-core/research/methodology/`](nerp-core/research/methodology/):
+All NAWEX detection models are grounded in peer-reviewed research. Full methodology
+documents are in [`nawex-core/research/methodology/`](nawex-core/research/methodology/):
 
 | Document | Audience | Key References |
 | -------- | -------- | -------------- |
-| [`lstm_sli_methodology.md`](nerp-core/research/methodology/lstm_sli_methodology.md) | CTO / CIO | Hochreiter & Schmidhuber (1997) |
-| [`fraud_detection_methodology.md`](nerp-core/research/methodology/fraud_detection_methodology.md) | Bank Risk Officer | Fed Reserve Payments Study 2024 |
-| [`phi_anomaly_methodology.md`](nerp-core/research/methodology/phi_anomaly_methodology.md) | Hospital Compliance Officer | NIST SP 800-66r2, HIPAA §164.312 |
-| [`clinical_safety_methodology.md`](nerp-core/research/methodology/clinical_safety_methodology.md) | CMIO / Patient Safety Officer | NEWS2, Sepsis-3 (2016) |
+| [`lstm_sli_methodology.md`](nawex-core/research/methodology/lstm_sli_methodology.md) | CTO / CIO | Hochreiter & Schmidhuber (1997) |
+| [`fraud_detection_methodology.md`](nawex-core/research/methodology/fraud_detection_methodology.md) | Bank Risk Officer | Fed Reserve Payments Study 2024 |
+| [`phi_anomaly_methodology.md`](nawex-core/research/methodology/phi_anomaly_methodology.md) | Hospital Compliance Officer | NIST SP 800-66r2, HIPAA §164.312 |
+| [`clinical_safety_methodology.md`](nawex-core/research/methodology/clinical_safety_methodology.md) | CMIO / Patient Safety Officer | NEWS2, Sepsis-3 (2016) |
 
 ---
 
@@ -195,30 +195,30 @@ documents are in [`nerp-core/research/methodology/`](nerp-core/research/methodol
 ```bash
 # Clone
 git clone https://github.com/Here2ServeU/Naweji-Reliability-Platform
-cd nerp-platform
+cd nawex-platform
 
 # AI Engine (Python)
-cd nerp-ai-engine
+cd nawex-ai-engine
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
 # Client Portal (Node.js)
-cd ../nerp-client-portal
+cd ../nawex-client-portal
 npm install
 
 # Run end-to-end AI demo
 cd ..
-python nerp-ai-engine/demo_run.py --epochs 1 --output-dir .artifacts/demo
+python nawex-ai-engine/demo_run.py --epochs 1 --output-dir .artifacts/demo
 
 # Run consulting client demo
-python nerp-core/demo_client.py --vertical hospital --client "Demo Hospital"
+python nawex-core/demo_client.py --vertical hospital --client "Demo Hospital"
 ```
 
 ---
 
 ## Compliance & Standards
 
-NERP is designed for regulated-industry deployment:
+NAWEX is designed for regulated-industry deployment:
 
 - **HIPAA** §164.312(b) — PHI access audit trail augmentation
 - **FHIR R4** — EHR ingestion and alert workflow integration
@@ -232,4 +232,4 @@ NERP is designed for regulated-industry deployment:
 
 ---
 
-*NERP Platform © 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.*
+*NAWEX Platform © 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.*

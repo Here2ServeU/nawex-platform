@@ -1,0 +1,47 @@
+apiVersion: 1
+
+datasources:
+  # ── Prometheus ────────────────────────────────────────────────
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus-nawex
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    jsonData:
+      httpMethod: POST
+      exemplarTraceIdDestinations:
+        - name: traceID
+          datasourceUid: tempo-nawex
+
+  # ── Loki (logs) ───────────────────────────────────────────────
+  - name: Loki
+    type: loki
+    uid: loki-nawex
+    access: proxy
+    url: http://loki:3100
+    jsonData:
+      derivedFields:
+        - name: traceID
+          matcherRegex: "traceID=(\\w+)"
+          url: "$${__value.raw}"
+          datasourceUid: tempo-nawex
+
+  # ── Tempo (distributed traces) ───────────────────────────────
+  - name: Tempo
+    type: tempo
+    uid: tempo-nawex
+    access: proxy
+    url: http://tempo:3200
+    jsonData:
+      httpMethod: GET
+      serviceMap:
+        datasourceUid: prometheus-nawex
+      nodeGraph:
+        enabled: true
+      lokiSearch:
+        datasourceUid: loki-nawex
+      tracesToLogs:
+        datasourceUid: loki-nawex
+        filterByTraceID: true
+        filterBySpanID: false

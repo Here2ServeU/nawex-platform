@@ -1,0 +1,77 @@
+groups:
+  # ── API SLOs ──────────────────────────────────────────────────────────────────
+  - name: nawex_slo_recordings
+    interval: 30s
+    rules:
+      # Success rate recording rules (used by dashboards and SLO alerts)
+      - record: job:http_requests_success:rate5m
+        expr: |
+          rate(http_requests_total{status!~"5.."}[5m])
+          / rate(http_requests_total[5m])
+
+      - record: job:http_request_duration_seconds:p95
+        expr: |
+          histogram_quantile(0.95,
+            sum by(job, le) (rate(http_request_duration_seconds_bucket[5m]))
+          )
+
+      - record: job:http_request_duration_seconds:p99
+        expr: |
+          histogram_quantile(0.99,
+            sum by(job, le) (rate(http_request_duration_seconds_bucket[5m]))
+          )
+
+  - name: nawex_slo_alerts
+    interval: 30s
+    rules:
+      # API availability SLO: 99.9%
+      - alert: SLOAvailabilityBreach
+        expr: job:http_requests_success:rate5m < 0.999
+        for: 5m
+        labels:
+          severity: critical
+          slo: availability
+        annotations:
+          summary: "SLO breach: availability < 99.9% on {{ $labels.job }}"
+          description: "Success rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+
+      # API latency SLO: p95 < 500ms
+      - alert: SLOLatencyBreach
+        expr: job:http_request_duration_seconds:p95 > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          slo: latency
+        annotations:
+          summary: "SLO breach: p95 latency > 500ms on {{ $labels.job }}"
+          description: "p95 latency is {{ $value }}s."
+
+      # Error budget burn rate (fast burn: 14.4x over 1h)
+      - alert: ErrorBudgetFastBurn
+        expr: |
+          (
+            rate(http_requests_total{status=~"5.."}[1h])
+            / rate(http_requests_total[1h])
+          ) > (14.4 * 0.001)
+        for: 2m
+        labels:
+          severity: critical
+          slo: error_budget
+        annotations:
+          summary: "Error budget fast burn on {{ $labels.job }}"
+          description: "Error rate is burning the monthly error budget at 14.4x speed."
+
+      # Error budget burn rate (slow burn: 6x over 6h)
+      - alert: ErrorBudgetSlowBurn
+        expr: |
+          (
+            rate(http_requests_total{status=~"5.."}[6h])
+            / rate(http_requests_total[6h])
+          ) > (6 * 0.001)
+        for: 15m
+        labels:
+          severity: warning
+          slo: error_budget
+        annotations:
+          summary: "Error budget slow burn on {{ $labels.job }}"
+          description: "Error rate is burning the monthly error budget at 6x speed over 6h."
