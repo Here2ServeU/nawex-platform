@@ -15,6 +15,11 @@ spec:
         app: splunk-forwarder
     spec:
       serviceAccountName: default
+      automountServiceAccountToken: false
+      # Reads root-owned host logs, so it runs as uid 0 - but with every
+      # capability dropped, no privilege escalation and a read-only root FS.
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: fluent-bit
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -29,15 +34,27 @@ spec:
                 secretKeyRef:
                   name: splunk-hec-secret
                   key: hec_token
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           volumeMounts:
             - name: varlog
               mountPath: /var/log
+              readOnly: true
             - name: config
               mountPath: /fluent-bit/etc/
+            - name: state
+              mountPath: /fluent-bit/state
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: varlog
           hostPath:
             path: /var/log
+            type: Directory
+        - name: state
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
         - name: config
           configMap:
             name: splunk-forwarder-config

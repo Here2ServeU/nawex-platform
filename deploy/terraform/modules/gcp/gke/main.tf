@@ -99,10 +99,21 @@ resource "google_container_cluster" "primary" {
     services_secondary_range_name = "services"
   }
 
+  # API server exposure: allow-listed public endpoint, or private endpoint only.
   private_cluster_config {
     enable_private_nodes    = true
-    enable_private_endpoint = false
+    enable_private_endpoint = length(var.api_server_authorized_cidrs) == 0
     master_ipv4_cidr_block  = var.master_cidr
+  }
+
+  master_authorized_networks_config {
+    dynamic "cidr_blocks" {
+      for_each = var.api_server_authorized_cidrs
+      content {
+        cidr_block   = cidr_blocks.value
+        display_name = "authorized-${cidr_blocks.key}"
+      }
+    }
   }
 
   workload_identity_config {
@@ -147,6 +158,10 @@ resource "google_container_node_pool" "general" {
 
     workload_metadata_config {
       mode = "GKE_METADATA"
+    }
+
+    metadata = {
+      disable-legacy-endpoints = "true"
     }
 
     shielded_instance_config {
@@ -195,6 +210,10 @@ resource "google_container_node_pool" "gpu" {
 
     workload_metadata_config {
       mode = "GKE_METADATA"
+    }
+
+    metadata = {
+      disable-legacy-endpoints = "true"
     }
   }
 

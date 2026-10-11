@@ -17,6 +17,12 @@ spec:
         app: kafka
     spec:
       serviceAccountName: golden-platform-sa
+      automountServiceAccountToken: false
+      # No fixed UID: the restricted-v2 SCC assigns one from the namespace range.
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -63,9 +69,24 @@ spec:
             limits:
               cpu: 1500m
               memory: 2Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
+            - name: config
+              mountPath: /etc/kafka
+            - name: tmp
+              mountPath: /tmp
             - name: kafka-data
               mountPath: /var/lib/kafka/data
+      volumes:
+        - name: config
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
   volumeClaimTemplates:
     - metadata:
         name: kafka-data
@@ -114,6 +135,12 @@ spec:
         app: zookeeper
     spec:
       serviceAccountName: golden-platform-sa
+      automountServiceAccountToken: false
+      # No fixed UID: the restricted-v2 SCC assigns one from the namespace range.
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: zookeeper
           image: confluentinc/cp-zookeeper:7.5.0
@@ -142,12 +169,26 @@ spec:
             limits:
               cpu: 500m
               memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
+            - name: config
+              mountPath: /etc/kafka
+            - name: tmp
+              mountPath: /tmp
             - name: zookeeper-data
               mountPath: /var/lib/zookeeper/data
             - name: zookeeper-logs
               mountPath: /var/lib/zookeeper/log
       volumes:
+        - name: config
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
         - name: zookeeper-data
           emptyDir: {}
         - name: zookeeper-logs

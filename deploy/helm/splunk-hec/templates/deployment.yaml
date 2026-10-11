@@ -17,6 +17,9 @@ spec:
         app.kubernetes.io/name: {{ include "splunk-hec.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: splunk
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -36,3 +39,21 @@ spec:
           ports:
             - name: hec
               containerPort: {{ .Values.hec.port }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - name: etc
+              mountPath: /opt/splunk/etc
+            - name: var
+              mountPath: /opt/splunk/var
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: etc
+          emptyDir: {}
+        - name: var
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}

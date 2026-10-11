@@ -192,3 +192,11 @@ def test_approval_tiers(governor, monkeypatch):
 def test_invalid_autonomy_mode_fails_safe(governor, monkeypatch):
     monkeypatch.setenv("GOLDEN_AUTONOMY_MODE", "yolo")
     assert governor.evaluate("scale_up_replicas").outcome is Outcome.SIMULATE
+
+
+def test_match_api_key_returns_index_not_secret():
+    from golden.security.auth import match_api_key
+
+    assert match_api_key("k2", ["k1", "k2"]) == 1
+    assert match_api_key("k3", ["k1", "k2"]) is None
+    assert match_api_key("", ["k1"]) is None

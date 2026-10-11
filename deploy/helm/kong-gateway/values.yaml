@@ -20,8 +20,32 @@ env:
     value: "0.0.0.0:8001"
   - name: KONG_DECLARATIVE_CONFIG
     value: "/kong/kong.yml"
+  # Writable runtime prefix (emptyDir) so the root filesystem can be read-only.
+  - name: KONG_PREFIX
+    value: "/kong_prefix"
 
-resources: {}
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
 nodeSelector: {}
 tolerations: []
 affinity: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL

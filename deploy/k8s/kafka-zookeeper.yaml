@@ -32,6 +32,7 @@ spec:
       labels:
         app: zookeeper
     spec:
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -52,15 +53,24 @@ spec:
               value: "2000"
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop:
                 - ALL
           volumeMounts:
+            - name: config
+              mountPath: /etc/kafka
+            - name: tmp
+              mountPath: /tmp
             - name: zookeeper-data
               mountPath: /var/lib/zookeeper/data
             - name: zookeeper-log
               mountPath: /var/lib/zookeeper/log
       volumes:
+        - name: config
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
         - name: zookeeper-data
           emptyDir: {}
         - name: zookeeper-log
@@ -100,6 +110,7 @@ spec:
       labels:
         app: kafka
     spec:
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -130,12 +141,21 @@ spec:
               value: "1"
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop:
                 - ALL
           volumeMounts:
+            - name: config
+              mountPath: /etc/kafka
+            - name: tmp
+              mountPath: /tmp
             - name: kafka-data
               mountPath: /var/lib/kafka/data
       volumes:
+        - name: config
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
         - name: kafka-data
           emptyDir: {}

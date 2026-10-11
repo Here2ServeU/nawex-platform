@@ -84,8 +84,10 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  cluster_endpoint_public_access  = true
-  cluster_endpoint_private_access = true
+  # Public endpoint only when allow-listed CIDRs are given; otherwise private-only.
+  cluster_endpoint_public_access       = length(var.api_server_authorized_cidrs) > 0
+  cluster_endpoint_public_access_cidrs = var.api_server_authorized_cidrs
+  cluster_endpoint_private_access      = true
 
   enable_irsa                              = true
   enable_cluster_creator_admin_permissions = true

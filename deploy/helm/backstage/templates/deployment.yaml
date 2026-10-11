@@ -23,6 +23,7 @@ spec:
         - name: {{ .Values.image.pullSecrets }}
       {{- end }}
       serviceAccountName: {{ include "backstage.serviceAccountName" . }}
+      automountServiceAccountToken: false
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -67,9 +68,14 @@ spec:
             - name: app-config-volume
               mountPath: /app/app-config.production.yaml
               subPath: app-config.yaml
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
+        - name: tmp
+          emptyDir: {}
         - name: app-config-volume
-          configMap:
-            name: {{ include "backstage.fullname" . }}-config
+          secret:
+            secretName: {{ include "backstage.fullname" . }}-config

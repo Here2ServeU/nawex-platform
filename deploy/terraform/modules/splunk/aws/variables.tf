@@ -42,7 +42,28 @@ variable "hec_token" {
 }
 
 variable "allowed_cidr" {
-  description = "CIDR block allowed to access Splunk Web/HEC"
+  description = "CIDR block allowed to access Splunk Web/HEC (e.g. the VPC or VPN range)."
   type        = string
-  default     = "0.0.0.0/0"
+
+  validation {
+    condition     = can(cidrhost(var.allowed_cidr, 0)) && var.allowed_cidr != "0.0.0.0/0"
+    error_message = "allowed_cidr must be a valid CIDR other than 0.0.0.0/0."
+  }
+}
+
+variable "egress_cidr_blocks" {
+  description = "Destinations allowed for outbound HTTP/HTTPS (NAT/proxy/VPC endpoint ranges). Empty = no egress."
+  type        = list(string)
+  default     = []
+}
+
+variable "associate_public_ip" {
+  description = "Give the instance a public IP (not recommended; prefer a load balancer or VPN)."
+  type        = bool
+  default     = false
+}
+
+variable "root_volume_size" {
+  type    = number
+  default = 100
 }

@@ -63,4 +63,6 @@ module "aks" {
 
   acr_id = module.registry.registry_id
   tags   = local.tags
+
+  api_server_authorized_cidrs = var.api_server_authorized_cidrs
 }

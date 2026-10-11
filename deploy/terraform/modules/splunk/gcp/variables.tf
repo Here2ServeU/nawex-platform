@@ -17,3 +17,9 @@ variable "hec_token" {
   type      = string
   sensitive = true
 }
+
+variable "assign_public_ip" {
+  description = "Attach an ephemeral external IP (not recommended)."
+  type        = bool
+  default     = false
+}

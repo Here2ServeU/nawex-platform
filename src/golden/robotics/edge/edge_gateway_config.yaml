@@ -24,6 +24,14 @@ spec:
       labels:
         app: safety-controller
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: safety-agent
         image: emmanuelnaweji/clinical-safety-agent:latest
@@ -33,10 +41,20 @@ spec:
           limits:
             cpu: "1000m"
             memory: "2Gi"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
         volumeMounts:
         - name: local-persistence
           mountPath: /data/forensics
+        - name: tmp
+          mountPath: /tmp
       volumes:
+      - name: tmp
+        emptyDir: {}
       - name: local-persistence
         hostPath:
           path: /mnt/clinical-data

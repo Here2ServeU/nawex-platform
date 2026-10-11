@@ -26,7 +26,7 @@ from pydantic import BaseModel, Field
 
 from golden import __version__
 from golden.config import get_settings
-from golden.security.auth import key_fingerprint, verify_api_key
+from golden.security.auth import match_api_key
 from golden.security.guardrails import GuardrailViolation
 from golden.security.metrics import AUTH_FAILURES, GUARDRAIL_REJECTIONS, RATE_LIMITED
 from golden.security.ratelimit import RateLimiter
@@ -77,19 +77,20 @@ def create_app(service: str, description: str = "", ready_check: Callable[[], bo
 
         response: Response
         length = request.headers.get("content-length")
+        caller = (
+            match_api_key(request.headers.get("x-api-key"), current.api_keys)
+            if current.auth_enabled
+            else None
+        )
         if length and length.isdigit() and int(length) > current.max_body_bytes:
             response = JSONResponse({"detail": "request body too large"}, status_code=413)
-        elif (
-            path not in PUBLIC_PATHS
-            and current.auth_enabled
-            and not verify_api_key(request.headers.get("x-api-key"), current.api_keys)
-        ):
+        elif path not in PUBLIC_PATHS and current.auth_enabled and caller is None:
             AUTH_FAILURES.labels(service=service).inc()
             response = JSONResponse({"detail": "missing or invalid API key"}, status_code=401)
         else:
-            caller = request.headers.get("x-api-key")
+            # Bucket by key index when authenticated, otherwise by client address.
             bucket = (
-                key_fingerprint(caller) if caller else (request.client.host if request.client else "anon")
+                f"key-{caller}" if caller is not None else (request.client.host if request.client else "anon")
             )
             if path not in PUBLIC_PATHS and not limiter.allow(bucket):
                 RATE_LIMITED.labels(service=service).inc()
@@ -173,15 +174,15 @@ def chaos_router(state: ChaosState) -> APIRouter:
     @router.post("/chaos/latency")
     def inject_latency(body: LatencyChaos) -> dict:
         _enabled()
-        state.latency_ms = body.delay_ms
-        logger.warning("chaos latency injected", extra={"delay_ms": body.delay_ms})
+        state.latency_ms = int(body.delay_ms)
+        logger.warning("chaos latency injected", extra={"delay_ms": state.latency_ms})
         return {"chaos": "latency_injected", "delay_ms": state.latency_ms}
 
     @router.post("/chaos/error")
     def inject_errors(body: ErrorChaos) -> dict:
         _enabled()
-        state.error_rate = body.error_rate
-        logger.warning("chaos errors injected", extra={"error_rate": body.error_rate})
+        state.error_rate = float(body.error_rate)
+        logger.warning("chaos errors injected", extra={"error_rate": state.error_rate})
         return {"chaos": "errors_injected", "error_rate": state.error_rate}
 
     @router.post("/reset")

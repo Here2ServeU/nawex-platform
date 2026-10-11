@@ -48,11 +48,12 @@ jobs:
         run: |
           docker run --rm -v "$PWD:/src" -w /src aquasec/trivy:0.74.0 fs \
             --scanners vuln,misconfig --severity CRITICAL,HIGH --ignore-unfixed --no-progress --helm-kube-version 1.30.0 \
-            --skip-dirs node_modules --format sarif --output trivy.sarif .
+            --skip-dirs node_modules --ignorefile .trivyignore.yaml --format sarif --output trivy.sarif .
       - name: Fail on critical vulnerabilities
         run: |
           docker run --rm -v "$PWD:/src" -w /src aquasec/trivy:0.74.0 fs \
-            --scanners vuln --severity CRITICAL --ignore-unfixed --exit-code 1 --no-progress --skip-dirs node_modules .
+            --scanners vuln --severity CRITICAL --ignore-unfixed --exit-code 1 --no-progress --skip-dirs node_modules \
+            --ignorefile .trivyignore.yaml .
       - uses: github/codeql-action/upload-sarif@v3
         if: always() && hashFiles('trivy.sarif') != ''
         with:

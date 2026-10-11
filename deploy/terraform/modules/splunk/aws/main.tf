@@ -28,11 +28,17 @@ resource "aws_security_group" "splunk_sg" {
     cidr_blocks = [var.allowed_cidr]
   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+  # Egress only for package / Splunk downloads (HTTP/HTTPS) to an explicit
+  # allow-list (NAT, proxy or VPC endpoint ranges). Empty = no egress.
+  dynamic "egress" {
+    for_each = length(var.egress_cidr_blocks) > 0 ? toset([80, 443]) : toset([])
+    content {
+      description = "Outbound TCP ${egress.value}"
+      from_port   = egress.value
+      to_port     = egress.value
+      protocol    = "tcp"
+      cidr_blocks = var.egress_cidr_blocks
+    }
   }
 
   tags = {
@@ -46,7 +52,20 @@ resource "aws_instance" "splunk" {
   subnet_id                   = var.subnet_id
   vpc_security_group_ids      = [aws_security_group.splunk_sg.id]
   key_name                    = var.key_name
-  associate_public_ip_address = true
+  associate_public_ip_address = var.associate_public_ip
+
+  # IMDSv2 only
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+  }
+
+  root_block_device {
+    encrypted   = true
+    volume_type = "gp3"
+    volume_size = var.root_volume_size
+  }
 
   user_data = templatefile("${path.module}/userdata.sh", {
     admin_password = var.admin_password

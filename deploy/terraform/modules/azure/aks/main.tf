@@ -28,6 +28,25 @@ resource "azurerm_kubernetes_cluster" "this" {
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
 
+  # API server exposure: allow-listed public endpoint, or a private cluster.
+  private_cluster_enabled = length(var.api_server_authorized_cidrs) == 0
+
+  dynamic "api_server_access_profile" {
+    for_each = length(var.api_server_authorized_cidrs) > 0 ? [1] : []
+    content {
+      authorized_ip_ranges = var.api_server_authorized_cidrs
+    }
+  }
+
+  # Kubernetes RBAC backed by Entra ID (Azure RBAC for Kubernetes authorization).
+  role_based_access_control_enabled = true
+  local_account_disabled            = true
+
+  azure_active_directory_role_based_access_control {
+    tenant_id          = data.azurerm_client_config.current.tenant_id
+    azure_rbac_enabled = true
+  }
+
   default_node_pool {
     name                = "system"
     vm_size             = var.node_instance_type
@@ -116,4 +135,16 @@ resource "azurerm_role_assignment" "acr_pull" {
   role_definition_name             = "AcrPull"
   principal_id                     = azurerm_kubernetes_cluster.this.kubelet_identity[0].object_id
   skip_service_principal_aad_check = true
+}
+
+# With local accounts disabled and Azure RBAC enabled, cluster access is
+# granted by Azure role assignments. The identity running Terraform (and any
+# extra admin principals) gets cluster-admin so scripts/deploy.sh can run helm.
+data "azurerm_client_config" "current" {}
+
+resource "azurerm_role_assignment" "cluster_admin" {
+  for_each             = toset(concat([data.azurerm_client_config.current.object_id], var.admin_principal_ids))
+  scope                = azurerm_kubernetes_cluster.this.id
+  role_definition_name = "Azure Kubernetes Service RBAC Cluster Admin"
+  principal_id         = each.value
 }

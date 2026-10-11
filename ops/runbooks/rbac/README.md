@@ -12,9 +12,10 @@ This folder contains production-oriented RBAC templates for Kubernetes, ensuring
 
 | Role | Primary Responsibilities | Access Level Summary | Template Example |
 | :--- | :--- | :--- | :--- |
-| **SRE / Platform** | Incident response, infrastructure management, GitOps tool administration. | Full control over Namespace resources, exec access to specific platform pods (e.g., PostgreSQL for debug). | [`k8s_rbac_sre.yaml`](./k8s_rbac_sre.yaml) |
+| **SRE / Platform** | Incident response, infrastructure management, GitOps tool administration. | Read workloads; restart, scale and roll back Deployments/StatefulSets; delete stuck Pods; tune HPAs/PDBs. No Secret access and no `exec`. | [`k8s_rbac_sre.yaml`](./k8s_rbac_sre.yaml) (`sre-operator`) |
+| **SRE break-glass** | Interactive debugging during an incident. | `pods/exec`, `pods/attach`, `pods/portforward` only. Granted through just-in-time membership of the `sre-break-glass` group (ticket required, 4h max). Every use is audited. | [`k8s_rbac_sre.yaml`](./k8s_rbac_sre.yaml) (`sre-break-glass`) |
 | **App Developers** | Deploying/managing their own microservices, viewing logs/metrics. | CRUD (Create, Read, Update, Delete) on Deployment, Service, ConfigMap for *their* Namespace; Read-only for other infrastructure. | (Template not included, but defined) |
-| **Read-only Observers** | Auditing, monitoring, troubleshooting by viewing resources. | Read-only access to most resources (Pods, Events, Logs, Services) across non-sensitive Namespaces. | [`k8s_rbac_readonly.yaml`](./k8s_rbac_readonly.yaml) |
+| **Read-only Observers** | Auditing, monitoring, troubleshooting by viewing resources. | Read-only access to an explicit list of resources (Pods, Events, Logs, Services, workloads, and so on), with no wildcards and no Secrets. | [`k8s_rbac_readonly.yaml`](./k8s_rbac_readonly.yaml) |
 
 ---
 

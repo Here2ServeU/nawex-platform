@@ -81,7 +81,8 @@ async def ingest(body: EHRRecordIn) -> dict:
                 "event": "phi_ingest",
                 "record": record["id"],
                 "subject": _pseudonym(body.patient_id),
-                "resource": body.resource_type,
+                # log the allowlisted constant, never the raw request string (log-injection safe)
+                "resource": next(t for t in FHIR_RESOURCE_TYPES if t == body.resource_type),
                 "actor": "system",
             },
         )

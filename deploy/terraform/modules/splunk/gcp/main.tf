@@ -21,7 +21,22 @@ resource "google_compute_instance" "splunk" {
   network_interface {
     network    = var.network
     subnetwork = var.subnetwork
-    access_config {}
+    # No external IP by default; reach it through IAP / VPN / an internal LB.
+    dynamic "access_config" {
+      for_each = var.assign_public_ip ? [1] : []
+      content {}
+    }
+  }
+
+  shielded_instance_config {
+    enable_secure_boot          = true
+    enable_vtpm                 = true
+    enable_integrity_monitoring = true
+  }
+
+  metadata = {
+    block-project-ssh-keys = "true"
+    enable-oslogin         = "TRUE"
   }
 
   metadata_startup_script = templatefile("${path.module}/startup.sh", {

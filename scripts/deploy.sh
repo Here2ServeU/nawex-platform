@@ -118,7 +118,8 @@ case "$CLOUD" in
     require aws "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" ;;
   azure)
     require terraform "https://developer.hashicorp.com/terraform/install"
-    require az "https://learn.microsoft.com/cli/azure/install-azure-cli" ;;
+    require az "https://learn.microsoft.com/cli/azure/install-azure-cli"
+    require kubelogin "https://azure.github.io/kubelogin/install.html (az aks install-cli); AKS uses Entra ID auth, local accounts are disabled" ;;
   gcp)
     require terraform "https://developer.hashicorp.com/terraform/install"
     require gcloud "https://cloud.google.com/sdk/docs/install (plus: gcloud components install gke-gcloud-auth-plugin)" ;;
@@ -174,6 +175,25 @@ terraform_init() {
   tf init "${init_args[@]}"
 }
 
+# Warn when the API server will be private-only (api_server_authorized_cidrs
+# empty): the kubeconfig/helm steps then need network access to the VPC/VNet.
+api_access_hint() {
+  local cidrs="${TF_VAR_api_server_authorized_cidrs:-}"
+  if [[ -z "$cidrs" && -f "$TF_DIR/terraform.tfvars" ]]; then
+    cidrs="$(sed -n 's/^[[:space:]]*api_server_authorized_cidrs[[:space:]]*=[[:space:]]*//p' "$TF_DIR/terraform.tfvars" | tail -n1)"
+  fi
+  if [[ -z "$cidrs" || "$cidrs" =~ ^\[[[:space:]]*\][[:space:]]*$ ]]; then
+    cat >&2 <<'HINT'
+note: api_server_authorized_cidrs is empty, so the cluster API endpoint is
+      PRIVATE-ONLY. The kubeconfig and helm steps below must run from a host
+      that can reach the VPC/VNet (VPN, bastion, or a self-hosted CI runner
+      inside the network). To use a public endpoint restricted to your egress
+      IPs, set e.g. api_server_authorized_cidrs = ["203.0.113.10/32"] in
+      terraform.tfvars (0.0.0.0/0 is rejected).
+HINT
+  fi
+}
+
 # Read a terraform output, or a placeholder in dry-run mode.
 tf_output() {
   if [[ "$DRY_RUN" == "1" ]]; then
@@ -194,6 +214,10 @@ configure_kubeconfig() {
     local -a cmd
     read -r -a cmd <<<"$cmd_string"
     "${cmd[@]}"
+  fi
+  if [[ "$CLOUD" == "azure" ]]; then
+    # Entra ID-only AKS: use the Azure CLI login for kubectl/helm tokens.
+    run kubelogin convert-kubeconfig -l azurecli
   fi
 }
 
@@ -243,6 +267,7 @@ helm_uninstall() {
 # ------------------------------------------------------------- workflows -----
 cloud_flow() {
   terraform_init
+  api_access_hint
   case "$ACTION" in
     plan)
       log "terraform plan"

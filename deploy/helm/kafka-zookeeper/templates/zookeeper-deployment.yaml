@@ -14,11 +14,47 @@ spec:
       labels:
         app: zookeeper
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: {{ .Values.uid }}
+        runAsGroup: {{ .Values.uid }}
+        fsGroup: {{ .Values.uid }}
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: zookeeper
           image: {{ .Values.zookeeper.image }}
           env:
-            - name: ALLOW_ANONYMOUS_LOGIN
-              value: "yes"
+            - name: ZOOKEEPER_CLIENT_PORT
+              value: {{ .Values.zookeeper.clientPort | quote }}
+            - name: ZOOKEEPER_TICK_TIME
+              value: "2000"
           ports:
             - containerPort: {{ .Values.zookeeper.clientPort }}
+          resources:
+            {{- toYaml .Values.zookeeper.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: config
+              mountPath: /etc/kafka
+            - name: data
+              mountPath: /var/lib/zookeeper/data
+            - name: log
+              mountPath: /var/lib/zookeeper/log
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: config
+          emptyDir: {}
+        - name: data
+          emptyDir: {}
+        - name: log
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}

@@ -2,21 +2,25 @@
 
 from __future__ import annotations
 
-import hashlib
 import hmac
-from collections.abc import Iterable
+from collections.abc import Sequence
 
 
-def verify_api_key(provided: str | None, valid_keys: Iterable[str]) -> bool:
+def match_api_key(provided: str | None, valid_keys: Sequence[str]) -> int | None:
+    """Return the index of the matching key, or ``None``.
+
+    Every key is compared (constant time per key) so timing does not reveal which one matched. The index
+    — never the key or a hash of it — identifies the caller for rate limiting and audit.
+    """
     if not provided:
-        return False
+        return None
     provided_b = provided.encode()
-    matched = False
-    for key in valid_keys:  # always walk every key so timing doesn't reveal which one matched
-        matched |= hmac.compare_digest(provided_b, key.encode())
-    return matched
+    match: int | None = None
+    for index, key in enumerate(valid_keys):
+        if hmac.compare_digest(provided_b, key.encode()) and match is None:
+            match = index
+    return match
 
 
-def key_fingerprint(key: str) -> str:
-    """Short non-reversible identifier for logs, rate-limit buckets and audit entries."""
-    return hashlib.sha256(key.encode()).hexdigest()[:12]
+def verify_api_key(provided: str | None, valid_keys: Sequence[str]) -> bool:
+    return match_api_key(provided, valid_keys) is not None

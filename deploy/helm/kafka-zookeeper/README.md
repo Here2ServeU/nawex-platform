@@ -4,7 +4,7 @@ This directory contains the Helm chart for deploying a production-ready **Apache
 
 ## Directory Structure
 
-* **`Chart.yaml`**: Defines the chart metadata and declares the dependency on the official Bitnami Kafka chart (sub-chart pattern).
+* **`Chart.yaml`**: Defines the chart metadata and Chart metadata (no sub-chart dependencies; uses Confluent Community images with a read-only root filesystem).
 * **`values.yaml`**: The configuration layer. Defines SRE standards for:
     * **Persistence:** Storage class definitions (SSD) for high-throughput I/O.
     * **Retention Policies:** How long logs are kept (e.g., 7 days) before rotation to manage disk costs.

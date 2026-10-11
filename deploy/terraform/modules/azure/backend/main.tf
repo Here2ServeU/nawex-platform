@@ -44,6 +44,16 @@ resource "azurerm_storage_account" "tfstate" {
     versioning_enabled = true # Critical: Allows rollback of corrupted state files
   }
 
+  # Deny by default; allow only the operator / CI egress IPs.
+  public_network_access_enabled   = true
+  allow_nested_items_to_be_public = false
+
+  network_rules {
+    default_action = "Deny"
+    bypass         = ["AzureServices"]
+    ip_rules       = var.allowed_ips
+  }
+
   tags = var.tags
 }
 

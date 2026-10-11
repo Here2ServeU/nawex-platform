@@ -18,4 +18,6 @@ module "splunk" {
   admin_password = var.admin_password
   hec_token      = var.hec_token
   allowed_cidr   = var.allowed_cidr
+
+  egress_cidr_blocks = var.egress_cidr_blocks
 }

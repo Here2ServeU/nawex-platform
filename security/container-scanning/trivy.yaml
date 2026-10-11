@@ -6,7 +6,10 @@ severity:
   - HIGH
   - CRITICAL
 timeout: 10m0s
-ignorefile: security/container-scanning/trivy-ignore.txt
+# Repo-wide accepted exceptions (YAML format, with justifications). Image CVE
+# suppressions live in security/container-scanning/trivy-ignore.txt and are
+# passed explicitly by scan-images.sh.
+ignorefile: .trivyignore.yaml
 
 scan:
   scanners:

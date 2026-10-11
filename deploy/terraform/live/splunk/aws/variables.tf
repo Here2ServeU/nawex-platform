@@ -17,6 +17,12 @@ variable "hec_token" {
   sensitive = true
 }
 variable "allowed_cidr" {
-  type    = string
-  default = "0.0.0.0/0"
+  description = "CIDR allowed to reach Splunk Web/HEC (VPC or VPN range; 0.0.0.0/0 is rejected)."
+  type        = string
+}
+
+variable "egress_cidr_blocks" {
+  description = "Allowed outbound HTTP/HTTPS destinations (NAT/proxy ranges). Empty = no egress."
+  type        = list(string)
+  default     = []
 }

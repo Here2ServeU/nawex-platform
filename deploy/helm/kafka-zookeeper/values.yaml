@@ -1,12 +1,32 @@
+# Confluent Community images (run as the unprivileged `appuser`, uid 1000).
+# Writable paths (generated config, data, /tmp) are emptyDir volumes so the
+# root filesystem stays read-only. Data is ephemeral: dev/test only; use a
+# managed Kafka (MSK / Event Hubs / Confluent Cloud) or Strimzi in production.
 zookeeper:
-  image: bitnami/zookeeper:3.9
+  image: confluentinc/cp-zookeeper:7.7.1
   replicaCount: 1
   clientPort: 2181
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
 
 kafka:
-  image: bitnami/kafka:3.7
+  image: confluentinc/cp-kafka:7.7.1
   replicaCount: 1
   brokerPort: 9092
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+uid: 1000
 
 service:
   type: ClusterIP

@@ -24,3 +24,9 @@ variable "name_prefix" {
   type        = string
   default     = "golden"
 }
+
+variable "allowed_ips" {
+  description = "Public IPs / CIDRs (operator workstation, CI runner egress) allowed to reach the state storage account. Everything else is denied."
+  type        = list(string)
+  default     = []
+}

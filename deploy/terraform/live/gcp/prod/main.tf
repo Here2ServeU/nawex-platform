@@ -54,5 +54,7 @@ module "gke" {
 
   labels = local.labels
 
+  api_server_authorized_cidrs = var.api_server_authorized_cidrs
+
   depends_on = [google_project_service.apis]
 }

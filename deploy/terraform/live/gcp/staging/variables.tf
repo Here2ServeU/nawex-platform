@@ -62,3 +62,14 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "api_server_authorized_cidrs" {
+  description = "CIDRs allowed to reach the Kubernetes API server (VPN / office egress). Empty = private-only API endpoint; deploy from inside the network."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = alltrue([for c in var.api_server_authorized_cidrs : can(cidrhost(c, 0)) && c != "0.0.0.0/0" && c != "::/0"])
+    error_message = "api_server_authorized_cidrs must be valid CIDRs and must not contain 0.0.0.0/0 or ::/0."
+  }
+}

@@ -1,5 +1,6 @@
 prometheus:
   image: prom/prometheus:v2.55.0
+  uid: 65534
   retention: "24h"
   scrapeInterval: "15s"
   resources: {}
@@ -8,8 +9,12 @@ prometheus:
 
 grafana:
   image: grafana/grafana:11.0.0
+  uid: 472
   adminUser: admin
-  adminPassword: admin123
+  # Leave empty to generate a random password (kept across upgrades), or point
+  # existingSecret at a Secret with key `admin-password`.
+  adminPassword: ""
+  existingSecret: ""
   resources: {}
   nodeSelector: {}
   tolerations: []

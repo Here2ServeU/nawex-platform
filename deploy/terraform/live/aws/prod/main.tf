@@ -38,4 +38,6 @@ module "eks" {
   workload_service_account = "golden"
 
   tags = local.tags
+
+  api_server_authorized_cidrs = var.api_server_authorized_cidrs
 }

@@ -1,23 +1,48 @@
+# SRE day-to-day operator role: read everything an observer can, plus the
+# operational actions used in runbooks (restart/scale/rollback workloads,
+# delete stuck pods, edit HPAs/PDBs). Resources are enumerated explicitly.
+# No Secret access and NO pods/exec here - interactive access to containers is
+# only available through the break-glass role below.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: sre-operator
 rules:
-  - apiGroups:
-      [
-        "",
-        "apps",
-        "batch",
-        "autoscaling",
-        "networking.k8s.io",
-        "policy",
-        "storage.k8s.io"
-      ]
-    resources: ["*"]
-    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   - apiGroups: [""]
-    resources: ["pods/exec", "pods/log"]
-    verbs: ["get", "create"]
+    resources:
+      - pods
+      - pods/log
+      - services
+      - endpoints
+      - configmaps
+      - events
+      - namespaces
+      - nodes
+      - persistentvolumeclaims
+      - resourcequotas
+      - limitranges
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["delete"]          # restart a stuck pod
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
+    verbs: ["get", "list", "watch", "patch"]   # rollout restart / undo
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale", "statefulsets/scale"]
+    verbs: ["get", "patch", "update"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch", "create", "patch", "delete"]
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses", "networkpolicies"]
+    verbs: ["get", "list", "watch"]
   - apiGroups: ["metrics.k8s.io"]
     resources: ["pods", "nodes"]
     verbs: ["get", "list", "watch"]
@@ -33,4 +58,39 @@ roleRef:
 subjects:
   - kind: Group
     name: sre-group
+    apiGroup: rbac.authorization.k8s.io
+---
+# BREAK-GLASS: interactive container access (kubectl exec / attach /
+# port-forward) for incident response only.
+#   * Bound to the `sre-break-glass` group, which must be EMPTY by default.
+#     Membership is granted just-in-time through the identity provider (PIM /
+#     Okta workflow) with a ticket number and an expiry (max 4h).
+#   * Every use is audited (API server audit policy logs pods/exec at
+#     RequestResponse level) and reviewed in the post-incident review.
+#   * No Secret access, even in break-glass.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sre-break-glass
+  annotations:
+    golden.io/break-glass: "true"
+    golden.io/approval: "just-in-time group membership, max 4h, ticket required"
+rules:
+  - apiGroups: [""]
+    resources: ["pods/exec", "pods/attach", "pods/portforward"]
+    verbs: ["get", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sre-break-glass-binding
+  annotations:
+    golden.io/break-glass: "true"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sre-break-glass
+subjects:
+  - kind: Group
+    name: sre-break-glass
     apiGroup: rbac.authorization.k8s.io
