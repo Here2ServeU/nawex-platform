@@ -105,11 +105,11 @@ def make_patient_vitals_stream(
                 anomaly_type = anomaly_scenario
 
             # Composite clinical risk score (weighted vitals deviation)
-            hr_risk = min(abs(hr_base - 72) / 60.0, 1.0)
-            spo2_risk = max(0, (97 - spo2_base) / 15.0)
-            bp_risk = min(abs(sbp_base - 120) / 80.0, 1.0)
-            acuity_weight = acuity / 3.0
-            clinical_risk = min(
+            hr_risk = float(min(abs(hr_base - 72) / 60.0, 1.0))
+            spo2_risk = float(max(0, (97 - spo2_base) / 15.0))
+            bp_risk = float(min(abs(sbp_base - 120) / 80.0, 1.0))
+            acuity_weight = float(acuity / 3.0)
+            clinical_risk: float = min(
                 0.35 * hr_risk + 0.35 * spo2_risk + 0.20 * bp_risk + 0.10 * acuity_weight, 1.0
             )
 
