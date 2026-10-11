@@ -1,0 +1,64 @@
+name: infra
+
+on:
+  push:
+    branches: [main]
+    paths: ["deploy/**", "security/**", "scripts/ci/**", "scripts/deploy.sh", ".github/workflows/infra.yml"]
+  pull_request:
+    paths: ["deploy/**", "security/**", "scripts/ci/**", "scripts/deploy.sh", ".github/workflows/infra.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: infra-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TF_IN_AUTOMATION: "1"
+  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform-plugin-cache
+  KUBECONFORM_VERSION: "0.6.7"
+
+jobs:
+  kubernetes:
+    name: helm + manifests (kubeconform)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.3
+      - name: Install kubeconform
+        run: |
+          curl -fsSL "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin kubeconform
+          kubeconform -v
+      - uses: open-policy-agent/setup-opa@v2
+        with:
+          version: 0.70.0
+      - name: Validate charts, overlays, manifests and OPA policies
+        run: SKIP_TERRAFORM_VALIDATE=1 scripts/ci/validate-infra.sh
+
+  terraform:
+    name: terraform fmt + validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.9"
+          terraform_wrapper: false
+      - name: Cache provider plugins
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: tf-plugins-${{ runner.os }}-${{ hashFiles('deploy/terraform/**/*.tf') }}
+          restore-keys: tf-plugins-${{ runner.os }}-
+      - run: mkdir -p "$TF_PLUGIN_CACHE_DIR"
+      - name: fmt
+        run: terraform fmt -check -recursive -diff deploy/terraform
+      - name: validate every module and environment
+        run: SKIP_KUBERNETES=1 scripts/ci/validate-infra.sh

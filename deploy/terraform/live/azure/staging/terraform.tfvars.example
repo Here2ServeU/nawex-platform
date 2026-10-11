@@ -1,0 +1,17 @@
+# Copy to terraform.tfvars and adjust. Every live/<cloud>/<env> accepts the same variables.
+project            = "golden"
+environment        = "staging"
+region             = "eastus2"
+kubernetes_version = "1.30"
+node_count         = 2
+node_instance_type = "Standard_D4s_v5"
+
+# GPU / AI-infrastructure node pool for gpu-optimizer
+gpu_node_pool_enabled = false
+gpu_instance_type     = "Standard_NC4as_T4_v3"
+gpu_node_count        = 1
+
+tags = {
+  owner       = "platform-engineering"
+  cost_center = "REPLACE_ME"
+}

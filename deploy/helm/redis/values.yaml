@@ -1,0 +1,61 @@
+# Default values for ai-worker-isolated (Celery workers on a Redis broker).
+replicaCount: 2
+
+image:
+  repository: ghcr.io/here2serveu/golden-platform
+  pullPolicy: IfNotPresent
+  # Defaults to .Chart.AppVersion when empty.
+  tag: ""
+
+worker:
+  namespace: ai-worker-isolated
+  createNamespace: true
+  # Container command; empty uses the image default.
+  command: []
+  env:
+    redis_url_secret_name: "celery-redis-config"
+
+# Namespace whose pods may reach the workers.
+app:
+  namespace: golden
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# Node Affinity for physical isolation
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: workload-type
+              operator: In
+              values:
+                - ai-worker
+
+# Tolerations if worker nodes are tainted
+tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "ai-worker"
+    effect: "NoSchedule"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi

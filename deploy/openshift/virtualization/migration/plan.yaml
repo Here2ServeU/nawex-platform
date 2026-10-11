@@ -1,0 +1,32 @@
+# Migration plan for one wave. Warm migration pre-copies disks while the source
+# VMs keep running; only the final delta is copied at cutover.
+apiVersion: forklift.konveyor.io/v1beta1
+kind: Plan
+metadata:
+  name: wave-01
+  namespace: openshift-mtv
+  annotations:
+    golden.io/change-ticket: "CHG-REPLACE_ME"
+spec:
+  description: "Wave 01 - low-risk stateless app tier"
+  warm: true
+  targetNamespace: golden-vms
+  preserveStaticIPs: true
+  provider:
+    source:
+      name: vsphere-dc1
+      namespace: openshift-mtv
+    destination:
+      name: host
+      namespace: openshift-mtv
+  map:
+    network:
+      name: wave-01-network-map
+      namespace: openshift-mtv
+    storage:
+      name: wave-01-storage-map
+      namespace: openshift-mtv
+  vms:
+    - name: app-web-01
+    - name: app-web-02
+    - name: app-api-01

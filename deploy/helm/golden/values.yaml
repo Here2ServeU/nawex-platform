@@ -1,0 +1,284 @@
+# -----------------------------------------------------------------------------
+# Golden platform chart - default values
+#
+# Every Python service runs from ONE image and is selected at runtime with
+# `golden serve <name>`. Each service exposes GET /health, GET /ready and
+# GET /metrics (Prometheus text format) on its port.
+# -----------------------------------------------------------------------------
+
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  # Final image = <registry>/<name>:<tag>, unless `repository` is set, which
+  # then replaces <registry>/<name> entirely.
+  registry: ghcr.io/here2serveu
+  name: golden-platform
+  repository: ""
+  # Defaults to .Chart.AppVersion when empty.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+serviceAccount:
+  create: true
+  # Defaults to the chart fullname when empty.
+  name: ""
+  annotations: {}
+  automountServiceAccountToken: false
+
+# Extra labels applied to every rendered object.
+commonLabels: {}
+
+# Extra labels / annotations added to every pod (e.g. Azure workload identity:
+# azure.workload.identity/use: "true").
+podLabels: {}
+podAnnotations: {}
+
+# Global GPU switch: when true, every service that declares a `gpu` block
+# (gpu-optimizer) requests GPUs and is scheduled on GPU nodes.
+gpu:
+  enabled: false
+
+# StorageClass for per-service persistence (services.<name>.persistence).
+# Empty uses the cluster default.
+storageClass: ""
+
+# -----------------------------------------------------------------------------
+# Platform safety controls (rendered into a ConfigMap and injected as env)
+# -----------------------------------------------------------------------------
+platform:
+  # dry_run | supervised | autonomous
+  autonomyMode: dry_run
+  # When true every service refuses to take autonomous action.
+  killSwitch: false
+  logLevel: info
+  # Extra non-secret key/values added to the shared ConfigMap.
+  extraConfig: {}
+
+# API keys are read from a Secret and exposed to every service as
+# GOLDEN_API_KEYS. Prefer an externally managed Secret (External Secrets,
+# Sealed Secrets, Vault). `create: true` is intended for dev clusters only.
+apiKeys:
+  # Name of an existing Secret. Defaults to "<fullname>-api-keys" when empty.
+  existingSecret: ""
+  secretKey: GOLDEN_API_KEYS
+  # Pods start even if the Secret is absent (services then reject
+  # authenticated calls). Set to false in production to fail fast.
+  optional: true
+  create: false
+  # Comma-separated keys, only used when create=true.
+  value: ""
+
+# -----------------------------------------------------------------------------
+# Pod / container hardening (shared by every service)
+# -----------------------------------------------------------------------------
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 10001
+  capabilities:
+    drop:
+      - ALL
+
+# Size limit for the writable /tmp emptyDir mounted into every container.
+tmpVolume:
+  sizeLimit: 256Mi
+
+# -----------------------------------------------------------------------------
+# Defaults applied to every entry in `services` (per-service keys override).
+# -----------------------------------------------------------------------------
+defaults:
+  replicaCount: 2
+  service:
+    type: ClusterIP
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  env: {}
+  podAnnotations: {}
+  podLabels: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  topologySpreadConstraints: []
+  priorityClassName: ""
+  terminationGracePeriodSeconds: 30
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  startupProbe:
+    httpGet:
+      path: /health
+      port: http
+    periodSeconds: 5
+    failureThreshold: 30
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 0
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  gpu:
+    enabled: false
+  persistence:
+    enabled: false
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    mountPath: /data
+
+# -----------------------------------------------------------------------------
+# Services. The map key is the service name passed to `golden serve <name>`.
+# -----------------------------------------------------------------------------
+services:
+  api:
+    enabled: true
+    port: 8000
+  transaction-engine:
+    enabled: true
+    port: 8090
+    podLabels:
+      domain: fintech
+  fraud-detector:
+    enabled: true
+    port: 8091
+    podLabels:
+      domain: fintech
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  payment-gateway:
+    enabled: true
+    port: 8092
+    podLabels:
+      domain: fintech
+  ehr-ingestion:
+    enabled: true
+    port: 8093
+    podLabels:
+      domain: healthcare
+  clinical-decision:
+    enabled: true
+    port: 8094
+    podLabels:
+      domain: healthcare
+  patient-gateway:
+    enabled: true
+    port: 8095
+    podLabels:
+      domain: healthcare
+  migration-planner:
+    enabled: true
+    port: 8097
+    replicaCount: 1
+    podLabels:
+      domain: migration
+    podDisruptionBudget:
+      enabled: false
+  gpu-optimizer:
+    enabled: true
+    port: 8096
+    replicaCount: 1
+    podLabels:
+      domain: ai-infrastructure
+    podDisruptionBudget:
+      enabled: false
+    # When gpu.enabled=true the container requests `count` nvidia.com/gpu and
+    # is scheduled onto GPU nodes via the nodeSelector/tolerations below.
+    gpu:
+      enabled: false
+      count: 1
+      resourceName: nvidia.com/gpu
+      runtimeClassName: ""
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+
+# -----------------------------------------------------------------------------
+# Networking
+# -----------------------------------------------------------------------------
+networkPolicy:
+  enabled: true
+  # Namespaces (by name) allowed to reach every service, e.g. the ingress
+  # controller and the Prometheus namespace. Pods of this release can always
+  # talk to each other.
+  allowedNamespaces:
+    - ingress-nginx
+    - monitoring
+  # Optional egress restriction. When false, egress is unrestricted.
+  restrictEgress: false
+  # Extra egress rules (NetworkPolicyEgressRule list) used when restrictEgress.
+  extraEgress: []
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: golden.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
+  tls: []
+
+# -----------------------------------------------------------------------------
+# Observability
+# -----------------------------------------------------------------------------
+metrics:
+  # Adds prometheus.io/* scrape annotations to every pod.
+  podAnnotations: true
+  path: /metrics
+  # Renders a Prometheus Operator ServiceMonitor (requires the CRD).
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+    scrapeTimeout: 10s
+    labels: {}
+
+# OpenShift Routes (only on OpenShift; hostnames are auto-generated).
+route:
+  enabled: false
+  services:
+    - api
+  annotations: {}
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

@@ -1,0 +1,14 @@
+Golden platform {{ .Chart.AppVersion }} deployed as release "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}".
+
+Autonomy mode : {{ .Values.platform.autonomyMode }}
+Kill switch   : {{ .Values.platform.killSwitch }}
+
+Services:
+{{- range $name, $raw := .Values.services }}
+{{- $svc := include "golden.serviceConfig" (dict "root" $ "name" $name "cfg" $raw) | fromYaml }}
+{{- if ne (toString $svc.enabled) "false" }}
+  - {{ $name }}: http://{{ include "golden.serviceName" (dict "root" $ "name" $name) }}.{{ $.Release.Namespace }}.svc:{{ $svc.port }}  (/health, /ready, /metrics)
+{{- end }}
+{{- end }}
+
+API keys are read from Secret "{{ include "golden.apiKeysSecretName" . }}" (key {{ .Values.apiKeys.secretKey }}).

@@ -1,0 +1,27 @@
+# Maps vSphere port groups to OpenShift networks.
+apiVersion: forklift.konveyor.io/v1beta1
+kind: NetworkMap
+metadata:
+  name: wave-01-network-map
+  namespace: openshift-mtv
+spec:
+  provider:
+    source:
+      name: vsphere-dc1
+      namespace: openshift-mtv
+    destination:
+      name: host
+      namespace: openshift-mtv
+  map:
+    # App tier -> default pod network (masquerade).
+    - source:
+        name: VM Network
+      destination:
+        type: pod
+    # Database VLAN -> Multus bridge network (NetworkAttachmentDefinition).
+    - source:
+        name: dvPortGroup-DB-VLAN120
+      destination:
+        type: multus
+        name: vlan120-bridge
+        namespace: golden-vms

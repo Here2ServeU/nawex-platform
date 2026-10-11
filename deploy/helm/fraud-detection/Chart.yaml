@@ -1,0 +1,14 @@
+apiVersion: v2
+name: fraud-detection
+description: >-
+  DEPRECATED - use the `golden` chart (deploy/helm/golden) instead. Standalone
+  chart for the Fraud Detection ML inference service (`golden serve fraud-detector`, port 8091).
+type: application
+version: 0.2.0
+appVersion: "0.1.0"
+deprecated: true
+keywords:
+  - fintech
+  - fraud-detection
+  - ml-inference
+  - pci-dss

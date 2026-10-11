@@ -1,0 +1,94 @@
+# Golden GPU / AI-infrastructure alerts (golden.gpu + optional NVIDIA DCGM exporter).
+# See docs/verticals/gpu.md.
+groups:
+  - name: golden_gpu_recordings
+    interval: 30s
+    rules:
+      # Unify Golden-emitted telemetry and DCGM into one 0..1 utilization series.
+      - record: gpu:utilization:ratio
+        expr: max by (gpu, node) (golden_gpu_utilization_ratio)
+      - record: gpu:dcgm_utilization:ratio
+        expr: max by (gpu, Hostname) (DCGM_FI_DEV_GPU_UTIL) / 100
+
+  - name: golden_gpu
+    interval: 30s
+    rules:
+      - alert: GPUOptimizerDown
+        expr: up{job="gpu", instance=~"gpu-optimizer:.*"} == 0
+        for: 1m
+        labels:
+          severity: warning
+          vertical: gpu
+        annotations:
+          summary: "gpu-optimizer is down"
+          description: "GPU fleet analysis and savings recommendations are unavailable."
+
+      - alert: GPUThermalHigh
+        expr: max by (gpu, node) (golden_gpu_temperature_celsius) > 85
+        for: 5m
+        labels:
+          severity: critical
+          vertical: gpu
+        annotations:
+          summary: "GPU {{ $labels.gpu }} on {{ $labels.node }} above 85°C"
+          description: "Temperature is {{ $value }}°C for 5m — risk of thermal throttling / hardware damage. Check cooling and consider power capping or draining the node."
+
+      - alert: GPUThermalHighDCGM
+        expr: max by (gpu, Hostname) (DCGM_FI_DEV_GPU_TEMP) > 85
+        for: 5m
+        labels:
+          severity: critical
+          vertical: gpu
+        annotations:
+          summary: "GPU {{ $labels.gpu }} on {{ $labels.Hostname }} above 85°C (DCGM)"
+          description: "DCGM reports {{ $value }}°C for 5m."
+
+      - alert: GPUIdleFleetHigh
+        expr: max(golden_gpu_idle_gpus) >= 4
+        for: 30m
+        labels:
+          severity: warning
+          vertical: gpu
+        annotations:
+          summary: "{{ $value }} GPUs idle for 30m+"
+          description: "Idle GPUs are reclaimable capacity. Review gpu-optimizer consolidation / idle-reclamation recommendations."
+
+      - alert: GPUUnderutilized
+        expr: gpu:utilization:ratio < 0.20
+        for: 1h
+        labels:
+          severity: info
+          vertical: gpu
+        annotations:
+          summary: "GPU {{ $labels.gpu }} on {{ $labels.node }} below 20% utilization for 1h"
+          description: "Utilization is {{ $value | humanizePercentage }}. Candidate for rightsizing, MIG partitioning or bin-packing."
+
+      - alert: GPUUnderutilizedDCGM
+        expr: gpu:dcgm_utilization:ratio < 0.20
+        for: 1h
+        labels:
+          severity: info
+          vertical: gpu
+        annotations:
+          summary: "GPU {{ $labels.gpu }} on {{ $labels.Hostname }} below 20% utilization for 1h (DCGM)"
+          description: "Utilization is {{ $value | humanizePercentage }}."
+
+      - alert: GPUXidErrors
+        expr: max by (gpu, Hostname) (DCGM_FI_DEV_XID_ERRORS) > 0
+        for: 0m
+        labels:
+          severity: critical
+          vertical: gpu
+        annotations:
+          summary: "XID error on GPU {{ $labels.gpu }} ({{ $labels.Hostname }})"
+          description: "Last XID error code {{ $value }}. XIDs 48/63/64/79/94/95 usually mean ECC / fallen-off-bus faults — cordon and drain the node."
+
+      - alert: GPUSavingsOpportunityLarge
+        expr: max(golden_gpu_projected_monthly_savings_usd) > 10000
+        for: 6h
+        labels:
+          severity: info
+          vertical: gpu
+        annotations:
+          summary: "Projected GPU savings above $10k/month"
+          description: "gpu-optimizer projects {{ $value | humanize }} USD/month in savings that have not been actioned."

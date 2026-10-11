@@ -1,0 +1,141 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-pdb
+  namespace: golden-platform
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api
+  unhealthyPodEvictionPolicy: IfHealthyBudget
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: golden-workload-pdb
+  namespace: golden-platform
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: golden-workload
+  unhealthyPodEvictionPolicy: IfHealthyBudget
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: golden-client-portal-pdb
+  namespace: golden-platform
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: golden-client-portal
+  unhealthyPodEvictionPolicy: IfHealthyBudget
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: kafka-pdb
+  namespace: golden-platform
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: kafka
+  unhealthyPodEvictionPolicy: IfHealthyBudget
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: zookeeper-pdb
+  namespace: golden-platform
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: zookeeper
+  unhealthyPodEvictionPolicy: IfHealthyBudget
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ehr-ingestion-pdb
+  namespace: golden-healthcare
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: ehr-ingestion
+  unhealthyPodEvictionPolicy: IfHealthyBudget
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: clinical-decision-pdb
+  namespace: golden-healthcare
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: clinical-decision
+  unhealthyPodEvictionPolicy: IfHealthyBudget
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: patient-gateway-pdb
+  namespace: golden-healthcare
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: patient-gateway
+  unhealthyPodEvictionPolicy: IfHealthyBudget
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: fraud-detector-pdb
+  namespace: golden-fintech
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: fraud-detector
+  unhealthyPodEvictionPolicy: IfHealthyBudget
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: payment-gateway-pdb
+  namespace: golden-fintech
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: payment-gateway
+  unhealthyPodEvictionPolicy: IfHealthyBudget
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: transaction-engine-pdb
+  namespace: golden-fintech
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: transaction-engine
+  unhealthyPodEvictionPolicy: IfHealthyBudget

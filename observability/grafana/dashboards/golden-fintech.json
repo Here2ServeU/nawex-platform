@@ -1,0 +1,220 @@
+{
+  "uid": "golden-fintech",
+  "title": "Golden Platform — Fintech",
+  "tags": [
+    "golden",
+    "fintech"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Transactions by Status (tx/s)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "sum by(status) (rate(golden_transactions_total[5m]))",
+          "legendFormat": "{{ status }}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Fraud Score Distribution",
+      "type": "histogram",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "sum by(le) (rate(golden_fraud_score_bucket[5m]))",
+          "legendFormat": "{{ le }}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Fraud Detection Rate (%)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 6,
+        "h": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "100 * sum(rate(golden_transactions_total{status=~\"flagged|blocked|declined\"}[5m])) / sum(rate(golden_transactions_total[5m]))",
+          "legendFormat": "Fraud Rate %"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Payment Gateway Latency p99 (ms)",
+      "type": "stat",
+      "gridPos": {
+        "x": 6,
+        "y": 8,
+        "w": 6,
+        "h": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 2000
+              },
+              {
+                "color": "red",
+                "value": 5000
+              }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "1000 * histogram_quantile(0.99, sum by(le) (rate(golden_http_request_duration_seconds_bucket{service=\"payment-gateway\"}[5m])))",
+          "legendFormat": "p99 ms"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Fraud Score p95",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "histogram_quantile(0.95, sum by(le) (rate(golden_fraud_score_bucket[5m])))",
+          "legendFormat": "p95 fraud score"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Settlement Service Status",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "sum(rate(golden_http_requests_total{service=\"payment-gateway\", status=~\"5..\"}[5m]))",
+          "legendFormat": "Payment Gateway Errors/s"
+        },
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "sum(rate(golden_http_requests_total{service=\"transaction-engine\", status=~\"5..\"}[5m]))",
+          "legendFormat": "Transaction Engine Errors/s"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Fintech Logs",
+      "type": "logs",
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "loki-golden"
+          },
+          "expr": "{vertical=\"fintech\"}",
+          "legendFormat": ""
+        }
+      ]
+    }
+  ]
+}

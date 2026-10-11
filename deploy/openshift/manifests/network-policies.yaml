@@ -1,0 +1,224 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: golden-platform-netpol
+  namespace: golden-platform
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # OpenShift router and cluster monitoring (Prometheus scrapes /metrics)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              policy-group.network.openshift.io/ingress: ""
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-monitoring
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-user-workload-monitoring
+      ports:
+        - protocol: TCP
+          port: 8000
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 3001
+        - protocol: TCP
+          port: 8096
+        - protocol: TCP
+          port: 8097
+    # Intra-namespace traffic
+    - from:
+        - podSelector: {}
+  egress:
+    # DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-dns
+      ports:
+        - protocol: UDP
+          port: 5353
+        - protocol: TCP
+          port: 5353
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Kafka / platform services in golden-platform
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: golden-platform
+    # Intra-namespace traffic
+    - to:
+        - podSelector: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: golden-healthcare-netpol
+  namespace: golden-healthcare
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # OpenShift router and cluster monitoring (Prometheus scrapes /metrics)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              policy-group.network.openshift.io/ingress: ""
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-monitoring
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-user-workload-monitoring
+      ports:
+        - protocol: TCP
+          port: 8093
+        - protocol: TCP
+          port: 8094
+        - protocol: TCP
+          port: 8095
+    # Intra-namespace traffic
+    - from:
+        - podSelector: {}
+    # Event processing / API calls from golden-platform
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: golden-platform
+  egress:
+    # DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-dns
+      ports:
+        - protocol: UDP
+          port: 5353
+        - protocol: TCP
+          port: 5353
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Kafka / platform services in golden-platform
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: golden-platform
+    # Intra-namespace traffic
+    - to:
+        - podSelector: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: golden-fintech-netpol
+  namespace: golden-fintech
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # OpenShift router and cluster monitoring (Prometheus scrapes /metrics)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              policy-group.network.openshift.io/ingress: ""
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-monitoring
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-user-workload-monitoring
+      ports:
+        - protocol: TCP
+          port: 8090
+        - protocol: TCP
+          port: 8091
+        - protocol: TCP
+          port: 8092
+    # Intra-namespace traffic
+    - from:
+        - podSelector: {}
+    # Event processing / API calls from golden-platform
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: golden-platform
+  egress:
+    # DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-dns
+      ports:
+        - protocol: UDP
+          port: 5353
+        - protocol: TCP
+          port: 5353
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Kafka / platform services in golden-platform
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: golden-platform
+    # Intra-namespace traffic
+    - to:
+        - podSelector: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: golden-robotics-netpol
+  namespace: golden-robotics
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # gRPC communication
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 50051
+    # Intra-namespace
+    - from:
+        - podSelector: {}
+  egress:
+    # DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-dns
+      ports:
+        - protocol: UDP
+          port: 5353
+        - protocol: UDP
+          port: 53
+    # To other namespaces
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: golden-platform
+    # Intra-namespace
+    - to:
+        - podSelector: {}

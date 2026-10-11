@@ -1,0 +1,24 @@
+{{- range $name, $raw := .Values.services }}
+{{- $ctx := dict "root" $ "name" $name "cfg" $raw }}
+{{- $svc := include "golden.serviceConfig" $ctx | fromYaml }}
+{{- if and (ne (toString $svc.enabled) "false") $svc.persistence.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "golden.serviceName" $ctx }}-data
+  labels:
+    {{- include "golden.serviceLabels" $ctx | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes:
+    - {{ $svc.persistence.accessMode }}
+  {{- with $.Values.storageClass }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $svc.persistence.size }}
+{{- end }}
+{{- end }}

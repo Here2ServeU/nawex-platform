@@ -1,0 +1,90 @@
+# DEPRECATED: prefer the `golden` chart (deploy/helm/golden), which deploys
+# patient-gateway together with every other platform service.
+replicaCount: 3
+
+# Service name passed to `golden serve <name>`.
+serviceName: patient-gateway
+
+image:
+  repository: ghcr.io/here2serveu/golden-platform
+  pullPolicy: IfNotPresent
+  # Defaults to .Chart.AppVersion when empty.
+  tag: ""
+
+service:
+  type: ClusterIP
+  port: 8095
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1000m"
+    memory: "2Gi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 15
+  targetCPUUtilizationPercentage: 60
+  targetMemoryUtilizationPercentage: 70
+
+platform:
+  autonomyMode: dry_run
+  killSwitch: false
+  # Secret holding GOLDEN_API_KEYS.
+  apiKeysSecret: golden-api-keys
+
+# Extra non-secret configuration rendered as UPPER_SNAKE_CASE env vars.
+config: 
+  fhirVersion: "R4"
+  supportedFormats: "FHIR-R4,HL7v2,CDA-R2,C-CDA"
+  consentVerificationEnabled: "true"
+  kafkaBroker: "kafka:9092"
+  redisUrl: "redis://healthcare-redis:6379"
+
+security:
+  networkPolicy:
+    enabled: true
+    allowedNamespaces:
+      - healthcare
+      - monitoring
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+topologySpreadConstraints:
+  enabled: true
+  maxSkew: 1
+  topologyKey: topology.kubernetes.io/zone

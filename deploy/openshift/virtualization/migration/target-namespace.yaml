@@ -1,0 +1,7 @@
+# Namespace that receives the migrated VirtualMachines.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: golden-vms
+  labels:
+    app.kubernetes.io/part-of: golden

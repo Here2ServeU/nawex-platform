@@ -2,59 +2,150 @@ name: ci
 
 on:
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
 jobs:
-  policy:
+  python:
+    name: python ${{ matrix.python }}
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
-          fetch-depth: 0
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
 
-      - name: Canonical structure policy
-        run: bash scripts/check-canonical-structure.sh
-
-      - name: Policy gate
-        run: bash scripts/policy-gate.sh
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform fmt
-        shell: bash
+      - name: Install (CPU-only torch keeps CI fast; GPU wheels are used on GPU runners)
         run: |
-          set -euo pipefail
-          [[ -d infra/terraform ]] && terraform fmt -check -recursive infra/terraform
-          [[ -d terraform ]] && terraform fmt -check -recursive terraform
-  security-scan:
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[dev,ml,robotics]'
+
+      - name: Lint
+        run: |
+          ruff check src tests --output-format=github
+          ruff format --check src tests
+
+      - name: Type check
+        run: mypy
+
+      - name: Generated gRPC code is up to date
+        run: |
+          mkdir -p /tmp/gen
+          python -m grpc_tools.protoc -Iproto --python_out=/tmp/gen --grpc_python_out=/tmp/gen proto/surgical_telemetry.proto
+          diff -q <(grep -v 'Protobuf Python Version' /tmp/gen/surgical_telemetry_pb2.py) \
+                  <(grep -v 'Protobuf Python Version' src/golden/robotics/grpc/generated/surgical_telemetry_pb2.py) \
+            || echo "::warning::gRPC stubs differ from proto/ — run 'make proto'"
+
+      - name: Test
+        run: pytest --cov --cov-report=term --cov-report=xml --junitxml=junit.xml
+
+      - name: CLI smoke test
+        run: |
+          golden --version
+          golden config show > /dev/null
+          golden roi --vertical migration
+          golden migrate manifests --output /tmp/waves
+          golden gpu analyze --scenario hot > /dev/null
+          golden demo client --vertical all --client "CI" --fast --output /tmp/demo > /dev/null
+          golden demo engine --epochs 1 --output-dir /tmp/engine > /dev/null
+
+      - uses: actions/upload-artifact@v4
+        if: always() && matrix.python == '3.12'
+        with:
+          name: python-test-results
+          path: |
+            coverage.xml
+            junit.xml
+          if-no-files-found: ignore
+
+  node:
+    name: node ${{ matrix.app }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [client-portal, workload]
+    defaults:
+      run:
+        working-directory: apps/${{ matrix.app }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Run Trivy vulnerability scanner (filesystem)
-        uses: aquasecurity/trivy-action@master
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          scan-type: "fs"
-          scan-ref: "."
-          format: "sarif"
-          output: "trivy-results.sarif"
-          severity: "CRITICAL,HIGH"
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/${{ matrix.app }}/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
 
-      - name: Upload Trivy results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: "trivy-results.sarif"
+  scripts-and-config:
+    name: shell, compose & config
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Run Trivy on Dockerfiles
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "config"
-          scan-ref: "."
-          format: "table"
-          severity: "CRITICAL,HIGH"
+      - name: ShellCheck
+        run: |
+          # Terraform templatefile() scripts (deploy/terraform) use ${var} interpolation, not shell vars.
+          mapfile -t scripts < <(git ls-files '*.sh' ':!:deploy/terraform/**')
+          shellcheck -S warning "${scripts[@]}"
+
+      - name: Docker Compose files are valid
+        run: |
+          docker compose config -q
+          docker compose --profile robotics config -q
+          docker compose -f observability/docker-compose.yml config -q
+
+      - name: YAML & JSON parse
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, subprocess, sys, yaml
+          bad = []
+          files = subprocess.run(["git", "ls-files", "*.yml", "*.yaml", "*.json"], capture_output=True, text=True).stdout.split()
+          for f in files:
+              if "/templates/" in f:  # Helm templates are validated by the infra workflow
+                  continue
+              try:
+                  text = pathlib.Path(f).read_text()
+                  list(yaml.safe_load_all(text)) if f.endswith(("yml", "yaml")) else json.loads(text)
+              except Exception as exc:  # noqa: BLE001
+                  bad.append(f"{f}: {exc}")
+          print("\n".join(bad) or f"{len(files)} files OK")
+          sys.exit(1 if bad else 0)
+          PY
+
+      - name: Template rebrand works end to end
+        run: |
+          git config --global user.email ci@example.com && git config --global user.name ci
+          work="$(mktemp -d)" && git clone -q . "$work/repo" && cd "$work/repo"
+          scripts/init-project.sh acme "Acme Platform"
+          if grep -rIl --exclude-dir=.git -E '\bgolden\b|GOLDEN_' src tests compose.yaml Makefile pyproject.toml; then
+            echo "::error::files above still reference 'golden' after rebrand"; exit 1
+          fi
+          python3 -m venv .venv && .venv/bin/pip install -q -e '.[dev]'
+          .venv/bin/acme config get project.name
+          .venv/bin/pytest -q -x --ignore=tests/test_models.py --ignore=tests/robotics -p no:cacheprovider

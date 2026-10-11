@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule: { interval: weekly }
+    groups:
+      python:
+        patterns: ["*"]
+        update-types: [minor, patch]
+  - package-ecosystem: npm
+    directory: /apps/client-portal
+    schedule: { interval: weekly }
+    groups:
+      portal:
+        update-types: [minor, patch]
+        patterns: ["*"]
+  - package-ecosystem: npm
+    directory: /apps/workload
+    schedule: { interval: weekly }
+    groups:
+      workload:
+        update-types: [minor, patch]
+        patterns: ["*"]
+  - package-ecosystem: docker
+    directories: [/, /apps/client-portal, /apps/workload]
+    schedule: { interval: weekly }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    groups:
+      actions:
+        patterns: ["*"]
+  - package-ecosystem: terraform
+    directories: ["/deploy/terraform/modules/*/*", "/deploy/terraform/modules/*"]
+    schedule: { interval: monthly }

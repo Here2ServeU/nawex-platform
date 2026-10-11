@@ -1,9 +1,0 @@
-format: table
-severity:
-  - HIGH
-  - CRITICAL
-ignore-unfixed: true
-vuln-type:
-  - os
-  - library
-timeout: 10m0s

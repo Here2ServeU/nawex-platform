@@ -1,0 +1,191 @@
+{
+  "uid": "golden-overview",
+  "title": "Golden Platform Overview",
+  "tags": [
+    "golden",
+    "overview"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Service Health",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                },
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "up{job=~\"platform-api|fintech|healthcare|gpu|migration|apps\"}",
+          "legendFormat": "{{ instance }}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Request Rate (req/s)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "sum by(job, service) (rate(golden_http_requests_total[5m]))",
+          "legendFormat": "{{ service }}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Error Rate (%)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "max": 100
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "100 * sum by(job, service) (rate(golden_http_requests_total{status=~\"5..\"}[5m])) / sum by(job, service) (rate(golden_http_requests_total[5m]))",
+          "legendFormat": "{{ service }}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "p95 Latency (ms)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "1000 * histogram_quantile(0.95, sum by(job, service, le) (rate(golden_http_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "{{ job }} p95"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "p99 Latency (ms)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "1000 * histogram_quantile(0.99, sum by(job, service, le) (rate(golden_http_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "{{ job }} p99"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Active Firing Alerts",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 6
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "ALERTS{alertstate=\"firing\"}",
+          "legendFormat": "{{ alertname }} [{{ severity }}]",
+          "instant": true
+        }
+      ]
+    }
+  ]
+}

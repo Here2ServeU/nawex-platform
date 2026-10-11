@@ -1,0 +1,14 @@
+apiVersion: v2
+name: ehr-service
+description: >-
+  DEPRECATED - use the `golden` chart (deploy/helm/golden) instead. Standalone
+  chart for the EHR Ingestion and Clinical Data Service (`golden serve ehr-ingestion`, port 8093).
+type: application
+version: 0.2.0
+appVersion: "0.1.0"
+deprecated: true
+keywords:
+  - healthcare
+  - ehr
+  - fhir
+  - hipaa

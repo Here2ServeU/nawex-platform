@@ -1,0 +1,49 @@
+# Golden platform services (api, fintech, healthcare, gpu-optimizer,
+# migration-planner) from the first-party chart deploy/helm/golden.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: golden
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: golden
+    component: platform
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Here2ServeU/nawex-platform
+    targetRevision: main
+    path: deploy/helm/golden
+    helm:
+      releaseName: golden
+      valuesObject:
+        image:
+          tag: ""          # pin to a released version, e.g. "0.1.0"
+        platform:
+          autonomyMode: dry_run
+          killSwitch: false
+        apiKeys:
+          existingSecret: golden-api-keys
+          optional: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: golden
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+    managedNamespaceMetadata:
+      labels:
+        app.kubernetes.io/part-of: golden
+        pod-security.kubernetes.io/enforce: restricted
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

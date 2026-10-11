@@ -1,0 +1,21 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: monitoring-stack
+  namespace: flux-system # The namespace where the HelmRelease CR lives
+spec:
+  targetNamespace: monitoring # Where the actual pods will go
+  interval: 5m
+  chart:
+    spec:
+      chart: ./deploy/helm/monitoring-stack
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  # Grafana admin credentials come from a Secret, never from Git.
+  valuesFrom:
+    - kind: Secret
+      name: monitoring-stack-grafana
+      valuesKey: values.yaml
+      optional: true

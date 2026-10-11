@@ -1,0 +1,444 @@
+# Platform domain - Golden API, GPU optimizer and migration planner (golden serve <name>).
+# Generated to match the platform service contract; keep in sync with deploy/helm/golden.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: api
+  namespace: golden-platform
+  labels:
+    app: api
+    app.kubernetes.io/part-of: golden
+  annotations:
+    description: "Golden platform API"
+spec:
+  to:
+    kind: Service
+    name: api
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: gpu-optimizer
+  namespace: golden-platform
+  labels:
+    app: gpu-optimizer
+    app.kubernetes.io/part-of: golden
+  annotations:
+    description: "GPU / AI-infrastructure optimizer"
+spec:
+  to:
+    kind: Service
+    name: gpu-optimizer
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: migration-planner
+  namespace: golden-platform
+  labels:
+    app: migration-planner
+    app.kubernetes.io/part-of: golden
+  annotations:
+    description: "VMware to OpenShift Virtualization migration planner"
+spec:
+  to:
+    kind: Service
+    name: migration-planner
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: golden-platform
+  labels:
+    app: api
+    app.kubernetes.io/part-of: golden
+spec:
+  type: ClusterIP
+  selector:
+    app: api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+      protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpu-optimizer
+  namespace: golden-platform
+  labels:
+    app: gpu-optimizer
+    app.kubernetes.io/part-of: golden
+spec:
+  type: ClusterIP
+  selector:
+    app: gpu-optimizer
+  ports:
+    - name: http
+      port: 8096
+      targetPort: http
+      protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: migration-planner
+  namespace: golden-platform
+  labels:
+    app: migration-planner
+    app.kubernetes.io/part-of: golden
+spec:
+  type: ClusterIP
+  selector:
+    app: migration-planner
+  ports:
+    - name: http
+      port: 8097
+      targetPort: http
+      protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: golden-platform
+  labels:
+    app: api
+    app.kubernetes.io/part-of: golden
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+        app.kubernetes.io/part-of: golden
+        domain: platform
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: golden-platform-sa
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: ghcr.io/here2serveu/golden-platform:0.1.0
+          imagePullPolicy: IfNotPresent
+          command: ["golden", "serve", "api"]
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          env:
+            - name: GOLDEN_SERVICE
+              value: "api"
+            - name: GOLDEN_PORT
+              value: "8000"
+            - name: GOLDEN_API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: golden-api-keys
+                  key: GOLDEN_API_KEYS
+                  optional: true
+          envFrom:
+            - configMapRef:
+                name: golden-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpu-optimizer
+  namespace: golden-platform
+  labels:
+    app: gpu-optimizer
+    app.kubernetes.io/part-of: golden
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: gpu-optimizer
+  template:
+    metadata:
+      labels:
+        app: gpu-optimizer
+        app.kubernetes.io/part-of: golden
+        domain: ai-infrastructure
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8096"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: golden-platform-sa
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: gpu-optimizer
+          image: ghcr.io/here2serveu/golden-platform:0.1.0
+          imagePullPolicy: IfNotPresent
+          command: ["golden", "serve", "gpu-optimizer"]
+          ports:
+            - name: http
+              containerPort: 8096
+              protocol: TCP
+          env:
+            - name: GOLDEN_SERVICE
+              value: "gpu-optimizer"
+            - name: GOLDEN_PORT
+              value: "8096"
+            - name: GOLDEN_API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: golden-api-keys
+                  key: GOLDEN_API_KEYS
+                  optional: true
+          envFrom:
+            - configMapRef:
+                name: golden-config
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 2
+              memory: 4Gi
+              nvidia.com/gpu: 1
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      # GPU scheduling (NVIDIA GPU Operator on OpenShift). Remove this block and
+      # the nvidia.com/gpu limit to run the optimizer on CPU-only nodes.
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: migration-planner
+  namespace: golden-platform
+  labels:
+    app: migration-planner
+    app.kubernetes.io/part-of: golden
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: migration-planner
+  template:
+    metadata:
+      labels:
+        app: migration-planner
+        app.kubernetes.io/part-of: golden
+        domain: migration
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8097"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: golden-platform-sa
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: migration-planner
+          image: ghcr.io/here2serveu/golden-platform:0.1.0
+          imagePullPolicy: IfNotPresent
+          command: ["golden", "serve", "migration-planner"]
+          ports:
+            - name: http
+              containerPort: 8097
+              protocol: TCP
+          env:
+            - name: GOLDEN_SERVICE
+              value: "migration-planner"
+            - name: GOLDEN_PORT
+              value: "8097"
+            - name: GOLDEN_API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: golden-api-keys
+                  key: GOLDEN_API_KEYS
+                  optional: true
+          envFrom:
+            - configMapRef:
+                name: golden-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api
+  namespace: golden-platform
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

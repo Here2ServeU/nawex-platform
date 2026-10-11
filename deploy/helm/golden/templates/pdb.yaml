@@ -1,0 +1,23 @@
+{{- range $name, $raw := .Values.services }}
+{{- $ctx := dict "root" $ "name" $name "cfg" $raw }}
+{{- $svc := include "golden.serviceConfig" $ctx | fromYaml }}
+{{- if and (ne (toString $svc.enabled) "false") $svc.podDisruptionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "golden.serviceName" $ctx }}
+  labels:
+    {{- include "golden.serviceLabels" $ctx | nindent 4 }}
+spec:
+  {{- if hasKey $svc.podDisruptionBudget "maxUnavailable" }}
+  maxUnavailable: {{ $svc.podDisruptionBudget.maxUnavailable }}
+  {{- else }}
+  minAvailable: {{ $svc.podDisruptionBudget.minAvailable | default 1 }}
+  {{- end }}
+  unhealthyPodEvictionPolicy: AlwaysAllow
+  selector:
+    matchLabels:
+      {{- include "golden.selectorLabels" $ctx | nindent 6 }}
+{{- end }}
+{{- end }}

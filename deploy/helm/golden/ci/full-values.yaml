@@ -1,0 +1,55 @@
+# Exercises every optional template path (used by scripts/ci/validate-infra.sh).
+image:
+  tag: "1.2.3"
+platform:
+  autonomyMode: supervised
+  killSwitch: true
+apiKeys:
+  create: true
+  optional: false
+  value: "ci-only-not-a-real-key"
+defaults:
+  autoscaling:
+    enabled: true
+    targetMemoryUtilizationPercentage: 80
+services:
+  gpu-optimizer:
+    gpu:
+      enabled: true
+      count: 2
+      runtimeClassName: nvidia
+  patient-gateway:
+    enabled: false
+networkPolicy:
+  restrictEgress: true
+  extraEgress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: golden.ci.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
+        - path: /gpu
+          pathType: Prefix
+          service: gpu-optimizer
+  tls:
+    - secretName: golden-tls
+      hosts:
+        - golden.ci.local
+metrics:
+  serviceMonitor:
+    enabled: true
+route:
+  enabled: true
+  services:
+    - api
+    - gpu-optimizer

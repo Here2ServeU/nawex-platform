@@ -1,81 +1,70 @@
-# ---------------------------------------------------------------------------------------
-# COMPREHENSIVE GIT IGNORE FILE
-# Generated for multi-cloud, multi-tooling (Node, Terraform, Helm, Kubernetes) environment
-# ---------------------------------------------------------------------------------------
+# --- Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
 
-# -------------------------------------------------------------
-# 1. NODE / NPM
-# -------------------------------------------------------------
+# --- Model artifacts & demo output (never commit weights; publish via a registry)
+/models/
+*.pt
+*.pth
+*.pkl
+.artifacts/
+demo_output/
+
+# --- Node
 node_modules/
-/npm-debug.log
-.npm/
+npm-debug.log*
 .eslintcache
-/pids
-/logs
-# Runtime and environment data
+
+# --- Secrets & local config
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-/coverage
-/dist
-
-# -------------------------------------------------------------
-# 2. OS / IDE EXCLUSIONS
-# -------------------------------------------------------------
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-*.swp
-
-# -------------------------------------------------------------
-# 3. TERRAFORM (Updated for multi-dir structure and cache)
-# -------------------------------------------------------------
-# Ignore all local Terraform working directories (cache in any subdirectory)
-**/.terraform/
-**/.terraform.lock.hcl
-
-# Ignore state files globally (ensures secrets and current state are not committed)
-**/*.tfstate
-**/*.tfstate.backup
-
-# Terraform crash logs
-crash.log
-crash.*.log
-
-# Terraform variable files (sensitive local secrets)
-*.tfvars
-*.tfvars.json
-
-# Terraform CLI config history
-.terraformrc
-
-# -------------------------------------------------------------
-# 4. HELM AND KUBERNETES TOOLING
-# -------------------------------------------------------------
-# Helm Chart dependency cache (e.g., helm/backstage/charts/)
-**/charts/
-**/*.tgz
-# Kustomize build output
-kustomize/
-# Kubernetes configuration files (local secrets)
+.env.*
+!.env.example
+*.pem
+*.key
 kubeconfig
 .kube/
+observability/alerting/secrets/
+platform.local.yaml
 
-# -------------------------------------------------------------
-# 5. BINARY, SCRIPT & BUILD ARTIFACTS
-# -------------------------------------------------------------
-# General compiled files
-*.exe
-*.dll
-*.so
-*.o
-*.a
-*.obj
-# Go binaries and build directories
-*.bin
-/pkg/
-# Custom temporary files from scripts
+# --- Terraform
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+backend.hcl
+backend_override.tf
+crash*.log
+.terraformrc
+
+# --- Helm / Kustomize build output
+deploy/helm/*/charts/
+*.tgz
+
+# --- Generated migration waves (regenerate with `golden migrate manifests`)
+deploy/openshift/virtualization/waves/*
+!deploy/openshift/virtualization/waves/.gitkeep
+!deploy/openshift/virtualization/waves/README.md
+
+# --- OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
 tmp/

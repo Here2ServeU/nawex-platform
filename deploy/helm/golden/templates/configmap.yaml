@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "golden.configMapName" . }}
+  labels:
+    {{- include "golden.labels" . | nindent 4 }}
+data:
+  GOLDEN_AUTONOMY_MODE: {{ .Values.platform.autonomyMode | quote }}
+  GOLDEN_KILL_SWITCH: {{ .Values.platform.killSwitch | toString | lower | quote }}
+  GOLDEN_LOG_LEVEL: {{ .Values.platform.logLevel | quote }}
+  {{- range $k, $v := .Values.platform.extraConfig }}
+  {{ $k }}: {{ $v | toString | quote }}
+  {{- end }}

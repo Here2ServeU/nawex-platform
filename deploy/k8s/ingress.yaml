@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: golden-workload
+  namespace: golden
+  labels:
+    app.kubernetes.io/part-of: golden
+spec:
+  ingressClassName: nginx          # must match your ingress-nginx controller class
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: golden-workload
+                port:
+                  number: 80

@@ -1,0 +1,39 @@
+# Azure AKS overlay. Used by scripts/deploy.sh azure <env>, which also sets:
+#   --set image.registry=<terraform output registry_url>
+#   --set serviceAccount.annotations."azure\.workload\.identity/client-id"=<workload_identity>
+# Ingress uses the AKS application routing add-on (managed NGINX):
+#   az aks approuting enable -g <rg> -n <cluster>
+# For Application Gateway for Containers / AGIC use className
+# azure-application-gateway instead.
+serviceAccount:
+  annotations:
+    azure.workload.identity/client-id: ""   # terraform output workload_identity
+
+podLabels:
+  azure.workload.identity/use: "true"
+
+storageClass: managed-csi
+
+ingress:
+  enabled: true
+  className: webapprouting.kubernetes.azure.com
+  annotations: {}
+  hosts:
+    - host: golden.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
+
+networkPolicy:
+  allowedNamespaces:
+    - app-routing-system
+    - monitoring
+
+defaults:
+  autoscaling:
+    enabled: true
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway

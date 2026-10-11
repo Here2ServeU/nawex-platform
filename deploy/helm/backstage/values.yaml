@@ -1,0 +1,82 @@
+image:
+  repository: ghcr.io/backstage/backstage
+  pullPolicy: IfNotPresent
+  tag: "1.30.0"
+  # Name of an imagePullSecret (optional)
+  pullSecrets: ""
+
+replicaCount: 1
+
+serviceAccount:
+  create: true
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 7007
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: backstage.golden.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: backstage-tls
+      hosts:
+        - backstage.golden.example.com
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+# ---------------------------------------------------------------------
+# Database (external PostgreSQL). The password is read from a Secret and
+# exposed as POSTGRES_PASSWORD, referenced from appConfig via ${POSTGRES_PASSWORD}.
+# ---------------------------------------------------------------------
+database:
+  host: backstage-postgresql
+  port: 5432
+  user: backstage
+  existingSecret: backstage-postgresql
+  secretKey: password
+
+# ---------------------------------------------------------------------
+# App Configuration (rendered to app-config.yaml)
+# ---------------------------------------------------------------------
+appConfig:
+  app:
+    baseUrl: https://backstage.golden.example.com
+    title: Golden Platform Developer Portal
+  backend:
+    baseUrl: https://backstage.golden.example.com
+    database:
+      client: pg
+      connection:
+        host: ${POSTGRES_HOST}
+        port: ${POSTGRES_PORT}
+        user: ${POSTGRES_USER}
+        password: ${POSTGRES_PASSWORD}

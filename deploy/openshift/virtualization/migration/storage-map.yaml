@@ -1,0 +1,27 @@
+# Maps vSphere datastores to OpenShift StorageClasses.
+apiVersion: forklift.konveyor.io/v1beta1
+kind: StorageMap
+metadata:
+  name: wave-01-storage-map
+  namespace: openshift-mtv
+spec:
+  provider:
+    source:
+      name: vsphere-dc1
+      namespace: openshift-mtv
+    destination:
+      name: host
+      namespace: openshift-mtv
+  map:
+    - source:
+        name: datastore-ssd-01
+      destination:
+        storageClass: ocs-storagecluster-ceph-rbd-virtualization
+        accessMode: ReadWriteMany   # RWX block storage enables live migration
+        volumeMode: Block
+    - source:
+        name: datastore-hdd-01
+      destination:
+        storageClass: ocs-storagecluster-ceph-rbd
+        accessMode: ReadWriteOnce
+        volumeMode: Filesystem

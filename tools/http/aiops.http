@@ -1,0 +1,186 @@
+# Golden Platform — HTTP request collection (VS Code REST Client / JetBrains HTTP Client)
+# Ports match docker compose / `golden serve <service>`. When GOLDEN_API_KEYS is set on the
+# services, put one of the keys in @apiKey (health, ready and metrics need no key).
+
+@host = http://localhost
+@apiKey = dev-key
+@api = {{host}}:8000
+@txn = {{host}}:8090
+@fraud = {{host}}:8091
+@payments = {{host}}:8092
+@ehr = {{host}}:8093
+@clinical = {{host}}:8094
+@patients = {{host}}:8095
+@gpu = {{host}}:8096
+@migration = {{host}}:8097
+@workload = {{host}}:8080
+
+### ── Platform API (api :8000) ────────────────────────────────────────────
+GET {{api}}/health
+
+###
+GET {{api}}/ready
+
+###
+GET {{api}}/metrics
+
+### Fraud score
+POST {{api}}/v1/fraud/score
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "transaction_id": "txn_123",
+  "account_id": "acct_001",
+  "amount": 1250.00,
+  "currency": "USD",
+  "channel": "online",
+  "country_code": "US",
+  "merchant_category_code": "5732"
+}
+
+### Decision (risk rules + model score → action recommendation)
+POST {{api}}/v1/decisions
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "vertical": "fintech",
+  "signals": {
+    "fraud_score": 0.82,
+    "amount": 1250.00,
+    "error_rate": 0.03
+  }
+}
+
+### ROI
+POST {{api}}/v1/roi/gpu
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "tier": "professional"
+}
+
+### ── Fintech ─────────────────────────────────────────────────────────────
+### Submit a transaction (transaction-engine :8090)
+POST {{txn}}/api/v1/transactions
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "account_id": "acct_001",
+  "amount": 150.00,
+  "currency": "USD",
+  "merchant": "Demo Electronics",
+  "merchant_category_code": "5732",
+  "channel": "online",
+  "country_code": "US"
+}
+
+### List recent transactions
+GET {{txn}}/api/v1/transactions?limit=20
+X-API-Key: {{apiKey}}
+
+### Score a transaction (fraud-detector :8091)
+POST {{fraud}}/score
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "transaction_id": "txn_123",
+  "account_id": "acct_001",
+  "amount": 150.00,
+  "currency": "USD",
+  "channel": "online",
+  "country_code": "US",
+  "merchant_category_code": "5732"
+}
+
+###
+GET {{payments}}/health
+
+### ── Healthcare ──────────────────────────────────────────────────────────
+### Ingest an EHR / FHIR resource (ehr-ingestion :8093)
+POST {{ehr}}/api/v1/ehr/ingest
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "patient_id": "patient-00042",
+  "resource_type": "Observation",
+  "department": "icu",
+  "data_class": "clinical",
+  "phi_flag": true
+}
+
+###
+GET {{clinical}}/health
+
+###
+GET {{patients}}/health
+
+### ── GPU / AI infrastructure (gpu-optimizer :8096) ──────────────────────
+POST {{gpu}}/api/v1/gpu/analyze
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "on_prem": false,
+  "samples": [
+    {"node": "gpu-node-1", "index": 0, "model": "H100", "utilization_pct": 4, "memory_used_pct": 6, "memory_total_gb": 80, "temperature_c": 41, "power_w": 70, "power_limit_w": 700, "idle_minutes": 95},
+    {"node": "gpu-node-1", "index": 1, "model": "H100", "utilization_pct": 88, "memory_used_pct": 71, "memory_total_gb": 80, "temperature_c": 87, "power_w": 650, "power_limit_w": 700},
+    {"node": "gpu-node-2", "index": 0, "model": "A100", "utilization_pct": 12, "memory_used_pct": 20, "memory_total_gb": 40, "temperature_c": 55, "power_w": 120, "power_limit_w": 400, "xid_errors": 1}
+  ]
+}
+
+### ── Modernization (migration-planner :8097) ────────────────────────────
+POST {{migration}}/api/v1/migration/assess
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "sample": true
+}
+
+###
+POST {{migration}}/api/v1/migration/plan
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "sample": true
+}
+
+###
+POST {{migration}}/api/v1/migration/manifests
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "sample": true,
+  "wave": 1
+}
+
+### ── Workload app (apps/workload :8080) — bounded chaos for AIOps demos ──
+GET {{workload}}/health
+
+###
+GET {{workload}}/metrics/json
+
+###
+POST {{workload}}/chaos/latency
+Content-Type: application/json
+
+{
+  "delay_ms": 700
+}
+
+###
+POST {{workload}}/chaos/error-spike
+
+###
+POST {{workload}}/chaos/cpu
+
+###
+POST {{workload}}/ops/heal

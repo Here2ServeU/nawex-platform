@@ -1,0 +1,13 @@
+apiVersion: v2
+name: clinical-gateway
+description: >-
+  DEPRECATED - use the `golden` chart (deploy/helm/golden) instead. Standalone
+  chart for the Patient Data Gateway (FHIR/HL7 interoperability) (`golden serve patient-gateway`, port 8095).
+type: application
+version: 0.2.0
+appVersion: "0.1.0"
+deprecated: true
+keywords:
+  - healthcare
+  - fhir-gateway
+  - hipaa

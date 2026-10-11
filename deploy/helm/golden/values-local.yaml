@@ -1,0 +1,34 @@
+# Local kind / minikube overlay: single replica, no autoscaling/PDB/HPA,
+# NodePort-free (use `kubectl port-forward svc/golden-api 8000`).
+image:
+  pullPolicy: IfNotPresent
+
+apiKeys:
+  create: true
+  optional: false
+  value: "local-dev-key"   # local clusters only
+
+platform:
+  autonomyMode: dry_run
+
+storageClass: standard
+
+networkPolicy:
+  enabled: false
+
+ingress:
+  enabled: false
+
+defaults:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: false
+  podDisruptionBudget:
+    enabled: false

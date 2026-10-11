@@ -1,0 +1,14 @@
+apiVersion: v2
+name: payment-gateway
+description: >-
+  DEPRECATED - use the `golden` chart (deploy/helm/golden) instead. Standalone
+  chart for the Payment Gateway processing service (`golden serve payment-gateway`, port 8092).
+type: application
+version: 0.2.0
+appVersion: "0.1.0"
+deprecated: true
+keywords:
+  - fintech
+  - payment-gateway
+  - transactions
+  - pci-dss

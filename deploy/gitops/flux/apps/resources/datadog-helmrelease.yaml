@@ -1,0 +1,30 @@
+# Datadog agent from the upstream vendor Helm repository.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: datadog
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://helm.datadoghq.com
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: datadog
+  namespace: flux-system
+spec:
+  targetNamespace: monitoring
+  interval: 5m
+  chart:
+    spec:
+      chart: datadog
+      version: "3.x"
+      sourceRef:
+        kind: HelmRepository
+        name: datadog
+        namespace: flux-system
+  values:
+    datadog:
+      apiKeyExistingSecret: datadog-secret
+      clusterName: golden

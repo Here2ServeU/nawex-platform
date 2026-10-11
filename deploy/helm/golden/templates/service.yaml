@@ -1,0 +1,26 @@
+{{- range $name, $raw := .Values.services }}
+{{- $ctx := dict "root" $ "name" $name "cfg" $raw }}
+{{- $svc := include "golden.serviceConfig" $ctx | fromYaml }}
+{{- if ne (toString $svc.enabled) "false" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "golden.serviceName" $ctx }}
+  labels:
+    {{- include "golden.serviceLabels" $ctx | nindent 4 }}
+  {{- with $svc.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ $svc.service.type | default "ClusterIP" }}
+  ports:
+    - name: http
+      port: {{ $svc.port }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    {{- include "golden.selectorLabels" $ctx | nindent 4 }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,23 @@
+# Trivy configuration (https://trivy.dev/latest/docs/references/configuration/config-file/)
+# Usage: trivy image --config security/container-scanning/trivy.yaml <image>
+format: table
+exit-code: 1
+severity:
+  - HIGH
+  - CRITICAL
+timeout: 10m0s
+ignorefile: security/container-scanning/trivy-ignore.txt
+
+scan:
+  scanners:
+    - vuln
+    - secret
+    - misconfig
+
+pkg:
+  types:
+    - os
+    - library
+
+vulnerability:
+  ignore-unfixed: true

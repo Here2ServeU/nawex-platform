@@ -1,0 +1,25 @@
+apiVersion: v2
+name: golden
+description: >-
+  First-party umbrella chart for the Golden platform. Deploys every Python
+  service (api, transaction-engine, fraud-detector, payment-gateway,
+  ehr-ingestion, clinical-decision, patient-gateway, gpu-optimizer,
+  migration-planner) from the single ghcr.io/here2serveu/golden-platform image, each
+  started with `golden serve <name>`.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">=1.25.0-0"
+home: https://github.com/Here2ServeU/nawex-platform
+sources:
+  - https://github.com/Here2ServeU/nawex-platform
+keywords:
+  - golden
+  - aiops
+  - migration
+  - fintech
+  - healthcare
+  - gpu
+maintainers:
+  - name: Golden Platform Team
+    url: https://github.com/Here2ServeU/nawex-platform

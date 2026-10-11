@@ -1,0 +1,66 @@
+# OpenShift overrides for the `golden` chart - healthcare domain only
+# (ehr-ingestion, clinical-decision, patient-gateway; HIPAA scope).
+#   helm upgrade --install golden-healthcare deploy/helm/golden \
+#     -f deploy/openshift/helm-values/healthcare-values.yaml -n golden-healthcare
+serviceAccount:
+  create: false
+  name: golden-healthcare-sa
+
+commonLabels:
+  compliance: hipaa
+  platform: openshift
+
+platform:
+  extraConfig:
+    FHIR_VERSION: R4
+    HIPAA_AUDIT_LOG_ENABLED: "true"
+    PHI_MASKING_ENABLED: "true"
+
+apiKeys:
+  existingSecret: golden-api-keys
+  optional: false
+
+networkPolicy:
+  allowedNamespaces:
+    - openshift-ingress
+    - openshift-monitoring
+    - golden-platform
+
+route:
+  enabled: true
+  services:
+    - ehr-ingestion
+    - clinical-decision
+    - patient-gateway
+
+defaults:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 75
+  podAnnotations:
+    compliance.openshift.io/hipaa: "true"
+
+services:
+  api:
+    enabled: false
+  transaction-engine:
+    enabled: false
+  fraud-detector:
+    enabled: false
+  payment-gateway:
+    enabled: false
+  gpu-optimizer:
+    enabled: false
+  migration-planner:
+    enabled: false
+  ehr-ingestion:
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: "2"
+        memory: 2Gi

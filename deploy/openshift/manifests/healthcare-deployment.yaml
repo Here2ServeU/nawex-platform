@@ -1,0 +1,444 @@
+# Healthcare domain - Golden platform services (golden serve <name>).
+# Generated to match the platform service contract; keep in sync with deploy/helm/golden.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: ehr-ingestion
+  namespace: golden-healthcare
+  labels:
+    app: ehr-ingestion
+    app.kubernetes.io/part-of: golden
+  annotations:
+    description: "HIPAA compliant EHR ingestion (FHIR R4 / HL7)"
+spec:
+  to:
+    kind: Service
+    name: ehr-ingestion
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: clinical-decision
+  namespace: golden-healthcare
+  labels:
+    app: clinical-decision
+    app.kubernetes.io/part-of: golden
+  annotations:
+    description: "Clinical Decision Support"
+spec:
+  to:
+    kind: Service
+    name: clinical-decision
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: patient-gateway
+  namespace: golden-healthcare
+  labels:
+    app: patient-gateway
+    app.kubernetes.io/part-of: golden
+  annotations:
+    description: "Patient Data Gateway"
+spec:
+  to:
+    kind: Service
+    name: patient-gateway
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ehr-ingestion
+  namespace: golden-healthcare
+  labels:
+    app: ehr-ingestion
+    app.kubernetes.io/part-of: golden
+spec:
+  type: ClusterIP
+  selector:
+    app: ehr-ingestion
+  ports:
+    - name: http
+      port: 8093
+      targetPort: http
+      protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clinical-decision
+  namespace: golden-healthcare
+  labels:
+    app: clinical-decision
+    app.kubernetes.io/part-of: golden
+spec:
+  type: ClusterIP
+  selector:
+    app: clinical-decision
+  ports:
+    - name: http
+      port: 8094
+      targetPort: http
+      protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: patient-gateway
+  namespace: golden-healthcare
+  labels:
+    app: patient-gateway
+    app.kubernetes.io/part-of: golden
+spec:
+  type: ClusterIP
+  selector:
+    app: patient-gateway
+  ports:
+    - name: http
+      port: 8095
+      targetPort: http
+      protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ehr-ingestion
+  namespace: golden-healthcare
+  labels:
+    app: ehr-ingestion
+    app.kubernetes.io/part-of: golden
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: ehr-ingestion
+  template:
+    metadata:
+      labels:
+        app: ehr-ingestion
+        app.kubernetes.io/part-of: golden
+        domain: healthcare
+        compliance: hipaa
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8093"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: golden-healthcare-sa
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: ehr-ingestion
+          image: ghcr.io/here2serveu/golden-platform:0.1.0
+          imagePullPolicy: IfNotPresent
+          command: ["golden", "serve", "ehr-ingestion"]
+          ports:
+            - name: http
+              containerPort: 8093
+              protocol: TCP
+          env:
+            - name: GOLDEN_SERVICE
+              value: "ehr-ingestion"
+            - name: GOLDEN_PORT
+              value: "8093"
+            - name: GOLDEN_API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: golden-api-keys
+                  key: GOLDEN_API_KEYS
+                  optional: true
+            - name: HIPAA_ENABLED
+              value: "true"
+          envFrom:
+            - configMapRef:
+                name: golden-config
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2
+              memory: 2Gi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clinical-decision
+  namespace: golden-healthcare
+  labels:
+    app: clinical-decision
+    app.kubernetes.io/part-of: golden
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: clinical-decision
+  template:
+    metadata:
+      labels:
+        app: clinical-decision
+        app.kubernetes.io/part-of: golden
+        domain: healthcare
+        compliance: hipaa
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8094"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: golden-healthcare-sa
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: clinical-decision
+          image: ghcr.io/here2serveu/golden-platform:0.1.0
+          imagePullPolicy: IfNotPresent
+          command: ["golden", "serve", "clinical-decision"]
+          ports:
+            - name: http
+              containerPort: 8094
+              protocol: TCP
+          env:
+            - name: GOLDEN_SERVICE
+              value: "clinical-decision"
+            - name: GOLDEN_PORT
+              value: "8094"
+            - name: GOLDEN_API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: golden-api-keys
+                  key: GOLDEN_API_KEYS
+                  optional: true
+            - name: HIPAA_ENABLED
+              value: "true"
+          envFrom:
+            - configMapRef:
+                name: golden-config
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2
+              memory: 2Gi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: patient-gateway
+  namespace: golden-healthcare
+  labels:
+    app: patient-gateway
+    app.kubernetes.io/part-of: golden
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: patient-gateway
+  template:
+    metadata:
+      labels:
+        app: patient-gateway
+        app.kubernetes.io/part-of: golden
+        domain: healthcare
+        compliance: hipaa
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8095"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: golden-healthcare-sa
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: patient-gateway
+          image: ghcr.io/here2serveu/golden-platform:0.1.0
+          imagePullPolicy: IfNotPresent
+          command: ["golden", "serve", "patient-gateway"]
+          ports:
+            - name: http
+              containerPort: 8095
+              protocol: TCP
+          env:
+            - name: GOLDEN_SERVICE
+              value: "patient-gateway"
+            - name: GOLDEN_PORT
+              value: "8095"
+            - name: GOLDEN_API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: golden-api-keys
+                  key: GOLDEN_API_KEYS
+                  optional: true
+            - name: HIPAA_ENABLED
+              value: "true"
+          envFrom:
+            - configMapRef:
+                name: golden-config
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ehr-ingestion
+  namespace: golden-healthcare
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ehr-ingestion
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75

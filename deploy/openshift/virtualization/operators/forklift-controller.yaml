@@ -1,0 +1,13 @@
+# Starts the MTV/Forklift controllers, inventory, validation and UI plugin.
+apiVersion: forklift.konveyor.io/v1beta1
+kind: ForkliftController
+metadata:
+  name: forklift-controller
+  namespace: openshift-mtv
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  feature_ui_plugin: "true"
+  feature_validation: "true"
+  feature_volume_populator: "true"
+  controller_max_vm_inflight: 20

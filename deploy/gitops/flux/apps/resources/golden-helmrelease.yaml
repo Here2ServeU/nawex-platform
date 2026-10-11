@@ -1,0 +1,26 @@
+# Golden platform services from the first-party chart (deploy/helm/golden).
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: golden
+  namespace: flux-system
+spec:
+  targetNamespace: golden
+  releaseName: golden
+  interval: 5m
+  install:
+    createNamespace: true
+  chart:
+    spec:
+      chart: ./deploy/helm/golden
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    platform:
+      autonomyMode: dry_run
+      killSwitch: false
+    apiKeys:
+      existingSecret: golden-api-keys
+      optional: false

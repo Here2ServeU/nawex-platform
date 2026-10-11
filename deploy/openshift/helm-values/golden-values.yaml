@@ -1,0 +1,32 @@
+# OpenShift overrides for the `golden` chart (all services in one namespace).
+#   helm upgrade --install golden deploy/helm/golden \
+#     -f deploy/openshift/helm-values/golden-values.yaml -n golden-platform
+# Requires the golden-scc SCC (manifests/scc-golden.yaml) because the pods run
+# with a fixed UID (10001). Alternatively drop runAsUser/runAsGroup/fsGroup to
+# let the restricted-v2 SCC assign a namespace UID.
+serviceAccount:
+  create: false
+  name: golden-platform-sa
+
+networkPolicy:
+  allowedNamespaces:
+    - openshift-ingress
+    - openshift-monitoring
+    - openshift-user-workload-monitoring
+
+route:
+  enabled: true
+  services:
+    - api
+    - gpu-optimizer
+    - migration-planner
+
+metrics:
+  serviceMonitor:
+    enabled: true
+
+defaults:
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10

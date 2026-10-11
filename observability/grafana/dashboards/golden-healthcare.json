@@ -1,0 +1,233 @@
+{
+  "uid": "golden-healthcare",
+  "title": "Golden Platform — Healthcare",
+  "tags": [
+    "golden",
+    "healthcare"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "EHR Records by Status (records/s)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "sum by(status) (rate(golden_ehr_records_total[5m]))",
+          "legendFormat": "{{ status }}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "PHI Risk Score p95",
+      "type": "stat",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 0.7
+              }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "histogram_quantile(0.95, sum by(le) (rate(golden_phi_risk_score_bucket[5m])))",
+          "legendFormat": "p95 PHI risk"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Clinical Decision Service — Request Rate",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "sum by(path) (rate(golden_http_requests_total{service=\"clinical-decision\"}[5m]))",
+          "legendFormat": "{{ path }}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Clinical Decision — p95 Latency (ms)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "1000 * histogram_quantile(0.95, sum by(le) (rate(golden_http_request_duration_seconds_bucket{service=\"clinical-decision\"}[5m])))",
+          "legendFormat": "p95 ms"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Patient Gateway — Request Rate",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 6,
+        "h": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "sum(rate(golden_http_requests_total{service=\"patient-gateway\"}[5m]))",
+          "legendFormat": "req/s"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Healthcare Services Up",
+      "type": "stat",
+      "gridPos": {
+        "x": 6,
+        "y": 16,
+        "w": 6,
+        "h": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "COMPLIANT",
+                  "color": "green"
+                },
+                "0": {
+                  "text": "VIOLATION",
+                  "color": "red"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "prometheus-golden"
+          },
+          "expr": "min(up{job=\"healthcare\"})",
+          "legendFormat": "healthcare up"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Healthcare Logs (HIPAA-safe)",
+      "type": "logs",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "uid": "loki-golden"
+          },
+          "expr": "{vertical=\"healthcare\"} |= `` | line_format `{{.message}}`",
+          "legendFormat": ""
+        }
+      ]
+    }
+  ]
+}

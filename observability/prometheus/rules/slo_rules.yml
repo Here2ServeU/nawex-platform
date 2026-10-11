@@ -1,0 +1,77 @@
+groups:
+  # ── API SLOs ──────────────────────────────────────────────────────────────────
+  - name: golden_slo_recordings
+    interval: 30s
+    rules:
+      # Success rate recording rules (used by dashboards and SLO alerts)
+      - record: service:golden_http_requests_success:ratio_rate5m
+        expr: |
+          sum by (job, service) (rate(golden_http_requests_total{status!~"5.."}[5m]))
+          / sum by (job, service) (rate(golden_http_requests_total[5m]))
+
+      - record: service:golden_http_request_duration_seconds:p95
+        expr: |
+          histogram_quantile(0.95,
+            sum by(job, service, le) (rate(golden_http_request_duration_seconds_bucket[5m]))
+          )
+
+      - record: service:golden_http_request_duration_seconds:p99
+        expr: |
+          histogram_quantile(0.99,
+            sum by(job, service, le) (rate(golden_http_request_duration_seconds_bucket[5m]))
+          )
+
+  - name: golden_slo_alerts
+    interval: 30s
+    rules:
+      # API availability SLO: 99.9%
+      - alert: SLOAvailabilityBreach
+        expr: service:golden_http_requests_success:ratio_rate5m < 0.999
+        for: 5m
+        labels:
+          severity: critical
+          slo: availability
+        annotations:
+          summary: "SLO breach: availability < 99.9% on {{ $labels.service }}"
+          description: "Success rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+
+      # API latency SLO: p95 < 500ms
+      - alert: SLOLatencyBreach
+        expr: service:golden_http_request_duration_seconds:p95 > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          slo: latency
+        annotations:
+          summary: "SLO breach: p95 latency > 500ms on {{ $labels.service }}"
+          description: "p95 latency is {{ $value }}s."
+
+      # Error budget burn rate (fast burn: 14.4x over 1h)
+      - alert: ErrorBudgetFastBurn
+        expr: |
+          (
+            sum by (job, service) (rate(golden_http_requests_total{status=~"5.."}[1h]))
+            / sum by (job, service) (rate(golden_http_requests_total[1h]))
+          ) > (14.4 * 0.001)
+        for: 2m
+        labels:
+          severity: critical
+          slo: error_budget
+        annotations:
+          summary: "Error budget fast burn on {{ $labels.service }}"
+          description: "Error rate is burning the monthly error budget at 14.4x speed."
+
+      # Error budget burn rate (slow burn: 6x over 6h)
+      - alert: ErrorBudgetSlowBurn
+        expr: |
+          (
+            sum by (job, service) (rate(golden_http_requests_total{status=~"5.."}[6h]))
+            / sum by (job, service) (rate(golden_http_requests_total[6h]))
+          ) > (6 * 0.001)
+        for: 15m
+        labels:
+          severity: warning
+          slo: error_budget
+        annotations:
+          summary: "Error budget slow burn on {{ $labels.service }}"
+          description: "Error rate is burning the monthly error budget at 6x speed over 6h."

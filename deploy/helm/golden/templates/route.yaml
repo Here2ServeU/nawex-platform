@@ -1,0 +1,32 @@
+{{- /* OpenShift Routes (route.openshift.io/v1), one per entry in route.services. */ -}}
+{{- if .Values.route.enabled }}
+{{- range .Values.route.services }}
+{{- $raw := index $.Values.services . }}
+{{- if not $raw }}
+{{- fail (printf "route.services references unknown service %q" .) }}
+{{- end }}
+{{- $ctx := dict "root" $ "name" . }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "golden.serviceName" $ctx }}
+  labels:
+    {{- include "golden.serviceLabels" $ctx | nindent 4 }}
+  {{- with $.Values.route.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  to:
+    kind: Service
+    name: {{ include "golden.serviceName" $ctx }}
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: {{ $.Values.route.tls.termination }}
+    insecureEdgeTerminationPolicy: {{ $.Values.route.tls.insecureEdgeTerminationPolicy }}
+  wildcardPolicy: None
+{{- end }}
+{{- end }}

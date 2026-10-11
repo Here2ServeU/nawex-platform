@@ -1,0 +1,28 @@
+# OpenShift overlay (OCP, ROSA, ARO, OSD). Routes instead of Ingress; no fixed
+# UID/GID so the default restricted-v2 SCC assigns one from the namespace range.
+podSecurityContext:
+  runAsUser: null
+  runAsGroup: null
+  fsGroup: null
+
+containerSecurityContext:
+  runAsUser: null
+
+ingress:
+  enabled: false
+
+route:
+  enabled: true
+  services:
+    - api
+    - migration-planner
+
+networkPolicy:
+  allowedNamespaces:
+    - openshift-ingress
+    - openshift-monitoring
+    - openshift-user-workload-monitoring
+
+metrics:
+  serviceMonitor:
+    enabled: true
