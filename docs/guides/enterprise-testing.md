@@ -271,7 +271,7 @@ async def test_concurrent_transactions_maintain_consistency(transaction_pipeline
 async def test_idempotency_on_retry(transaction_pipeline):
     """Test: Retrying same transaction produces same ID (idempotency)"""
     
-    idempotency_key = "IDEMPOTENT-KEY-12345"
+    idempotency_key = str(uuid.uuid4())  # any unique value per logical request
     
     # First request
     result1 = await transaction_pipeline["processor"].process(

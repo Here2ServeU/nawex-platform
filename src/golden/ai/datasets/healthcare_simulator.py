@@ -74,12 +74,12 @@ def make_patient_vitals_stream(
             acuity = patient_acuity[pid]
 
             # Baseline vitals with department-appropriate variance
-            hr_base = 72 + (acuity - 2) * 10 + rng.normal(0, 8)
-            spo2_base = 97 - (acuity - 1) * 0.5 + rng.normal(0, 1)
-            sbp_base = 120 + (acuity - 2) * 10 + rng.normal(0, 12)
-            dbp_base = 78 + rng.normal(0, 8)
-            temp_base = 37.0 + rng.normal(0, 0.3)
-            rr_base = 16 + rng.normal(0, 2)
+            hr_base = float(72 + (acuity - 2) * 10 + rng.normal(0, 8))
+            spo2_base = float(97 - (acuity - 1) * 0.5 + rng.normal(0, 1))
+            sbp_base = float(120 + (acuity - 2) * 10 + rng.normal(0, 12))
+            dbp_base = float(78 + rng.normal(0, 8))
+            temp_base = float(37.0 + rng.normal(0, 0.3))
+            rr_base = float(16 + rng.normal(0, 2))
 
             is_alert = False
             anomaly_type = None
@@ -90,17 +90,17 @@ def make_patient_vitals_stream(
                     ["tachycardia", "spo2_drop", "hypertensive_crisis", "bradycardia", "hypotension", "fever"]
                 )
                 if anomaly_scenario == "tachycardia":
-                    hr_base = rng.uniform(131, 165)
+                    hr_base = float(rng.uniform(131, 165))
                 elif anomaly_scenario == "spo2_drop":
-                    spo2_base = rng.uniform(82, 87)
+                    spo2_base = float(rng.uniform(82, 87))
                 elif anomaly_scenario == "hypertensive_crisis":
-                    sbp_base = rng.uniform(191, 220)
+                    sbp_base = float(rng.uniform(191, 220))
                 elif anomaly_scenario == "bradycardia":
-                    hr_base = rng.uniform(30, 44)
+                    hr_base = float(rng.uniform(30, 44))
                 elif anomaly_scenario == "hypotension":
-                    sbp_base = rng.uniform(60, 79)
+                    sbp_base = float(rng.uniform(60, 79))
                 elif anomaly_scenario == "fever":
-                    temp_base = rng.uniform(39.6, 41.0)
+                    temp_base = float(rng.uniform(39.6, 41.0))
                 is_alert = True
                 anomaly_type = anomaly_scenario
 
@@ -122,9 +122,9 @@ def make_patient_vitals_stream(
                     "heart_rate": round(float(hr_base), 1),
                     "spo2": round(float(np.clip(spo2_base, 70, 100)), 1),
                     "systolic_bp": round(float(sbp_base), 0),
-                    "diastolic_bp": round(float(np.clip(dbp_base, 40, 130)), 0),
+                    "diastolic_bp": round(min(max(dbp_base, 40.0), 130.0), 0),
                     "temperature": round(float(temp_base), 1),
-                    "respiratory_rate": round(float(np.clip(rr_base, 6, 40)), 0),
+                    "respiratory_rate": round(min(max(rr_base, 6.0), 40.0), 0),
                     "clinical_risk_score": round(float(clinical_risk), 4),
                     "anomaly_type": anomaly_type,
                     "is_alert": is_alert,

@@ -86,7 +86,7 @@ jobs:
 
       - name: Vulnerability scan (Trivy)
         run: |
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.58.1 \
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.74.0 \
             image --exit-code 1 --ignore-unfixed --severity CRITICAL --no-progress ${{ matrix.image }}:scan
 
       - name: Push

@@ -89,19 +89,19 @@ def make_fraud_scenario_stream(
             is_fraud = rng.random() < fraud_rate * 0.5
 
         if is_fraud:
-            fraud_type = rng.choice(_FRAUD_TYPES)
+            fraud_type = str(rng.choice(_FRAUD_TYPES))
             amount = float(rng.uniform(500, 4500))
-            channel = rng.choice(["card_not_present", "online"], p=[0.6, 0.4])
-            country = rng.choice(_COUNTRIES_HIGH_RISK)
-            mcc = rng.choice(_HIGH_RISK_MCC)
+            channel = str(rng.choice(["card_not_present", "online"], p=[0.6, 0.4]))
+            country = str(rng.choice(_COUNTRIES_HIGH_RISK))
+            mcc = str(rng.choice(_HIGH_RISK_MCC))
             estimated_loss = amount * rng.uniform(0.8, 1.0)
-            detection_method = rng.choice(["velocity_rule", "geo_anomaly", "amount_zscore", "ml_model"])
+            detection_method = str(rng.choice(["velocity_rule", "geo_anomaly", "amount_zscore", "ml_model"]))
         else:
             amount = float(rng.lognormal(mean=5.0, sigma=1.2))
             amount = float(np.clip(amount, 5, 3000))
-            channel = rng.choice(_CHANNELS, p=[0.45, 0.25, 0.20, 0.07, 0.03])
-            country = rng.choice(_COUNTRIES_NORMAL)
-            mcc = rng.choice(_NORMAL_MCC)
+            channel = str(rng.choice(_CHANNELS, p=[0.45, 0.25, 0.20, 0.07, 0.03]))
+            country = str(rng.choice(_COUNTRIES_NORMAL))
+            mcc = str(rng.choice(_NORMAL_MCC))
 
         # Compute fraud score (mirrors detect_fraud.py logic)
         amount_risk = min(amount / 3000.0, 1.0) * 0.30

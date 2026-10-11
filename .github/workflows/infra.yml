@@ -39,7 +39,7 @@ jobs:
         with:
           version: 0.70.0
       - name: Validate charts, overlays, manifests and OPA policies
-        run: SKIP_TERRAFORM_VALIDATE=1 scripts/ci/validate-infra.sh
+        run: SKIP_TERRAFORM=1 scripts/ci/validate-infra.sh
 
   terraform:
     name: terraform fmt + validate

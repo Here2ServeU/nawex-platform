@@ -64,7 +64,7 @@ POST /api/v2/tenants/{tenantId}/transactions/{id}/reverse
 **Example Request:**
 ```bash
 curl -X POST https://api.golden-platform.example/api/v2/tenants/acme-bank/transactions \
-  -H "Authorization: Bearer eyJhbGc..." \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
     "amount": 1000.00,
@@ -122,7 +122,7 @@ POST /api/v2/tenants/{tenantId}/clinical/decisions
 **Example Request:**
 ```bash
 curl -X PUT https://api.golden-platform.example/api/v2/tenants/hospital-a/patients/P-2026-001/vitals \
-  -H "Authorization: Bearer eyJhbGc..." \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
     "timestamp": "2026-02-18T14:30:00Z",
