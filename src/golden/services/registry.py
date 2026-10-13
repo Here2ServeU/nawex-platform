@@ -14,4 +14,5 @@ SERVICES: dict[str, tuple[str, int]] = {
     "migration-planner": ("golden.services.migration.planner:app", 8097),
     "identity-governance": ("golden.services.identity.governance:app", 8098),
     "agent-ops": ("golden.services.agentops.gateway:app", 8099),
+    "model-server": ("golden.ai.serving.app:app", 8100),
 }

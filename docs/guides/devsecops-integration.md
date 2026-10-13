@@ -41,6 +41,31 @@ module "config" {
 - SecurityHub + Config enablement: [ops/playbooks/securityhub_config.md](../../ops/runbooks/playbooks/securityhub_config.md)
 - Evidence trail: Immutable log retention for decisions and changes.
 
+## 6) Jenkins
+
+GitHub Actions is the reference pipeline (`.github/workflows/`). For clients that standardise on
+Jenkins, the root [`Jenkinsfile`](../../Jenkinsfile) runs the same `ci.yml` gates with the same
+commands:
+- Python 3.11 and 3.12: ruff, mypy, pytest (coverage gate 75%), CLI smoke test, and the agent-ops gates
+  (`golden agent verify`, red-team, model retrain).
+- Both Node apps: lint and test.
+- ShellCheck, Compose validation, YAML/JSON parsing (`scripts/ci/check-yaml-json.py`), and the Ansible
+  baseline's syntax check plus `ansible-lint`.
+
+| GitHub Actions | Jenkins |
+|---|---|
+| `strategy.matrix` | declarative `matrix` (python, node) |
+| `concurrency: cancel-in-progress` | `disableConcurrentBuilds(abortPrevious: true)` |
+| `actions/setup-python`, `setup-node` | `agent { docker { image ... } }` per matrix cell |
+| `upload-artifact` for junit/coverage | `junit` + `recordCoverage` (Coverage plugin, 75% line gate) |
+| OIDC to the cloud (`deploy.yml`) | not mirrored; use the cloud's Jenkins OIDC plugin or a short-lived credential binding |
+
+Requirements: an agent labelled `docker`, and the Pipeline, Docker Pipeline, JUnit, Coverage,
+Workspace Cleanup and Timestamper plugins. The image build, signing, deploy and security-scan workflows
+stay in GitHub Actions. When you port them, keep the same gates: Trivy, gitleaks, cosign sign and
+verify, and the OPA plan gates (`scripts/iam-policy-gate.sh`). Change both pipelines in the same PR,
+so that they don't drift apart.
+
 ---
 
 *Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.*

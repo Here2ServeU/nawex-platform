@@ -1,0 +1,58 @@
+- name: 6.1 Permissions on sensitive files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - {path: /etc/passwd, mode: "0644"}
+    - {path: /etc/group, mode: "0644"}
+    - {path: /etc/shadow, mode: "0000"}
+    - {path: /etc/gshadow, mode: "0000"}
+    - {path: /etc/crontab, mode: "0600"}
+  tags: [cis_6_1]
+
+- name: 6.2 Find accounts with empty passwords
+  ansible.builtin.command:
+    argv: [awk, "-F:", '($2 == "") { print $1 }', /etc/shadow]
+  register: rhel_baseline_empty_passwords
+  changed_when: false
+  check_mode: false
+  tags: [cis_6_2]
+
+- name: 6.2 Fail if any account has an empty password
+  ansible.builtin.assert:
+    that: rhel_baseline_empty_passwords.stdout_lines | length == 0
+    fail_msg: "Accounts with empty passwords: {{ rhel_baseline_empty_passwords.stdout_lines | join(', ') }}"
+  tags: [cis_6_2]
+
+- name: 6.3 Install dnf-automatic for security advisories
+  ansible.builtin.dnf:
+    name: dnf-automatic
+    state: present
+  when: rhel_baseline_security_updates
+  tags: [cis_6_3]
+
+- name: 6.3 Configure dnf-automatic (security only)
+  ansible.builtin.copy:
+    dest: /etc/dnf/automatic.conf
+    content: |
+      [commands]
+      upgrade_type = security
+      download_updates = yes
+      apply_updates = {{ 'yes' if rhel_baseline_security_updates_apply else 'no' }}
+      [emitters]
+      emit_via = stdio
+    owner: root
+    group: root
+    mode: "0644"
+  when: rhel_baseline_security_updates
+  tags: [cis_6_3]
+
+- name: 6.3 Enable the dnf-automatic timer
+  ansible.builtin.systemd:
+    name: dnf-automatic.timer
+    enabled: true
+    state: started
+  when: rhel_baseline_security_updates
+  tags: [cis_6_3]

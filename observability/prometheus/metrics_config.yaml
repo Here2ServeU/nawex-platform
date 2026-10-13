@@ -32,6 +32,8 @@ rule_files:
   - "rules/migration_rules.yml"
   - "rules/identity_rules.yml"
   - "rules/agentops_rules.yml"
+  - "rules/finops_rules.yml"
+  - "rules/database_rules.yml"
 
 scrape_configs:
   # ── Platform API (golden serve api) ───────────────────────────
@@ -95,6 +97,26 @@ scrape_configs:
       - targets: ["agent-ops:8099"]
         labels:
           vertical: agent-ops
+
+  # ── OpenCost (Kubernetes cost allocation; deploy/gitops/argocd/app-opencost.yaml) ──
+  - job_name: opencost
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["opencost.opencost.svc:9003"]
+        labels:
+          vertical: finops
+
+  # ── PostgreSQL / PgBouncer (deploy/k8s/database) ─────────────
+  - job_name: postgres
+    static_configs:
+      - targets: ["postgres-exporter.golden-db.svc:9187"]
+        labels:
+          vertical: database
+  - job_name: pgbouncer
+    static_configs:
+      - targets: ["pgbouncer.golden-db.svc:9127"]
+        labels:
+          vertical: database
 
   # ── NVIDIA DCGM exporter (real GPU clusters only) ────────────
   # Exposes DCGM_FI_DEV_GPU_UTIL, DCGM_FI_DEV_GPU_TEMP, DCGM_FI_DEV_FB_USED,

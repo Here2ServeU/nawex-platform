@@ -1,0 +1,65 @@
+# Exercises the optional platform add-on paths (Argo Rollouts, KEDA, External
+# Secrets). Used by scripts/ci/validate-infra.sh.
+image:
+  tag: "1.2.3"
+apiKeys:
+  optional: false
+metrics:
+  serviceMonitor:
+    enabled: true
+rollouts:
+  enabled: true
+externalSecrets:
+  enabled: true
+  secrets:
+    api-keys:
+      data:
+        - secretKey: GOLDEN_API_KEYS
+          remoteRef:
+            key: golden/api-keys
+            property: GOLDEN_API_KEYS
+    llm-credentials:
+      secretStoreRef:
+        kind: SecretStore
+        name: golden-vault
+      dataFrom:
+        - extract:
+            key: golden/llm
+services:
+  # Canary Rollout, HPA targets the Rollout.
+  api:
+    autoscaling:
+      enabled: true
+    rollout:
+      enabled: true
+  # Canary Rollout with NGINX traffic splitting, scaled by KEDA.
+  payment-gateway:
+    rollout:
+      enabled: true
+      steps:
+        - setWeight: 5
+        - pause: {duration: 5m}
+        - setWeight: 50
+        - pause: {}
+      trafficRouting:
+        nginx:
+          stableIngress: ci-release-golden
+    keda:
+      enabled: true
+      minReplicaCount: 3
+      maxReplicaCount: 30
+  # Plain Deployment scaled by KEDA with an extra cron trigger.
+  fraud-detector:
+    autoscaling:
+      enabled: true
+    keda:
+      enabled: true
+      query: sum(rate(golden_http_requests_total{service="fraud-detector"}[1m]))
+      requestsPerSecondThreshold: "100"
+      extraTriggers:
+        - type: cron
+          metadata:
+            timezone: Etc/UTC
+            start: 0 8 * * 1-5
+            end: 0 20 * * 1-5
+            desiredReplicas: "4"

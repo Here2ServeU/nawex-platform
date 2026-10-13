@@ -1,0 +1,105 @@
+# Zero-trust ingress for golden-ml: deny everything, then allow only the gateways.
+#   vLLM    <- agent-ops LLM gateway (namespace golden, app.kubernetes.io/component=agent-ops)
+#   Triton  <- platform API gateway (namespace golden, app.kubernetes.io/component=api)
+#   KServe  <- Knative activator / Istio ingress gateway (KServe Serverless routing path)
+#   metrics <- Prometheus in the monitoring namespace
+# Egress is left open on purpose: vLLM pulls weights from Hugging Face and the KServe storage
+# initializer reads the registry; tighten with an egress policy (or an egress proxy) per environment.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: golden-ml
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: vllm-from-llm-gateway
+  namespace: golden-ml
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: vllm
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: golden
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: agent-ops
+      ports:
+        - port: 8000
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: triton-from-api-gateway
+  namespace: golden-ml
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: triton
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: golden
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: api
+      ports:
+        - port: 8000
+          protocol: TCP
+        - port: 8001
+          protocol: TCP
+---
+# KServe Serverless: requests arrive through the Istio ingress gateway and the Knative activator
+# (when scaled to/near zero). The predictor pod carries the label serving.kserve.io/inferenceservice.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kserve-predictor-from-gateways
+  namespace: golden-ml
+spec:
+  podSelector:
+    matchLabels:
+      serving.kserve.io/inferenceservice: fraud-detector
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: istio-system
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: knative-serving
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: metrics-from-prometheus
+  namespace: golden-ml
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: golden
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 8000
+          protocol: TCP
+        - port: 8002
+          protocol: TCP
+        - port: 8080
+          protocol: TCP

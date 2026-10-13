@@ -1,0 +1,102 @@
+- name: 1.1.1 Disable unused filesystem and USB storage kernel modules
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/cis-disabled.conf
+    content: |
+      # Managed by Ansible (rhel_baseline) — CIS 1.1.1
+      {% for fs in rhel_baseline_disable_filesystems %}
+      install {{ fs }} /bin/false
+      blacklist {{ fs }}
+      {% endfor %}
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [cis_1_1]
+
+- name: 1.1.2 Harden /dev/shm mount options
+  ansible.posix.mount:
+    path: /dev/shm
+    src: tmpfs
+    fstype: tmpfs
+    opts: defaults,nodev,nosuid,noexec
+    state: mounted
+  when: rhel_baseline_tmp_mount_options
+  tags: [cis_1_1]
+
+- name: 1.1.2 Harden /tmp via systemd tmp.mount
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/tmp.mount.d/options.conf
+    content: |
+      [Mount]
+      Options=mode=1777,strictatime,nodev,nosuid,noexec
+    owner: root
+    group: root
+    mode: "0644"
+  when: rhel_baseline_tmp_mount_options
+  tags: [cis_1_1]
+
+- name: 1.3 Install AIDE (file integrity)
+  ansible.builtin.dnf:
+    name: aide
+    state: present
+  when: rhel_baseline_aide
+  notify: Initialise aide database
+  tags: [cis_1_3]
+
+- name: 1.3 Schedule a daily AIDE check
+  ansible.builtin.cron:
+    name: aide check
+    cron_file: aide
+    user: root
+    minute: "{{ rhel_baseline_aide_cron.split()[0] }}"
+    hour: "{{ rhel_baseline_aide_cron.split()[1] }}"
+    job: /usr/sbin/aide --check
+  when: rhel_baseline_aide
+  tags: [cis_1_3]
+
+- name: 1.5 Disable core dumps
+  ansible.builtin.copy:
+    dest: /etc/security/limits.d/50-cis-core.conf
+    content: "* hard core 0\n"
+    owner: root
+    group: root
+    mode: "0644"
+  when: rhel_baseline_core_dumps_disabled
+  tags: [cis_1_5]
+
+- name: 1.5 Disable systemd-coredump storage
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/coredump.conf
+    regexp: "^#?Storage="
+    line: Storage=none
+  when: rhel_baseline_core_dumps_disabled
+  tags: [cis_1_5]
+
+- name: 1.6 SELinux enforcing
+  ansible.posix.selinux:
+    policy: targeted
+    state: "{{ rhel_baseline_selinux_state }}"
+  tags: [cis_1_6]
+
+- name: 1.7 Login banners
+  ansible.builtin.copy:
+    dest: "{{ item }}"
+    content: |
+      {{ rhel_baseline_banner_org }}: authorized use only. Activity is monitored and logged.
+    owner: root
+    group: root
+    mode: "0644"
+  loop: [/etc/issue, /etc/issue.net, /etc/motd]
+  tags: [cis_1_7]
+
+- name: 1.10 Read the current crypto policy
+  ansible.builtin.command: update-crypto-policies --show
+  register: rhel_baseline_crypto_policy_current
+  changed_when: false
+  check_mode: false
+  tags: [cis_1_10]
+
+- name: 1.10 Set the system-wide crypto policy
+  ansible.builtin.command: update-crypto-policies --set {{ rhel_baseline_crypto_policy }}
+  changed_when: true
+  when: rhel_baseline_crypto_policy_current.stdout | trim != rhel_baseline_crypto_policy
+  tags: [cis_1_10]

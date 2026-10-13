@@ -153,6 +153,56 @@ model-drift: ## PSI + KS drift check for the fraud model (exit 2 on drift)
 model-retrain: ## Drift-triggered retrain; registers a challenger only if it passes the quality gate
 	$(GOLDEN) model retrain
 
+##@ FinOps
+.PHONY: finops-report finops-anomalies finops-k8s
+finops-report: ## Showback/chargeback, tag coverage, anomalies, forecast (FOCUS=export.csv or sample)
+	$(GOLDEN) finops report $(if $(FOCUS),--input $(FOCUS),)
+
+finops-anomalies: ## Daily cost anomalies by service (robust z-score)
+	$(GOLDEN) finops anomalies $(if $(FOCUS),--input $(FOCUS),)
+
+finops-k8s: ## OpenCost-style namespace cost allocation (sample cluster)
+	$(GOLDEN) finops k8s
+
+##@ Enterprise networking
+.PHONY: net-plan net-verify
+net-plan: ## IPAM plan -> Terraform values (NET_SPEC=spec.yaml or sample)
+	$(GOLDEN) network plan $(if $(NET_SPEC),--spec $(NET_SPEC),) --format tfvars
+
+net-verify: ## Prove prod<->nonprod denied and both reach shared, in every hub mode
+	$(GOLDEN) network verify && $(GOLDEN) network verify --inspection && $(GOLDEN) network verify --inspection --east-west
+
+##@ ML platform, GPU, modernization, multi-cloud identity
+.PHONY: features-demo gpu-partition migrate-portfolio migrate-databases iam-multicloud
+features-demo: ## Feature store: point-in-time join → online store → skew check
+	$(GOLDEN) features demo
+
+gpu-partition: ## MIG / time-slicing / MPS plan and GPUs saved (GPU=H100-80GB PRICE=6)
+	$(GOLDEN) gpu partition --gpu $${GPU:-A100-80GB} --price $${PRICE:-4.0}
+
+migrate-portfolio: ## 7 Rs / TIME application portfolio rationalization
+	$(GOLDEN) migrate portfolio
+
+migrate-databases: ## Database migration assessment (target, strategy, CDC feasibility, cutover)
+	$(GOLDEN) migrate databases
+
+iam-multicloud: ## Lint AWS + Azure + GCP access models and compare personas across clouds
+	$(GOLDEN) iam multicloud
+
+##@ Database performance
+.PHONY: db-demo
+db-demo: ## Workload, EXPLAIN, index and capacity advisors on the sample payments database
+	-$(GOLDEN) db workload
+	-$(GOLDEN) db explain
+	-$(GOLDEN) db indexes
+	-$(GOLDEN) db capacity
+
+##@ Linux baseline & Jenkins
+.PHONY: ansible-check
+ansible-check: ## Ansible baseline: syntax check + ansible-lint (production profile)
+	cd deploy/ansible && ANSIBLE_CONFIG=ansible.cfg ansible-playbook --syntax-check playbooks/baseline.yml
+	cd deploy/ansible && ANSIBLE_CONFIG=ansible.cfg ansible-lint playbooks/baseline.yml roles/
+
 ##@ Build & deploy
 .PHONY: build validate-infra plan deploy destroy
 build: ## Build all container images

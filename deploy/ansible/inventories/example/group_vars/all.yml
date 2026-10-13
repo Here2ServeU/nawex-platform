@@ -1,0 +1,5 @@
+# Organisation-wide overrides of roles/rhel_baseline/defaults/main.yml.
+rhel_baseline_ntp_servers:
+  - 169.254.169.123   # AWS Time Sync; Azure/GCP have their own link-local sources
+rhel_baseline_ssh_allowed_groups: [wheel, sre]
+rhel_baseline_banner_org: Golden Platform

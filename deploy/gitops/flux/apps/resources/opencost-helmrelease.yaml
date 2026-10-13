@@ -1,0 +1,57 @@
+# OpenCost (Kubernetes cost allocation) from the upstream Helm repository.
+# Mirrors deploy/gitops/argocd/app-opencost.yaml; alerts live in
+# observability/prometheus/rules/finops_rules.yml.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: opencost
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://opencost.github.io/opencost-helm-chart
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: opencost
+  namespace: flux-system
+spec:
+  targetNamespace: opencost
+  install:
+    createNamespace: true
+  interval: 5m
+  chart:
+    spec:
+      chart: opencost
+      version: "2.5.32"
+      sourceRef:
+        kind: HelmRepository
+        name: opencost
+        namespace: flux-system
+  values:
+    opencost:
+      exporter:
+        defaultClusterId: golden
+      prometheus:
+        internal:
+          enabled: true
+          # Flux names the monitoring-stack release <targetNamespace>-<name>
+          # (monitoring-monitoring-stack) -> <release>-<chart>-prometheus.
+          serviceName: monitoring-monitoring-stack-monitoring-stack-prometheus
+          namespaceName: monitoring
+          port: 9090
+      metrics:
+        serviceMonitor:
+          enabled: false
+      ui:
+        enabled: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 1Gi
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9003"
+      prometheus.io/path: /metrics

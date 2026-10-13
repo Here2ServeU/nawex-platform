@@ -2,6 +2,45 @@
 
 ## [Unreleased]
 
+### Added — platform gap closure
+- **FinOps** (`golden.finops`, `golden finops`):
+  - FOCUS-based showback and chargeback, with shared-cost allocation;
+  - tag coverage, anomalies and month-end forecasts;
+  - rightsizing and commitment recommendations, and Kubernetes cost allocation;
+  - budget, anomaly and export Terraform modules for AWS, Azure and GCP;
+  - an OPA tagging gate, OpenCost (Argo CD and Flux), an Infracost PR workflow, and FinOps alerts.
+- **Enterprise networking** (`golden.network`, `golden network`):
+  - AWS Transit Gateway hub with segmentation, inspection, hybrid DNS and Direct Connect;
+  - PrivateLink endpoints restricted to the organization;
+  - Azure hub-spoke and GCP Shared VPC modules, and the `live/aws/network` root;
+  - an IP address planner, a reachability and segmentation checker, and `network.rego`.
+- **Multi-cloud governance**:
+  - Azure: management groups, Azure Policy, and Entra ID with PIM;
+  - GCP: folders, org policy, deny policy and PAM;
+  - AWS account vending;
+  - Azure/GCP access models with a cross-cloud persona matrix (`golden iam multicloud|matrix`);
+  - STRIDE threat models.
+- **Platform engineering** (all opt-in): Argo Rollouts canary with analysis, KEDA and External Secrets in
+  the chart; Karpenter and Velero in the EKS module; keyless cosign signing with SBOM attestation;
+  Kyverno verifyImages; a ZAP DAST workflow.
+- **Database performance** (`golden.database`, `golden db`): workload, EXPLAIN, index/vacuum and capacity
+  advisors; an Aurora PostgreSQL module (Performance Insights, RDS Proxy, tuned parameters); PgBouncer and
+  `postgres_exporter`; alerts, a dashboard and a runbook.
+- **ML platform**:
+  - a point-in-time feature store with a Feast equivalent;
+  - Open Inference Protocol model server (`model-server` :8100) and KServe, vLLM and Triton manifests;
+  - MIG, time-slicing and MPS planning (`golden gpu partition`), and GPU Operator config.
+- **Modernization**: 7 Rs / TIME portfolio assessment, database migration assessment, an AWS DMS
+  module, a strangler-fig facade on Kong, and a database cutover runbook.
+- **New Relic via OpenTelemetry** (collector overlay plus an Argo CD app), a **CIS-style RHEL Ansible
+  baseline**, and a **Jenkinsfile** mirroring CI.
+
+### Fixed
+- Agent operations, from the threat model:
+  - RAG quarantines ingested chunks that carry injection payloads;
+  - an agent with no tool allowlist now gets no tools (it previously got all of them);
+  - the LLM response cache is scoped per caller.
+
 ### Added
 - **AWS identity governance domain** (`identity`):
   - persona-based access model (`security/identity/access-model.yaml`) mapping AD groups (SCIM via

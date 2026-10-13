@@ -7,6 +7,10 @@ This folder stores policy-as-code and security governance artifacts.
 - `opa/k8s-security.rego`: Kubernetes security policy baseline.
 - `opa/aws-iam.rego`: AWS IAM guardrails for Terraform plans (boundaries, no IAM users, no wildcard
   admin, trust policies, permission-set sessions, SCP size). Run it with `scripts/iam-policy-gate.sh <tf dir>`.
+- `opa/tagging.rego`: required cost-allocation tags/labels on AWS, Azure and GCP resources in Terraform plans.
+- `opa/network.rego`: no internet-exposed admin ports, no public database subnets, flow logs and WAF warnings.
+- `kyverno/`: admission policies — keyless cosign signature + SBOM attestation required for platform
+  images, no `:latest`, required labels.
 - `validate-policies.sh`: Quick local validator for policy files.
 
 ## Policy Areas

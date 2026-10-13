@@ -1,0 +1,82 @@
+# Zero-trust for golden-db: deny all ingress and egress, then allow
+#   pgbouncer          <- application pods labelled golden.io/db-client=true (namespace golden)
+#   metrics (9127/9187) <- Prometheus in the monitoring namespace
+#   egress             -> PostgreSQL 5432 inside the VPC (Aurora / RDS Proxy) and cluster DNS
+# Narrow AURORA_CIDR (10.0.0.0/8 here) to the database subnets of your VPC.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: golden-db
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress", "Egress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pgbouncer-from-apps
+  namespace: golden-db
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: pgbouncer
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: golden
+          podSelector:
+            matchLabels:
+              golden.io/db-client: "true"
+      ports:
+        - port: 6432
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: metrics-from-prometheus
+  namespace: golden-db
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 9127
+          protocol: TCP
+        - port: 9187
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: egress-postgres-and-dns
+  namespace: golden-db
+spec:
+  podSelector: {}
+  policyTypes: ["Egress"]
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 10.0.0.0/8
+      ports:
+        - port: 5432
+          protocol: TCP
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP

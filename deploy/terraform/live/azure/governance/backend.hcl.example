@@ -1,0 +1,6 @@
+# Copy to backend.hcl and run: terraform init -backend-config=backend.hcl
+# State for the tenant-level governance stack lives in the platform management subscription.
+resource_group_name  = "golden-tfstate-rg"
+storage_account_name = "REPLACEMEgoldentfstate"
+container_name       = "tfstate"
+key                  = "golden/tenant/governance.tfstate"

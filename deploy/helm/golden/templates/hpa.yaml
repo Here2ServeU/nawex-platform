@@ -1,7 +1,8 @@
 {{- range $name, $raw := .Values.services }}
 {{- $ctx := dict "root" $ "name" $name "cfg" $raw }}
 {{- $svc := include "golden.serviceConfig" $ctx | fromYaml }}
-{{- if and (ne (toString $svc.enabled) "false") $svc.autoscaling.enabled }}
+{{- $pctx := dict "root" $ "name" $name "svc" $svc }}
+{{- if and (ne (toString $svc.enabled) "false") $svc.autoscaling.enabled (not (include "golden.isKeda" $pctx)) }}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -11,9 +12,7 @@ metadata:
     {{- include "golden.serviceLabels" $ctx | nindent 4 }}
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: {{ include "golden.serviceName" $ctx }}
+    {{- include "golden.scaleTargetRef" $pctx | nindent 4 }}
   minReplicas: {{ $svc.autoscaling.minReplicas }}
   maxReplicas: {{ $svc.autoscaling.maxReplicas }}
   metrics:

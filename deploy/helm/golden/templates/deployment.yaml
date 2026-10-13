@@ -1,21 +1,68 @@
+{{- /*
+One workload per entry in .Values.services. Renders an apps/v1 Deployment, or
+an argoproj.io/v1alpha1 Rollout (canary + Prometheus analysis) when
+rollouts.enabled and services.<name>.rollout.enabled. Both share the pod
+template in _helpers.tpl ("golden.podTemplate").
+*/}}
 {{- range $name, $raw := .Values.services }}
 {{- $ctx := dict "root" $ "name" $name "cfg" $raw }}
 {{- $svc := include "golden.serviceConfig" $ctx | fromYaml }}
 {{- if ne (toString $svc.enabled) "false" }}
-{{- $gpu := deepCopy ($svc.gpu | default dict) }}
-{{- if and $.Values.gpu.enabled (hasKey $gpu "resourceName") }}
-{{- $_ := set $gpu "enabled" true }}
-{{- end }}
-{{- $resources := deepCopy ($svc.resources | default dict) }}
-{{- $nodeSelector := deepCopy ($svc.nodeSelector | default dict) }}
-{{- $tolerations := $svc.tolerations | default list }}
-{{- if $gpu.enabled }}
-{{- $limits := $resources.limits | default dict }}
-{{- $_ := set $limits ($gpu.resourceName | default "nvidia.com/gpu") (int ($gpu.count | default 1)) }}
-{{- $_ := set $resources "limits" $limits }}
-{{- $nodeSelector = mergeOverwrite $nodeSelector ($gpu.nodeSelector | default dict) }}
-{{- $tolerations = concat $tolerations ($gpu.tolerations | default list) }}
-{{- end }}
+{{- $pctx := dict "root" $ "name" $name "svc" $svc }}
+{{- $autoscaled := or $svc.autoscaling.enabled (include "golden.isKeda" $pctx) }}
+{{- if include "golden.isRollout" $pctx }}
+{{- $ro := $svc.rollout }}
+{{- $canary := $.Values.rollouts.canary }}
+{{- $analysis := $.Values.rollouts.analysis }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "golden.serviceName" $ctx }}
+  labels:
+    {{- include "golden.serviceLabels" $ctx | nindent 4 }}
+spec:
+  {{- if not $autoscaled }}
+  replicas: {{ $svc.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      {{- include "golden.selectorLabels" $ctx | nindent 6 }}
+  template:
+    {{- include "golden.podTemplate" $pctx | nindent 4 }}
+  strategy:
+    canary:
+      {{- if $ro.trafficRouting }}
+      canaryService: {{ include "golden.serviceName" $ctx }}-canary
+      stableService: {{ include "golden.serviceName" $ctx }}-stable
+      trafficRouting:
+        {{- toYaml $ro.trafficRouting | nindent 8 }}
+      {{- end }}
+      maxSurge: {{ $ro.maxSurge | default $canary.maxSurge | quote }}
+      maxUnavailable: {{ $ro.maxUnavailable | default $canary.maxUnavailable }}
+      abortScaleDownDelaySeconds: {{ $canary.abortScaleDownDelaySeconds }}
+      {{- if $analysis.enabled }}
+      analysis:
+        templates:
+          - templateName: {{ include "golden.fullname" $ }}-canary
+        # Background analysis from the first pause onwards: a failed
+        # measurement beyond failureLimit aborts the rollout automatically.
+        startingStep: 1
+        args:
+          - name: service
+            value: {{ printf "%s|%s" $name (include "golden.serviceName" $ctx) | quote }}
+          - name: namespace
+            value: {{ $.Release.Namespace | quote }}
+          {{- if $analysis.selectCanaryPods }}
+          - name: canary-hash
+            valueFrom:
+              podTemplateHashValue: Latest
+          {{- end }}
+      {{- end }}
+      steps:
+        {{- toYaml ($ro.steps | default $canary.steps) | nindent 8 }}
+{{- else }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -24,7 +71,7 @@ metadata:
   labels:
     {{- include "golden.serviceLabels" $ctx | nindent 4 }}
 spec:
-  {{- if not $svc.autoscaling.enabled }}
+  {{- if not $autoscaled }}
   replicas: {{ $svc.replicaCount }}
   {{- end }}
   revisionHistoryLimit: 5
@@ -37,128 +84,7 @@ spec:
     matchLabels:
       {{- include "golden.selectorLabels" $ctx | nindent 6 }}
   template:
-    metadata:
-      labels:
-        {{- include "golden.selectorLabels" $ctx | nindent 8 }}
-        app.kubernetes.io/part-of: golden
-        app.kubernetes.io/component: {{ $name }}
-        {{- with $.Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-        {{- with $svc.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-      annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") $ | sha256sum }}
-        {{- if $.Values.metrics.podAnnotations }}
-        prometheus.io/scrape: "true"
-        prometheus.io/port: {{ $svc.port | quote }}
-        prometheus.io/path: {{ $.Values.metrics.path | quote }}
-        {{- end }}
-        {{- with $.Values.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-        {{- with $svc.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-    spec:
-      serviceAccountName: {{ include "golden.serviceAccountName" $ }}
-      automountServiceAccountToken: {{ $.Values.serviceAccount.automountServiceAccountToken }}
-      {{- with $.Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with $svc.priorityClassName }}
-      priorityClassName: {{ . }}
-      {{- end }}
-      {{- if and $gpu.enabled $gpu.runtimeClassName }}
-      runtimeClassName: {{ $gpu.runtimeClassName }}
-      {{- end }}
-      terminationGracePeriodSeconds: {{ $svc.terminationGracePeriodSeconds }}
-      securityContext:
-        {{- toYaml $.Values.podSecurityContext | nindent 8 }}
-      containers:
-        - name: {{ $name }}
-          image: {{ include "golden.image" $ | quote }}
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
-          command: ["golden", "serve", {{ $name | quote }}]
-          ports:
-            - name: http
-              containerPort: {{ $svc.port }}
-              protocol: TCP
-          env:
-            - name: GOLDEN_SERVICE
-              value: {{ $name | quote }}
-            - name: GOLDEN_PORT
-              value: {{ $svc.port | quote }}
-            - name: GOLDEN_API_KEYS
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "golden.apiKeysSecretName" $ }}
-                  key: {{ $.Values.apiKeys.secretKey }}
-                  optional: {{ $.Values.apiKeys.optional }}
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: POD_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-            {{- range $k, $v := $svc.env }}
-            - name: {{ $k }}
-              value: {{ $v | quote }}
-            {{- end }}
-          envFrom:
-            - configMapRef:
-                name: {{ include "golden.configMapName" $ }}
-          {{- with $svc.livenessProbe }}
-          livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with $svc.readinessProbe }}
-          readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with $svc.startupProbe }}
-          startupProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          resources:
-            {{- toYaml $resources | nindent 12 }}
-          securityContext:
-            {{- toYaml $.Values.containerSecurityContext | nindent 12 }}
-          volumeMounts:
-            - name: tmp
-              mountPath: /tmp
-            {{- if $svc.persistence.enabled }}
-            - name: data
-              mountPath: {{ $svc.persistence.mountPath }}
-            {{- end }}
-      volumes:
-        - name: tmp
-          emptyDir:
-            sizeLimit: {{ $.Values.tmpVolume.sizeLimit }}
-        {{- if $svc.persistence.enabled }}
-        - name: data
-          persistentVolumeClaim:
-            claimName: {{ include "golden.serviceName" $ctx }}-data
-        {{- end }}
-      {{- with $nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with $tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with $svc.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with $svc.topologySpreadConstraints }}
-      topologySpreadConstraints:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+    {{- include "golden.podTemplate" $pctx | nindent 4 }}
+{{- end }}
 {{- end }}
 {{- end }}

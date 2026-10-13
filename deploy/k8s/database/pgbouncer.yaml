@@ -1,0 +1,233 @@
+# PgBouncer in transaction-pooling mode in front of Aurora PostgreSQL.
+#
+# Sizing comes from `golden db capacity` (golden.database.capacity.pool_sizing):
+#   server connections per PgBouncer replica = default_pool_size + reserve_pool_size
+#   total server connections = that × replicas  (keep well under max_connections)
+#   max_client_conn = app instances × app pool size × 1.2 / replicas
+# For a 16 vCPU writer: active ≈ cores × 2 + 1 = 33 → 2 replicas × (17 + 4) = 42 server
+# connections serving up to 1,440 client connections.
+#
+# Transaction mode caveats: no session-level SET (use SET LOCAL), advisory locks, LISTEN/NOTIFY
+# or WITH HOLD cursors across transactions. Protocol-level prepared statements work via
+# max_prepared_statements (PgBouncer >= 1.21).
+#
+# Credentials: Secret `pgbouncer-auth` (userlist.txt + stats password) is delivered by
+# External Secrets (externalsecret.yaml). Replace the endpoint hosts with the Terraform
+# outputs writer_endpoint / reader_endpoint.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgbouncer-config
+  namespace: golden-db
+  labels:
+    app.kubernetes.io/name: pgbouncer
+    app.kubernetes.io/part-of: golden
+data:
+  pgbouncer.ini: |
+    [databases]
+    ; read/write traffic → Aurora writer; staleness-tolerant reads → reader endpoint
+    app = host=golden-payments.cluster-example.us-east-1.rds.amazonaws.com port=5432 dbname=app
+    app_ro = host=golden-payments.cluster-ro-example.us-east-1.rds.amazonaws.com port=5432 dbname=app
+
+    [pgbouncer]
+    listen_addr = 0.0.0.0
+    listen_port = 6432
+    unix_socket_dir =
+    pidfile =
+    logfile =
+    auth_type = scram-sha-256
+    auth_file = /etc/pgbouncer/auth/userlist.txt
+    admin_users =
+    stats_users = pgbouncer_stats
+
+    pool_mode = transaction
+    ; per replica (2 replicas): see header for the maths
+    max_client_conn = 720
+    default_pool_size = 17
+    min_pool_size = 4
+    reserve_pool_size = 4
+    reserve_pool_timeout = 3
+    max_db_connections = 21
+    max_prepared_statements = 200
+
+    ; fail fast instead of queueing forever when the database is saturated
+    query_wait_timeout = 30
+    server_idle_timeout = 300
+    server_lifetime = 3600
+    server_connect_timeout = 5
+    idle_transaction_timeout = 60
+
+    ; TLS to Aurora (rds.force_ssl=1). Mount the RDS CA bundle and use verify-full in production.
+    server_tls_sslmode = require
+    ignore_startup_parameters = extra_float_digits,options,search_path
+    log_connections = 0
+    log_disconnections = 0
+    stats_period = 60
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgbouncer
+  namespace: golden-db
+  labels:
+    app.kubernetes.io/name: pgbouncer
+    app.kubernetes.io/component: connection-pooler
+    app.kubernetes.io/part-of: golden
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pgbouncer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pgbouncer
+        app.kubernetes.io/component: connection-pooler
+        app.kubernetes.io/part-of: golden
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9127"
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 70
+        runAsGroup: 70
+        fsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: pgbouncer
+      containers:
+        - name: pgbouncer
+          image: docker.io/edoburu/pgbouncer:v1.23.1-p2
+          imagePullPolicy: IfNotPresent
+          command: ["/usr/bin/pgbouncer", "/etc/pgbouncer/pgbouncer.ini"]
+          ports:
+            - name: pgbouncer
+              containerPort: 6432
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 250m
+              memory: 64Mi
+            limits:
+              cpu: "1"
+              memory: 256Mi
+          readinessProbe:
+            tcpSocket:
+              port: pgbouncer
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: pgbouncer
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          lifecycle:
+            preStop:
+              exec:
+                # Let in-flight transactions finish before SIGTERM (PgBouncer SIGTERM = immediate shutdown).
+                command: ["/bin/sh", "-c", "sleep 20"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: config
+              mountPath: /etc/pgbouncer/pgbouncer.ini
+              subPath: pgbouncer.ini
+              readOnly: true
+            - name: auth
+              mountPath: /etc/pgbouncer/auth
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+        - name: exporter
+          image: quay.io/prometheuscommunity/pgbouncer-exporter:v0.9.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - --pgBouncer.connectionString=postgres://pgbouncer_stats:$(STATS_PASSWORD)@127.0.0.1:6432/pgbouncer?sslmode=disable
+            - --web.listen-address=:9127
+          env:
+            - name: STATS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgbouncer-auth
+                  key: stats-password
+          ports:
+            - name: metrics
+              containerPort: 9127
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: config
+          configMap:
+            name: pgbouncer-config
+        - name: auth
+          secret:
+            secretName: pgbouncer-auth
+            items:
+              - key: userlist.txt
+                path: userlist.txt
+        - name: tmp
+          emptyDir:
+            sizeLimit: 16Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgbouncer
+  namespace: golden-db
+  labels:
+    app.kubernetes.io/name: pgbouncer
+    app.kubernetes.io/part-of: golden
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: pgbouncer
+  ports:
+    - name: pgbouncer
+      port: 6432
+      targetPort: pgbouncer
+      protocol: TCP
+    - name: metrics
+      port: 9127
+      targetPort: metrics
+      protocol: TCP
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pgbouncer
+  namespace: golden-db
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pgbouncer

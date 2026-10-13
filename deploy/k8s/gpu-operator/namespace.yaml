@@ -1,0 +1,8 @@
+# The GPU Operator runs privileged node agents (driver, toolkit, device plugin, DCGM).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gpu-operator
+  labels:
+    app.kubernetes.io/part-of: golden
+    pod-security.kubernetes.io/enforce: privileged

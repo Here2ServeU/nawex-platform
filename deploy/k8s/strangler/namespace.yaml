@@ -1,0 +1,9 @@
+# Strangler-fig facade namespace: Kong (DB-less) in front of the legacy monolith and the new services.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: strangler
+  labels:
+    app.kubernetes.io/part-of: golden
+    golden.io/pattern: strangler-fig
+    pod-security.kubernetes.io/enforce: restricted

@@ -1,0 +1,31 @@
+{{- /*
+Canary / stable Services for Rollouts that use trafficRouting (the mesh or
+ingress controller splits traffic between them by weight).
+*/}}
+{{- range $name, $raw := .Values.services }}
+{{- $ctx := dict "root" $ "name" $name "cfg" $raw }}
+{{- $svc := include "golden.serviceConfig" $ctx | fromYaml }}
+{{- $pctx := dict "root" $ "name" $name "svc" $svc }}
+{{- if and (ne (toString $svc.enabled) "false") (include "golden.isRollout" $pctx) $svc.rollout.trafficRouting }}
+{{- range $role := list "canary" "stable" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "golden.serviceName" $ctx }}-{{ $role }}
+  labels:
+    {{- include "golden.serviceLabels" $ctx | nindent 4 }}
+    golden.io/rollout-role: {{ $role }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ $svc.port }}
+      targetPort: http
+      protocol: TCP
+  # Argo Rollouts injects rollouts-pod-template-hash into this selector.
+  selector:
+    {{- include "golden.selectorLabels" $ctx | nindent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}

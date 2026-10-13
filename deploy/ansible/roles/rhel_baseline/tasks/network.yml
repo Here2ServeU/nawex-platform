@@ -1,0 +1,44 @@
+- name: 3.2/3.3 Kernel network and memory hardening
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_file: /etc/sysctl.d/60-cis.conf
+    state: present
+    reload: true
+  loop: "{{ rhel_baseline_sysctl | dict2items }}"
+  tags: [cis_3_2, cis_3_3]
+
+- name: 3.4 Install firewalld
+  ansible.builtin.dnf:
+    name: firewalld
+    state: present
+  when: rhel_baseline_firewalld
+  tags: [cis_3_4]
+
+- name: 3.4 firewalld enabled
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: true
+  when: rhel_baseline_firewalld
+  tags: [cis_3_4]
+
+- name: 3.4 Allow required services in the default zone
+  ansible.posix.firewalld:
+    zone: "{{ rhel_baseline_firewall_zone }}"
+    service: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ rhel_baseline_firewall_services }}"
+  when: rhel_baseline_firewalld
+  tags: [cis_3_4]
+
+- name: 3.4 Default-deny zone (only after SSH is allowed, so we keep access)
+  ansible.builtin.command: firewall-cmd --set-default-zone={{ rhel_baseline_firewall_zone }}
+  register: rhel_baseline_fw_zone
+  changed_when: "'ZONE_ALREADY_SET' not in rhel_baseline_fw_zone.stderr"
+  failed_when: rhel_baseline_fw_zone.rc != 0 and 'ZONE_ALREADY_SET' not in rhel_baseline_fw_zone.stderr
+  when: rhel_baseline_firewalld and not ansible_check_mode
+  notify: Reload firewalld
+  tags: [cis_3_4]

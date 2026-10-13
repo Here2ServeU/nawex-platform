@@ -373,6 +373,224 @@ def cmd_model_list(args: argparse.Namespace) -> int:
     return 0
 
 
+def _kv(pairs: list[str] | None) -> dict[str, float] | None:
+    if not pairs:
+        return None
+    out: dict[str, float] = {}
+    for pair in pairs:
+        name, _, value = pair.partition("=")
+        out[name] = float(value)
+    return out
+
+
+def cmd_finops_report(args: argparse.Namespace) -> int:
+    from datetime import date
+
+    from golden.finops import finops_report
+
+    _print(
+        finops_report(
+            args.input,
+            key=args.key,
+            budgets=_kv(args.budget),
+            usage=_kv(args.usage),
+            unit=args.unit,
+            method=args.method,
+            as_of=date.fromisoformat(args.as_of) if args.as_of else None,
+        )
+    )
+    return 0
+
+
+def _focus_frame(path: str | None):
+    from golden.finops import load_focus, sample_focus_data
+
+    return load_focus(path) if path else sample_focus_data()
+
+
+def cmd_finops_anomalies(args: argparse.Namespace) -> int:
+    from golden.finops import detect_anomalies
+
+    found = detect_anomalies(
+        _focus_frame(args.input), by=args.by, threshold=args.threshold, min_impact=args.min_impact
+    )
+    _print([a.to_dict() for a in found])
+    return 0
+
+
+def cmd_finops_coverage(args: argparse.Namespace) -> int:
+    from golden.finops import tag_coverage
+
+    _print(tag_coverage(_focus_frame(args.input)).to_dict())
+    return 0
+
+
+def cmd_finops_k8s(_: argparse.Namespace) -> int:
+    from golden.finops import allocate_cluster_cost, sample_cluster
+
+    _print(allocate_cluster_cost(*sample_cluster()).to_dict())
+    return 0
+
+
+def cmd_finops_sample(args: argparse.Namespace) -> int:
+    from golden.finops import sample_focus_data, to_focus_csv
+
+    to_focus_csv(sample_focus_data(), args.out)
+    print(args.out)
+    return 0
+
+
+def cmd_gpu_partition(args: argparse.Namespace) -> int:
+    import yaml
+
+    from golden.gpu import Workload, plan_partitioning
+
+    raw = (
+        yaml.safe_load(Path(args.workloads).read_text(encoding="utf-8"))
+        if args.workloads
+        else [
+            {
+                "name": "fraud-scoring",
+                "memory_gb": 8,
+                "compute_fraction": 0.1,
+                "isolation_required": True,
+                "tenant": "fin",
+            },
+            {
+                "name": "triage-llm",
+                "memory_gb": 18,
+                "compute_fraction": 0.3,
+                "isolation_required": True,
+                "tenant": "health",
+            },
+            {"name": "embeddings", "memory_gb": 4, "compute_fraction": 0.05, "bursty": True, "tenant": "fin"},
+            {
+                "name": "notebook",
+                "memory_gb": 9,
+                "compute_fraction": 0.15,
+                "bursty": True,
+                "tenant": "research",
+            },
+            {
+                "name": "fine-tune",
+                "memory_gb": 70,
+                "compute_fraction": 1.0,
+                "kind": "training",
+                "tenant": "research",
+            },
+        ]
+    )
+    plan = plan_partitioning([Workload(**w) for w in raw], args.gpu, price_per_gpu_hour=args.price)
+    _print(plan.to_dict())
+    return 0
+
+
+def cmd_features_demo(args: argparse.Namespace) -> int:
+    from golden.ai.datasets.fintech_simulator import make_fraud_scenario_stream
+    from golden.ai.features.store import ACCOUNT_TXN_VIEW, fintech_feature_store
+
+    store = fintech_feature_store(make_fraud_scenario_stream(args.transactions, seed=11))
+    end = store.offline.read(ACCOUNT_TXN_VIEW)["event_timestamp"].max()
+    loaded = store.materialize_incremental(ACCOUNT_TXN_VIEW.name, end)
+    report = store.check_skew(ACCOUNT_TXN_VIEW.name, as_of=end, sample=50)
+    _print(
+        {
+            "materialized_entities": loaded,
+            "skew": {
+                "view": report.view,
+                "as_of": str(report.as_of),
+                "keys_checked": report.keys_checked,
+                "mismatch_rate": report.mismatch_rate,
+                "ok": report.ok,
+                "mismatches": report.mismatches[:10],
+            },
+        }
+    )
+    return 0 if report.ok else 1
+
+
+def cmd_migrate_portfolio(args: argparse.Namespace) -> int:
+    from golden.migration import assess_portfolio, assess_vm, load_portfolio_csv, sample_portfolio
+
+    apps = load_portfolio_csv(args.portfolio) if args.portfolio else sample_portfolio()
+    result = assess_portfolio(apps, [assess_vm(v) for v in _inventory(args.inventory)])
+    _print(result if args.verbose else result["summary"])
+    return 0
+
+
+def cmd_migrate_databases(args: argparse.Namespace) -> int:
+    from golden.migration import Database, assess_databases, sample_databases
+
+    dbs = (
+        [Database.from_dict(d) for d in json.loads(Path(args.databases).read_text(encoding="utf-8"))]
+        if args.databases
+        else sample_databases()
+    )
+    result = assess_databases(dbs, bandwidth_gbps=args.bandwidth_gbps, platform=args.platform)
+    _print(result if args.verbose else result["summary"])
+    return 0
+
+
+def cmd_iam_multicloud(args: argparse.Namespace) -> int:
+    from golden.identity import multicloud_summary
+
+    result = multicloud_summary(args.aws, args.azure, args.gcp)
+    _print(result)
+    return 0 if result.get("valid", True) else 1
+
+
+def cmd_iam_matrix(args: argparse.Namespace) -> int:
+    from golden.identity.multicloud import load_all, persona_matrix
+
+    _print(persona_matrix(*load_all(args.aws, args.azure, args.gcp)))
+    return 0
+
+
+def _db_exit(report: object) -> int:
+    """Non-zero when the analysis found anything critical, so `golden db` can gate CI."""
+    from golden.database import severity_counts
+
+    return 1 if severity_counts(getattr(report, "findings", [])).get("critical", 0) else 0
+
+
+def cmd_db_workload(args: argparse.Namespace) -> int:
+    from golden.database import analyse_workload, load_statements, parse_statements, sample_statements
+
+    stats = load_statements(args.file) if args.file else parse_statements(sample_statements())
+    report = analyse_workload(stats, top_n=args.top)
+    _print(report.to_dict())
+    return _db_exit(report)
+
+
+def cmd_db_explain(args: argparse.Namespace) -> int:
+    from golden.database import analyse_plan, load_plan, sample_explain_plans
+
+    plan = load_plan(args.file) if args.file else sample_explain_plans()[args.scenario]
+    report = analyse_plan(plan)
+    _print(report.to_dict())
+    return _db_exit(report)
+
+
+def cmd_db_indexes(args: argparse.Namespace) -> int:
+    from golden.database import analyse_indexes, sample_index_snapshot
+
+    snap = json.loads(Path(args.file).read_text(encoding="utf-8")) if args.file else sample_index_snapshot()
+    report = analyse_indexes(snap)
+    _print(report.to_dict())
+    return _db_exit(report)
+
+
+def cmd_db_capacity(args: argparse.Namespace) -> int:
+    from golden.database import assess_capacity, load_price_table, sample_capacity_profile
+
+    profile = (
+        json.loads(Path(args.file).read_text(encoding="utf-8")) if args.file else sample_capacity_profile()
+    )
+    report = assess_capacity(profile, price_table=load_price_table(args.prices) if args.prices else None)
+    _print(report.to_dict())
+    return _db_exit(report)
+
+
 def cmd_config_get(args: argparse.Namespace) -> int:
     from golden import platform_config
 
@@ -465,6 +683,11 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--on-prem", action="store_true")
     s.add_argument("--verbose", action="store_true")
     s.set_defaults(func=cmd_gpu_analyze)
+    s = gpu.add_parser("partition", help="plan MIG / time-slicing / MPS / whole-GPU for workloads")
+    s.add_argument("--gpu", default="A100-80GB", help="A100-40GB | A100-80GB | H100-80GB")
+    s.add_argument("--price", type=float, default=4.0, help="$ per GPU-hour (assumption)")
+    s.add_argument("--workloads", help="YAML list of Workload fields (default: sample)")
+    s.set_defaults(func=cmd_gpu_partition)
 
     mig = sub.add_parser("migrate", help="VMware → OpenShift migration").add_subparsers(
         dest="migrate", required=True
@@ -485,6 +708,17 @@ def build_parser() -> argparse.ArgumentParser:
         s.add_argument("--target-namespace", default="migrated-vms")
         s.add_argument("--storage-class", default="ocs-storagecluster-ceph-rbd-virtualization")
         s.set_defaults(func=func)
+    s = mig.add_parser("portfolio", help="7 Rs / TIME portfolio rationalization (uses VM assessment)")
+    s.add_argument("--portfolio", help="applications CSV (default: sample)")
+    s.add_argument("--inventory", help="RVTools export for rehost feasibility (default: sample)")
+    s.add_argument("--verbose", action="store_true")
+    s.set_defaults(func=cmd_migrate_portfolio)
+    s = mig.add_parser("databases", help="database migration assessment: target, strategy, CDC, cutover")
+    s.add_argument("--databases", help="JSON list of Database fields (default: sample)")
+    s.add_argument("--bandwidth-gbps", type=float, default=1.0)
+    s.add_argument("--platform", choices=["aws", "openshift"], default="aws")
+    s.add_argument("--verbose", action="store_true")
+    s.set_defaults(func=cmd_migrate_databases)
 
     iam = sub.add_parser(
         "iam", help="AWS IAM modernization (Identity Center, SCP/RCP, boundaries, Wiz)"
@@ -507,6 +741,107 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--verbose", action="store_true")
     s.set_defaults(func=cmd_iam_gaps)
     iam.add_parser("controls", help="print the control-placement catalog").set_defaults(func=cmd_iam_controls)
+    for name, func, helptext in (
+        ("multicloud", cmd_iam_multicloud, "lint AWS + Azure + GCP access models and compare personas"),
+        ("matrix", cmd_iam_matrix, "persona -> AWS permission set / Azure role / GCP role matrix"),
+    ):
+        s = iam.add_parser(name, help=helptext)
+        s.add_argument("--aws")
+        s.add_argument("--azure")
+        s.add_argument("--gcp")
+        s.set_defaults(func=func)
+
+    from golden.network.cli import register as register_network
+
+    register_network(sub)
+
+    fin = sub.add_parser(
+        "finops", help="FinOps: FOCUS showback/chargeback, anomalies, k8s cost"
+    ).add_subparsers(dest="finops_cmd", required=True)
+    s = fin.add_parser("report", help="showback/chargeback, coverage, anomalies, forecast, recommendations")
+    s.add_argument("--input", help="FOCUS (or AWS CUR / Azure / GCP export) CSV; default: sample data")
+    s.add_argument("--key", default="Team")
+    s.add_argument("--method", choices=["proportional", "even", "fixed"], default="proportional")
+    s.add_argument("--budget", action="append", help="NAME=AMOUNT (repeatable)")
+    s.add_argument("--usage", action="append", help="NAME=UNITS (repeatable), for unit economics")
+    s.add_argument("--unit", default="transactions")
+    s.add_argument("--as-of", help="YYYY-MM-DD")
+    s.set_defaults(func=cmd_finops_report)
+    s = fin.add_parser("anomalies", help="daily cost anomalies (robust z-score)")
+    s.add_argument("--input")
+    s.add_argument("--by", default="ServiceName")
+    s.add_argument("--threshold", type=float, default=3.5)
+    s.add_argument("--min-impact", type=float, default=25.0)
+    s.set_defaults(func=cmd_finops_anomalies)
+    s = fin.add_parser("coverage", help="tag coverage of spend")
+    s.add_argument("--input")
+    s.set_defaults(func=cmd_finops_coverage)
+    fin.add_parser("k8s", help="OpenCost-style namespace cost allocation (sample cluster)").set_defaults(
+        func=cmd_finops_k8s
+    )
+    s = fin.add_parser("sample", help="write sample FOCUS data")
+    s.add_argument("--out", default="focus-sample.csv")
+    s.set_defaults(func=cmd_finops_sample)
+
+    db = sub.add_parser(
+        "db", help="database performance: workload, EXPLAIN, indexes, capacity"
+    ).add_subparsers(dest="db_cmd", required=True)
+    for name, func, helptext, input_help in (
+        (
+            "workload",
+            cmd_db_workload,
+            "top queries, cache hit, N+1, temp spills",
+            "pg_stat_statements CSV/JSON",
+        ),
+        (
+            "explain",
+            cmd_db_explain,
+            "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) findings + fixes",
+            "EXPLAIN JSON",
+        ),
+        (
+            "indexes",
+            cmd_db_indexes,
+            "unused/duplicate/missing indexes, bloat, autovacuum, wraparound",
+            "catalog JSON",
+        ),
+        (
+            "capacity",
+            cmd_db_capacity,
+            "pool sizing, memory, replicas, partitioning, rightsizing",
+            "profile JSON",
+        ),
+    ):
+        s = db.add_parser(name, help=helptext)
+        s.add_argument(
+            "file", nargs="?", help=f"{input_help} (default: built-in sample with planted problems)"
+        )
+        if name == "workload":
+            s.add_argument("--top", type=int, default=10)
+        if name == "explain":
+            s.add_argument(
+                "--scenario",
+                default="refund_join",
+                choices=[
+                    "email_lookup",
+                    "merchant_status",
+                    "settlement_report",
+                    "refund_join",
+                    "bitmap_lossy",
+                    "ledger_hash_join",
+                    "healthy",
+                ],
+            )
+        if name == "capacity":
+            s.add_argument("--prices", help="price table YAML (default: illustrative sample)")
+        s.set_defaults(func=func)
+
+    feat = sub.add_parser("features", help="feature store").add_subparsers(dest="features_cmd", required=True)
+    s = feat.add_parser(
+        "demo", help="point-in-time features → materialize online → training/serving skew check"
+    )
+    s.add_argument("--transactions", type=int, default=600)
+    s.set_defaults(func=cmd_features_demo)
 
     agent = sub.add_parser(
         "agent", help="AI agent operations (cost, loops, checkpoints, red-team)"

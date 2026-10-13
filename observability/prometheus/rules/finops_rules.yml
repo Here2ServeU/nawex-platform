@@ -1,0 +1,113 @@
+# Golden Platform — FinOps alerts on OpenCost metrics (Kubernetes cost allocation).
+# OpenCost is deployed by deploy/gitops/argocd/app-opencost.yaml (or the Flux
+# HelmRelease) and exports node prices (node_*_hourly_cost) and per-container
+# allocations (container_*_allocation). The model matches
+# golden.finops.allocate_cluster_cost; cloud-bill budgets/anomalies are handled by
+# deploy/terraform/modules/*/finops. See docs/finops/README.md.
+#
+# The monthly cluster budget is a recording rule so it can be changed in one place.
+groups:
+  - name: golden_finops_recordings
+    interval: 5m
+    rules:
+      # Monthly Kubernetes budget for this cluster (USD). Keep in sync with the
+      # team/account budgets in deploy/terraform/modules/*/finops.
+      - record: finops:cluster_monthly_budget_usd
+        expr: vector(5000)
+
+      - record: finops:cluster_hourly_cost_usd
+        expr: sum(node_total_hourly_cost)
+
+      - record: finops:cluster_monthly_projection_usd
+        expr: finops:cluster_hourly_cost_usd * 730
+
+      # Cost of what workloads claim: CPU cores and RAM GiB allocated x node unit prices.
+      - record: finops:namespace_hourly_cost_usd
+        expr: |
+          sum by (namespace) (
+            container_cpu_allocation * on (node) group_left () max by (node) (node_cpu_hourly_cost)
+          )
+          +
+          sum by (namespace) (
+            container_memory_allocation_bytes / 1024 / 1024 / 1024
+              * on (node) group_left () max by (node) (node_ram_hourly_cost)
+          )
+
+      - record: finops:cluster_allocated_hourly_cost_usd
+        expr: sum(finops:namespace_hourly_cost_usd)
+
+      # Share of node spend no workload claims (OpenCost "__idle__").
+      - record: finops:cluster_idle_cost_ratio
+        expr: |
+          clamp_min(
+            1 - finops:cluster_allocated_hourly_cost_usd / finops:cluster_hourly_cost_usd,
+            0
+          )
+
+  - name: golden_finops
+    interval: 5m
+    rules:
+      - alert: OpenCostMetricsMissing
+        expr: absent(node_total_hourly_cost)
+        for: 30m
+        labels:
+          severity: warning
+          vertical: finops
+        annotations:
+          summary: "OpenCost metrics are missing"
+          description: "node_total_hourly_cost has not been scraped for 30m; Kubernetes cost allocation and FinOps alerts are blind."
+
+      - alert: ClusterCostOverBudget
+        expr: finops:cluster_monthly_projection_usd > on () finops:cluster_monthly_budget_usd
+        for: 6h
+        labels:
+          severity: warning
+          vertical: finops
+        annotations:
+          summary: "Cluster run-rate ${{ $value | printf \"%.0f\" }}/month exceeds the monthly budget"
+          description: "Current node cost x 730h is above finops:cluster_monthly_budget_usd. Check recent scale-ups, node pool sizing and finops:namespace_hourly_cost_usd."
+
+      - alert: ClusterCostFarOverBudget
+        expr: finops:cluster_monthly_projection_usd > on () (1.5 * finops:cluster_monthly_budget_usd)
+        for: 1h
+        labels:
+          severity: critical
+          vertical: finops
+        annotations:
+          summary: "Cluster run-rate ${{ $value | printf \"%.0f\" }}/month is over 150% of budget"
+          description: "Likely a runaway autoscaler or an unexpected GPU/large node pool. Page the platform on-call."
+
+      - alert: ClusterCostSpike
+        expr: |
+          finops:cluster_hourly_cost_usd
+            > 1.3 * avg_over_time(finops:cluster_hourly_cost_usd[1d] offset 1d)
+        for: 2h
+        labels:
+          severity: warning
+          vertical: finops
+        annotations:
+          summary: "Cluster hourly cost is >30% above yesterday's average"
+          description: "Hourly node cost is {{ $value | printf \"%.2f\" }} USD. Compare node counts and instance types with yesterday."
+
+      - alert: ClusterIdleCostHigh
+        expr: finops:cluster_idle_cost_ratio > 0.4
+        for: 12h
+        labels:
+          severity: info
+          vertical: finops
+        annotations:
+          summary: "{{ $value | humanizePercentage }} of cluster cost is idle"
+          description: "Nodes are paid for but not requested by workloads. Tighten requests, enable cluster autoscaler scale-down or consolidate node pools (Karpenter consolidation)."
+
+      - alert: NamespaceCostGrowth
+        expr: |
+          finops:namespace_hourly_cost_usd
+            > 2 * avg_over_time(finops:namespace_hourly_cost_usd[7d] offset 1d)
+          and finops:namespace_hourly_cost_usd > 0.5
+        for: 6h
+        labels:
+          severity: info
+          vertical: finops
+        annotations:
+          summary: "Namespace {{ $labels.namespace }} cost doubled vs its 7-day average"
+          description: "Now {{ $value | printf \"%.2f\" }} USD/hour. Confirm the change was planned with the owning team (showback)."

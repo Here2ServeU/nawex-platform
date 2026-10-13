@@ -1,0 +1,40 @@
+# OPTIONAL shadow (mirror) stage with Istio (deploy/helm/service-mesh): the legacy monolith keeps
+# serving /api/v2/payments/* while a copy of each request goes to payments-v2. Responses from the
+# mirror are discarded; Istio appends "-shadow" to the Host header of mirrored requests.
+#
+# Kong OSS has no request-mirroring plugin, so shadowing is done in the mesh between the facade and
+# the backends. Run payments-v2 with PAYMENTS_SHADOW_MODE=true so mirrored writes never charge a card
+# or emit events. Not part of kustomization.yaml by default: apply it explicitly for the shadow window.
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: legacy-monolith-shadow-payments
+  namespace: strangler
+  labels:
+    app.kubernetes.io/part-of: golden
+    golden.io/strangler-stage: shadow
+spec:
+  hosts:
+    - legacy-monolith.strangler.svc.cluster.local
+  http:
+    - name: payments-shadow
+      match:
+        - uri:
+            regex: "/api/v2/payments(/.*)?"
+      route:
+        - destination:
+            host: legacy-monolith.strangler.svc.cluster.local
+            port:
+              number: 8080
+      mirror:
+        host: payments-v2.strangler.svc.cluster.local
+        port:
+          number: 8080
+      mirrorPercentage:
+        value: 25.0
+    - name: default
+      route:
+        - destination:
+            host: legacy-monolith.strangler.svc.cluster.local
+            port:
+              number: 8080

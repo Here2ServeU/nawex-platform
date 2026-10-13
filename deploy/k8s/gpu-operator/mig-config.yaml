@@ -1,0 +1,52 @@
+# MIG partition layouts for the GPU Operator's MIG manager (mig-parted format).
+# Select one per node with:   kubectl label node <node> nvidia.com/mig.config=<name> --overwrite
+# The MIG manager drains GPU pods on that node, repartitions, and sets nvidia.com/mig.config.state=success.
+# Every layout below is valid under golden.gpu.partitioning.valid_layout (7 compute / 8 memory slices,
+# legal start positions). Names are for 80 GB parts (A100-80GB / H100-80GB); on A100-40GB use
+# 1g.5gb / 2g.10gb / 3g.20gb / 4g.20gb / 7g.40gb.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-mig-config
+  namespace: gpu-operator
+  labels:
+    app.kubernetes.io/part-of: golden
+data:
+  config.yaml: |-
+    version: v1
+    mig-configs:
+      all-disabled:
+        - devices: all
+          mig-enabled: false
+
+      # 7 isolated small inference slices per GPU (max density).
+      all-1g.10gb:
+        - devices: all
+          mig-enabled: true
+          mig-devices:
+            "1g.10gb": 7
+
+      # Two equal halves, e.g. two tenants' mid-size models.
+      all-3g.40gb:
+        - devices: all
+          mig-enabled: true
+          mig-devices:
+            "3g.40gb": 2
+
+      # Mixed inference node: one Triton-sized slice, one mid, two small (7 compute / 8 memory slices).
+      inference-mixed:
+        - devices: all
+          mig-enabled: true
+          mig-devices:
+            "3g.40gb": 1
+            "2g.20gb": 1
+            "1g.10gb": 2
+
+      # Half the GPUs of an 8-GPU node partitioned, half whole for training.
+      half-mig:
+        - devices: [0, 1, 2, 3]
+          mig-enabled: true
+          mig-devices:
+            "1g.10gb": 7
+        - devices: [4, 5, 6, 7]
+          mig-enabled: false

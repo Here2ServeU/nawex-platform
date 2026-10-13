@@ -194,7 +194,11 @@ class GatewayResult:
 
 
 class LLMGateway:
-    """Production wrapper around an :class:`LLMClient`. Thread-safe; state is per-process."""
+    """Production wrapper around an :class:`LLMClient`. Thread-safe; state is per-process.
+
+    Known limit: the token budget and cache are per process, so N replicas allow N× the daily budget.
+    For multi-replica deployments back them with a shared store (Redis — deploy/helm/redis).
+    """
 
     def __init__(
         self,
@@ -245,8 +249,11 @@ class LLMGateway:
             return self.small_model
         return self.model
 
-    def _cache_key(self, prompt: str, system: str, model: str, max_tokens: int) -> str:
-        return hashlib.sha256(f"{model}\x00{max_tokens}\x00{system}\x00{prompt}".encode()).hexdigest()
+    def _cache_key(self, caller: str, prompt: str, system: str, model: str, max_tokens: int) -> str:
+        # Scoped per caller: a cached answer is never served across tenants/users.
+        return hashlib.sha256(
+            f"{caller}\x00{model}\x00{max_tokens}\x00{system}\x00{prompt}".encode()
+        ).hexdigest()
 
     # --- main -----------------------------------------------------------------------------------
     def complete(
@@ -263,7 +270,7 @@ class LLMGateway:
             )
 
         model = self.route(prompt)
-        key = self._cache_key(prompt, system, model, max_tokens)
+        key = self._cache_key(caller, prompt, system, model, max_tokens)
         if (hit := self.cache.get(key)) is not None:
             self.cache.move_to_end(key)
             LLM_CALLS.labels(model=model, status="cache_hit").inc()

@@ -34,6 +34,9 @@ config:
         processors: [batch]
         exporters: [logging]
 
+# Extra container env, e.g. vendor API keys from a Secret (see values-newrelic.yaml).
+extraEnv: []
+
 resources:
   requests:
     cpu: 100m

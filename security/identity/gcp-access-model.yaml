@@ -1,0 +1,133 @@
+# -----------------------------------------------------------------------------------------------
+# gcp-access-model.yaml — persona-based GCP access, the GCP twin of access-model.yaml (AWS).
+#
+#   AD group ──GCDS (Google Cloud Directory Sync)──▶ Cloud Identity group ──IAM binding──▶ role × folder
+#                                                                         (or PAM entitlement, JIT)
+#
+# Read by:
+#   * Terraform  deploy/terraform/modules/gcp/org-governance  (folder / org IAM bindings, Privileged
+#                                                             Access Manager entitlements, deny policy)
+#   * Python     golden.identity.multicloud                   (lint + cross-cloud persona matrix)
+#
+# Scopes are logical folder keys created by the org-governance module, plus `organization` for the
+# org node itself, so this file holds no org, folder or project IDs. Group addresses use
+# `${domain}` — Terraform and the linter substitute identity_source.domain.
+#
+# GCP has no per-binding session duration. The equivalents used here:
+#   * standing access → `assignment: binding`     (google_folder_iam_member / google_organization_iam_member)
+#   * just-in-time    → `assignment: entitlement` (google_privileged_access_manager_entitlement) with
+#                       `max_request_duration`
+# -----------------------------------------------------------------------------------------------
+version: 1
+
+identity_source:
+  idp: cloud-identity               # Cloud Identity; SSO profile federated to PingFederate (SAML)
+  directory: active-directory       # users and groups synced from AD by GCDS
+  provisioning: gcds
+  mfa: enforced-at-idp
+  domain: example.com
+  group_pattern: "^gcp-[a-z0-9]+(-[a-z0-9]+)*@[a-z0-9.-]+$"
+
+scopes:
+  - organization
+  - platform
+  - landing-zones
+  - landing-zones-prod
+  - landing-zones-nonprod
+  - sandbox
+  - decommissioned
+
+limits:
+  max_request_hours: 8              # longest PAM grant for any entitlement
+  max_privileged_request_hours: 1
+
+personas:
+  - name: read-only
+    description: Look, don't touch — read access to platform and workload folders.
+    roles: [roles/viewer]
+    assignment: binding
+    assignments:
+      - group: gcp-readonly@${domain}
+        scopes: [platform, landing-zones, sandbox]
+      - group: gcp-developers@${domain}  # developers can read production, never change it
+        scopes: [landing-zones-prod]
+
+  - name: security-auditor
+    description: Internal audit, GRC and external assessors — read IAM and security posture org-wide.
+    roles: [roles/iam.securityReviewer, roles/securitycenter.adminViewer, roles/viewer]
+    assignment: binding
+    allow_organization: true
+    assignments:
+      - group: gcp-security-audit@${domain}
+        scopes: [organization]
+
+  - name: security-engineer
+    description: Security operations — Security Command Center, findings and mute rules.
+    roles: [roles/securitycenter.admin]
+    assignment: entitlement
+    max_request_duration: PT4H
+    allow_organization: true
+    assignments:
+      - group: gcp-security-engineering@${domain}
+        scopes: [organization]
+
+  - name: developer
+    description: Application teams — build in non-production and sandbox with predefined (not basic) roles.
+    roles:
+      - roles/run.developer
+      - roles/container.developer
+      - roles/cloudbuild.builds.editor
+      - roles/artifactregistry.writer
+      - roles/logging.viewer
+    assignment: binding
+    assignments:
+      - group: gcp-developers@${domain}
+        scopes: [landing-zones-nonprod, sandbox]
+
+  - name: platform-engineer
+    description: Platform / cloud engineering — run the landing zones and shared platform services.
+    roles: [roles/container.admin, roles/compute.admin, roles/iam.serviceAccountUser]
+    assignment: entitlement
+    max_request_duration: PT4H
+    assignments:
+      - group: gcp-platform-engineering@${domain}
+        scopes: [platform, landing-zones-prod, landing-zones-nonprod]
+
+  - name: sre-oncall
+    description: On-call SREs — read everything, request bounded operator rights in prod for an incident.
+    roles: [roles/viewer, roles/container.developer, roles/compute.instanceAdmin.v1]
+    assignment: entitlement
+    max_request_duration: PT4H
+    assignments:
+      - group: gcp-sre@${domain}
+        scopes: [landing-zones-prod, landing-zones-nonprod]
+
+  - name: network-admin
+    description: Network engineering — Shared VPC host, Interconnect and Cloud DNS in the platform folder.
+    roles: [roles/compute.networkAdmin, roles/dns.admin]
+    assignment: entitlement
+    max_request_duration: PT4H
+    assignments:
+      - group: gcp-network-admins@${domain}
+        scopes: [platform]
+
+  - name: finops
+    description: FinOps — billing and cost data, read-only.
+    roles: [roles/billing.viewer]
+    assignment: binding
+    allow_organization: true
+    assignments:
+      - group: gcp-finops@${domain}
+        scopes: [organization]
+
+  - name: break-glass
+    description: Emergency org admin. PAM entitlement only, approval-gated, 1h grants; group membership is empty by default.
+    roles: [roles/owner, roles/resourcemanager.organizationAdmin]
+    assignment: entitlement
+    max_request_duration: PT1H
+    require_approval: true
+    privileged: true
+    allow_organization: true
+    assignments:
+      - group: gcp-break-glass@${domain}
+        scopes: [organization]

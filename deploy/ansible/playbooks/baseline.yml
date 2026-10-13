@@ -1,0 +1,9 @@
+# Apply the Linux security baseline.
+#   ansible-playbook playbooks/baseline.yml --check --diff     # audit only: report drift, change nothing
+#   ansible-playbook playbooks/baseline.yml --tags cis_5_2     # one CIS section (SSH)
+#   ansible-playbook playbooks/baseline.yml -l app-01.example.internal
+- name: Linux security baseline (CIS-style, RHEL 8/9)
+  hosts: rhel_servers:bastions
+  gather_facts: true
+  roles:
+    - role: rhel_baseline

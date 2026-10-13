@@ -1,0 +1,26 @@
+# Restore example (see ops/runbooks/playbooks/backup_restore_velero.md).
+# Set spec.backupName to the backup to restore (velero backup get). The
+# namespaceMapping restores into golden-restore so the drill does not touch the
+# live namespace; remove it for a real in-place DR restore.
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: golden-restore-drill
+  namespace: velero
+  labels:
+    app.kubernetes.io/part-of: golden
+spec:
+  backupName: golden-daily-20260101020000
+  includedNamespaces:
+    - golden
+  namespaceMapping:
+    golden: golden-restore
+  restorePVs: true
+  existingResourcePolicy: none
+  # Recreated by their controllers / not portable between clusters.
+  excludedResources:
+    - nodes
+    - events
+    - events.events.k8s.io
+    - backups.velero.io
+    - restores.velero.io

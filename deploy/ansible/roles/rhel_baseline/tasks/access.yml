@@ -1,0 +1,81 @@
+- name: 5.2 SSH daemon hardening (drop-in, validated before reload)
+  ansible.builtin.template:
+    src: sshd_cis.conf.j2
+    dest: /etc/ssh/sshd_config.d/50-cis.conf
+    owner: root
+    group: root
+    mode: "0600"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Reload sshd
+  tags: [cis_5_2]
+
+- name: 5.3 sudo logging and pty
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/50-cis
+    content: |
+      Defaults use_pty
+      Defaults logfile="{{ rhel_baseline_sudo_logfile }}"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: /usr/sbin/visudo -cf %s
+  tags: [cis_5_3]
+
+- name: 5.4 Password quality
+  ansible.builtin.copy:
+    dest: /etc/security/pwquality.conf.d/50-cis.conf
+    content: |
+      minlen = {{ rhel_baseline_password_min_length }}
+      minclass = {{ rhel_baseline_password_min_classes }}
+      maxrepeat = 3
+      enforce_for_root
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [cis_5_4]
+
+- name: 5.4 Account lockout (faillock)
+  ansible.builtin.copy:
+    dest: /etc/security/faillock.conf
+    content: |
+      deny = {{ rhel_baseline_faillock_deny }}
+      unlock_time = {{ rhel_baseline_faillock_unlock_time }}
+      even_deny_root
+      root_unlock_time = 60
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [cis_5_4]
+
+- name: 5.4 Enable faillock in the authselect profile
+  ansible.builtin.command: authselect enable-feature with-faillock
+  register: rhel_baseline_authselect
+  changed_when: "'already enabled' not in (rhel_baseline_authselect.stdout + rhel_baseline_authselect.stderr)"
+  failed_when: false
+  when: not ansible_check_mode
+  tags: [cis_5_4]
+
+- name: 5.5 Password ageing for new accounts
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: "^PASS_MAX_DAYS"
+    line: "PASS_MAX_DAYS   {{ rhel_baseline_pass_max_days }}"
+  tags: [cis_5_5]
+
+- name: 5.5 Idle shell timeout
+  ansible.builtin.copy:
+    dest: /etc/profile.d/50-cis-tmout.sh
+    content: |
+      readonly TMOUT={{ rhel_baseline_shell_timeout }}
+      export TMOUT
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [cis_5_5]
+
+- name: 5.5 Default umask 027
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: "^UMASK"
+    line: "UMASK           027"
+  tags: [cis_5_5]

@@ -5,3 +5,4 @@ resources:
   - monitoring-stack-helmrelease.yaml
   - datadog-helmrelease.yaml
   - golden-helmrelease.yaml
+  - opencost-helmrelease.yaml

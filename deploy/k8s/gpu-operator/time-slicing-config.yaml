@@ -1,0 +1,53 @@
+# NVIDIA device plugin sharing configs, referenced by ClusterPolicy.spec.devicePlugin.config.
+# A node uses the key named by its label nvidia.com/device-plugin.config (default: `any`):
+#
+#   any           time-slicing x4: each physical GPU is advertised as 4 nvidia.com/gpu replicas.
+#                 No memory or fault isolation — for bursty inference and notebooks of ONE team.
+#   mps           MPS x4: 4 clients share the GPU concurrently, each capped to 1/4 of the SMs and
+#                 memory. Throughput-oriented, same-tenant work only.
+#   mig-shared    time-slice each MIG instance x2 (mixed strategy): isolation between slices,
+#                 sharing within a slice.
+#
+#   kubectl label node gpu-node-1 nvidia.com/device-plugin.config=mps --overwrite
+#
+# The replica count (4) is golden.gpu.partitioning.TIME_SLICING_REPLICAS.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: time-slicing-config
+  namespace: gpu-operator
+  labels:
+    app.kubernetes.io/part-of: golden
+data:
+  any: |-
+    version: v1
+    flags:
+      migStrategy: mixed
+    sharing:
+      timeSlicing:
+        renameByDefault: false
+        failRequestsGreaterThanOne: true
+        resources:
+          - name: nvidia.com/gpu
+            replicas: 4
+  mps: |-
+    version: v1
+    flags:
+      migStrategy: none
+    sharing:
+      mps:
+        renameByDefault: false
+        resources:
+          - name: nvidia.com/gpu
+            replicas: 4
+  mig-shared: |-
+    version: v1
+    flags:
+      migStrategy: mixed
+    sharing:
+      timeSlicing:
+        resources:
+          - name: nvidia.com/mig-1g.10gb
+            replicas: 2
+          - name: nvidia.com/mig-2g.20gb
+            replicas: 2

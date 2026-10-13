@@ -30,7 +30,7 @@ COPY --from=build /opt/venv /opt/venv
 COPY security/identity/access-model.yaml /etc/golden/identity/access-model.yaml
 ENV GOLDEN_ACCESS_MODEL=/etc/golden/identity/access-model.yaml
 USER 10001:10001
-EXPOSE 8000 8090-8099
+EXPOSE 8000 8090-8100
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD python -c "import os,urllib.request;urllib.request.urlopen(f'http://127.0.0.1:{os.getenv(\"PORT\",\"8000\")}/health',timeout=2)"
 ENTRYPOINT ["golden"]

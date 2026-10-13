@@ -156,6 +156,29 @@ defaults:
     size: 10Gi
     accessMode: ReadWriteOnce
     mountPath: /data
+  # Progressive delivery (only when the global rollouts.enabled is also true):
+  # the service renders an Argo Rollout instead of a Deployment.
+  rollout:
+    enabled: false
+    # Override rollouts.canary.steps for this service (list of Argo steps).
+    steps: []
+    # Optional Argo trafficRouting block (nginx, alb, istio, smi, ...). When
+    # set, <svc>-canary and <svc>-stable Services are rendered and wired in.
+    trafficRouting: {}
+  # Event-driven autoscaling with KEDA (requires the KEDA operator). Replaces
+  # the HPA for this service.
+  keda:
+    enabled: false
+    minReplicaCount: 2
+    maxReplicaCount: 20
+    pollingInterval: 15
+    cooldownPeriod: 300
+    # Requests/second per replica that triggers a scale-out.
+    requestsPerSecondThreshold: "50"
+    # Custom PromQL; empty = request rate of this service (golden_http_requests_total).
+    query: ""
+    # Extra KEDA triggers appended as-is (e.g. kafka, cron, cpu).
+    extraTriggers: []
 
 # -----------------------------------------------------------------------------
 # Services. The map key is the service name passed to `golden serve <name>`.
@@ -293,6 +316,8 @@ metrics:
     interval: 30s
     scrapeTimeout: 10s
     labels: {}
+  # Prometheus HTTP API used by Argo Rollouts analysis and KEDA triggers.
+  prometheusAddress: http://prometheus-operated.monitoring.svc:9090
 
 # OpenShift Routes (only on OpenShift; hostnames are auto-generated).
 route:
@@ -303,3 +328,64 @@ route:
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
+
+# -----------------------------------------------------------------------------
+# Progressive delivery with Argo Rollouts (requires the Argo Rollouts
+# controller + CRDs). Global switch; services opt in with
+# services.<name>.rollout.enabled. See docs/platform/README.md.
+# -----------------------------------------------------------------------------
+rollouts:
+  enabled: false
+  canary:
+    maxSurge: "25%"
+    maxUnavailable: 0
+    # Keep the aborted canary ReplicaSet around briefly for debugging.
+    abortScaleDownDelaySeconds: 30
+    steps:
+      - setWeight: 10
+      - pause: {duration: 2m}
+      - setWeight: 25
+      - pause: {duration: 2m}
+      - setWeight: 50
+      - pause: {duration: 5m}
+  # AnalysisTemplate "<fullname>-canary": Prometheus success rate + p95 latency.
+  analysis:
+    enabled: true
+    interval: 1m
+    # Failed measurements tolerated before the rollout is aborted.
+    failureLimit: 1
+    # Consecutive query errors (e.g. no data) tolerated before aborting.
+    consecutiveErrorLimit: 4
+    # Minimum ratio of non-5xx responses (0-1).
+    minSuccessRate: 0.99
+    # Maximum p95 latency in seconds.
+    maxP95LatencySeconds: 0.5
+    # Restrict queries to canary pods (rollouts_pod_template_hash label). Needs
+    # the pod label on the series: ServiceMonitor podTargetLabels (rendered
+    # automatically) or a labelmap relabel for annotation-based scraping.
+    selectCanaryPods: true
+
+# -----------------------------------------------------------------------------
+# External Secrets Operator (external-secrets.io). Secrets are synced from a
+# (Cluster)SecretStore - AWS Secrets Manager, Azure Key Vault, GCP Secret
+# Manager, Vault - see deploy/k8s/platform-addons/external-secrets/.
+# -----------------------------------------------------------------------------
+externalSecrets:
+  enabled: false
+  apiVersion: external-secrets.io/v1beta1
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: golden-secrets
+  # One ExternalSecret per entry. The key `api-keys` targets the Secret read
+  # as GOLDEN_API_KEYS (apiKeys.existingSecret or <fullname>-api-keys); other
+  # keys target <fullname>-<key> unless targetName is set.
+  secrets:
+    api-keys:
+      targetName: ""
+      data:
+        - secretKey: GOLDEN_API_KEYS
+          remoteRef:
+            key: golden/api-keys
+            property: GOLDEN_API_KEYS
+      dataFrom: []

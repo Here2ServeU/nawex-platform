@@ -14,6 +14,8 @@ This directory contains tactical, step-by-step procedures (**Playbooks**) design
 | [deployment_rollback_gitops.md](./deployment_rollback_gitops.md) | Executing a verified, safe rollback to a known-good state using GitOps tooling (ArgoCD/Flux). | All Application Deployments |
 | [observability_dashboards.md](./observability_dashboards.md) | Building and validating dashboards for ingestion, storage, and system health. | Observability Stack |
 | [securityhub_config.md](./securityhub_config.md) | Enabling AWS SecurityHub and Config with audit-ready evidence. | Cloud Security & Compliance |
+| [database_performance.md](./database_performance.md) | "The database is slow": triage, blocking chains, cancel/kill decisions, safe CONCURRENTLY index builds, rollback. | PostgreSQL / Aurora |
+| [backup_restore_velero.md](./backup_restore_velero.md) | Velero backup verification drill, restore, and measured RPO/RTO. | Kubernetes workloads |
 
 ---
 

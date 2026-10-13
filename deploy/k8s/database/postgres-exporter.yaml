@@ -1,0 +1,193 @@
+# postgres_exporter for Aurora PostgreSQL. Feeds observability/prometheus/rules/database_rules.yml
+# and observability/grafana/dashboards/golden-database.json.
+#
+# The exporter's database role needs only the built-in pg_monitor role:
+#   CREATE ROLE postgres_exporter LOGIN PASSWORD '…' IN ROLE pg_monitor;
+#   CREATE EXTENSION IF NOT EXISTS pg_stat_statements;   -- preloaded by the Terraform parameter group
+# Connection string: Secret `postgres-exporter-dsn` key `dsn` (externalsecret.yaml), e.g.
+#   postgresql://postgres_exporter:…@<writer_endpoint>:5432/app?sslmode=require
+#
+# Built-in collectors used by the rules: pg_stat_activity_count, pg_settings_max_connections,
+# pg_stat_database_{blks_hit,blks_read,deadlocks,xact_commit,xact_rollback,temp_bytes},
+# pg_stat_user_tables_n_{live,dead}_tup, pg_locks_count, pg_replication_lag_seconds.
+# The custom queries below add top statements, long transactions, blocked sessions and XID age.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-exporter-queries
+  namespace: golden-db
+  labels:
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/part-of: golden
+data:
+  queries.yaml: |
+    # Top 20 statements by total execution time (pg_stat_statements). Bounded cardinality:
+    # the set can change between scrapes, so graph with topk() and rate().
+    pg_stat_statements_top:
+      master: true
+      query: |
+        SELECT d.datname,
+               s.queryid::text AS queryid,
+               left(regexp_replace(max(s.query), '\s+', ' ', 'g'), 120) AS query,
+               sum(s.calls) AS calls,
+               sum(s.total_exec_time) / 1000.0 AS total_exec_time_seconds,
+               sum(s.rows) AS rows,
+               sum(s.shared_blks_hit) AS shared_blks_hit,
+               sum(s.shared_blks_read) AS shared_blks_read,
+               sum(s.temp_blks_written) AS temp_blks_written
+          FROM pg_stat_statements s
+          JOIN pg_database d ON d.oid = s.dbid
+         GROUP BY d.datname, s.queryid
+         ORDER BY sum(s.total_exec_time) DESC
+         LIMIT 20
+      metrics:
+        - datname: {usage: LABEL, description: Database}
+        - queryid: {usage: LABEL, description: pg_stat_statements queryid}
+        - query: {usage: LABEL, description: Normalised statement text (first 120 chars)}
+        - calls: {usage: COUNTER, description: Executions}
+        - total_exec_time_seconds: {usage: COUNTER, description: Total execution time}
+        - rows: {usage: COUNTER, description: Rows returned or affected}
+        - shared_blks_hit: {usage: COUNTER, description: Shared buffer hits}
+        - shared_blks_read: {usage: COUNTER, description: Blocks read from outside shared_buffers}
+        - temp_blks_written: {usage: COUNTER, description: Temp blocks written (work_mem spills)}
+
+    pg_long_running_transactions:
+      master: true
+      query: |
+        SELECT count(*) FILTER (WHERE clock_timestamp() - xact_start > interval '5 minutes') AS count,
+               coalesce(max(extract(epoch FROM clock_timestamp() - xact_start)), 0) AS max_age_seconds,
+               count(*) FILTER (WHERE state = 'idle in transaction') AS idle_in_transaction
+          FROM pg_stat_activity
+         WHERE xact_start IS NOT NULL AND backend_type = 'client backend'
+      metrics:
+        - count: {usage: GAUGE, description: Transactions open longer than 5 minutes}
+        - max_age_seconds: {usage: GAUGE, description: Age of the oldest open transaction}
+        - idle_in_transaction: {usage: GAUGE, description: Sessions idle inside an open transaction}
+
+    pg_blocked_sessions:
+      master: true
+      query: |
+        SELECT count(*) AS count,
+               coalesce(max(extract(epoch FROM clock_timestamp() - query_start)), 0) AS max_wait_seconds
+          FROM pg_stat_activity
+         WHERE wait_event_type = 'Lock'
+      metrics:
+        - count: {usage: GAUGE, description: Sessions waiting on a heavyweight lock}
+        - max_wait_seconds: {usage: GAUGE, description: Longest current lock wait (approx. from query_start)}
+
+    pg_database_wraparound:
+      master: true
+      query: |
+        SELECT datname,
+               age(datfrozenxid) AS age_datfrozenxid,
+               age(datfrozenxid)::float / 2147483648 AS ratio
+          FROM pg_database
+         WHERE datallowconn
+      metrics:
+        - datname: {usage: LABEL, description: Database}
+        - age_datfrozenxid: {usage: GAUGE, description: Transactions since the oldest unfrozen XID}
+        - ratio: {usage: GAUGE, description: Fraction of the 2^31 wraparound limit consumed}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-exporter
+  namespace: golden-db
+  labels:
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/component: metrics
+    app.kubernetes.io/part-of: golden
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres-exporter
+        app.kubernetes.io/component: metrics
+        app.kubernetes.io/part-of: golden
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: postgres-exporter
+          image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - --web.listen-address=:9187
+            - --extend.query-path=/etc/postgres_exporter/queries.yaml
+            - --collector.stat_user_tables
+            - --collector.locks
+            - --collector.replication
+          env:
+            - name: DATA_SOURCE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-exporter-dsn
+                  key: dsn
+          ports:
+            - name: metrics
+              containerPort: 9187
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            periodSeconds: 15
+            timeoutSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: queries
+              mountPath: /etc/postgres_exporter
+              readOnly: true
+      volumes:
+        - name: queries
+          configMap:
+            name: postgres-exporter-queries
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-exporter
+  namespace: golden-db
+  labels:
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/part-of: golden
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: postgres-exporter
+  ports:
+    - name: metrics
+      port: 9187
+      targetPort: metrics
+      protocol: TCP

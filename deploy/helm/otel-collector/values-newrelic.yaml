@@ -1,0 +1,98 @@
+# New Relic via OpenTelemetry: the collector receives OTLP from instrumented apps, scrapes the
+# platform's Prometheus /metrics endpoints, and exports everything over OTLP/HTTP to New Relic.
+# No New Relic agent or proprietary SDK — swapping vendors (Datadog, Dynatrace, Splunk, Grafana Cloud)
+# is an exporter change, not a re-instrumentation.
+#
+#   kubectl -n monitoring create secret generic newrelic-license --from-literal=license-key=<INGEST-LICENSE-KEY>
+#   helm upgrade --install otel-newrelic deploy/helm/otel-collector -n monitoring -f deploy/helm/otel-collector/values-newrelic.yaml
+#
+# EU accounts: set the endpoint to https://otlp.eu01.nr-data.net. FedRAMP: https://gov-otlp.nr-data.net.
+extraEnv:
+  - name: NEW_RELIC_LICENSE_KEY
+    valueFrom:
+      secretKeyRef:
+        name: newrelic-license
+        key: license-key
+  - name: K8S_CLUSTER_NAME
+    value: golden
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc: {}
+        http: {}
+    # Golden services expose Prometheus metrics; scrape them so they reach New Relic too.
+    prometheus:
+      config:
+        scrape_configs:
+          - job_name: golden
+            scrape_interval: 30s
+            metrics_path: /metrics
+            static_configs:
+              - targets:
+                  - golden-api.golden.svc:8000
+                  - golden-transaction-engine.golden.svc:8090
+                  - golden-fraud-detector.golden.svc:8091
+                  - golden-payment-gateway.golden.svc:8092
+                  - golden-ehr-ingestion.golden.svc:8093
+                  - golden-clinical-decision.golden.svc:8094
+                  - golden-patient-gateway.golden.svc:8095
+                  - golden-gpu-optimizer.golden.svc:8096
+                  - golden-migration-planner.golden.svc:8097
+                  - golden-identity-governance.golden.svc:8098
+                  - golden-agent-ops.golden.svc:8099
+  processors:
+    memory_limiter:
+      check_interval: 1s
+      limit_percentage: 80
+      spike_limit_percentage: 20
+    # New Relic stores metrics as deltas; convert Prometheus/OTLP cumulative sums.
+    cumulativetodelta: {}
+    # New Relic attribute values are capped at 4095 characters.
+    transform/truncate:
+      trace_statements:
+        - context: span
+          statements:
+            - truncate_all(attributes, 4095)
+            - truncate_all(resource.attributes, 4095)
+      log_statements:
+        - context: log
+          statements:
+            - truncate_all(attributes, 4095)
+            - truncate_all(resource.attributes, 4095)
+    resource:
+      attributes:
+        - key: k8s.cluster.name
+          value: ${env:K8S_CLUSTER_NAME}
+          action: upsert
+        - key: service.namespace
+          value: golden
+          action: upsert
+    batch:
+      send_batch_size: 1000
+      timeout: 5s
+  exporters:
+    otlphttp/newrelic:
+      endpoint: https://otlp.nr-data.net
+      headers:
+        api-key: ${env:NEW_RELIC_LICENSE_KEY}
+      compression: gzip
+      retry_on_failure:
+        enabled: true
+      sending_queue:
+        enabled: true
+  service:
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, transform/truncate, resource, batch]
+        exporters: [otlphttp/newrelic]
+      metrics:
+        receivers: [otlp, prometheus]
+        processors: [memory_limiter, cumulativetodelta, resource, batch]
+        exporters: [otlphttp/newrelic]
+      logs:
+        receivers: [otlp]
+        processors: [memory_limiter, transform/truncate, resource, batch]
+        exporters: [otlphttp/newrelic]

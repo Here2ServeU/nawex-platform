@@ -1,0 +1,54 @@
+- name: 4.1 Install audit
+  ansible.builtin.dnf:
+    name: [audit, audit-libs]
+    state: present
+  when: rhel_baseline_auditd
+  tags: [cis_4_1]
+
+- name: 4.1 auditd configuration
+  ansible.builtin.lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "^{{ item.key }}\\s*="
+    line: "{{ item.key }} = {{ item.value }}"
+  loop:
+    - {key: max_log_file, value: "{{ rhel_baseline_audit_max_log_file }}"}
+    - {key: max_log_file_action, value: keep_logs}
+    - {key: space_left_action, value: "{{ rhel_baseline_audit_space_left_action }}"}
+    - {key: admin_space_left_action, value: single}
+  when: rhel_baseline_auditd
+  notify: Restart auditd
+  tags: [cis_4_1]
+
+- name: 4.1 Audit rules (identity, privileged commands, time, network config, MAC, sessions, sudo)
+  ansible.builtin.template:
+    src: cis.rules.j2
+    dest: /etc/audit/rules.d/50-cis.rules
+    owner: root
+    group: root
+    mode: "0640"
+  when: rhel_baseline_auditd
+  notify: Restart auditd
+  tags: [cis_4_1]
+
+- name: 4.1 auditd enabled
+  ansible.builtin.service:
+    name: auditd
+    enabled: true
+    state: started
+  when: rhel_baseline_auditd
+  tags: [cis_4_1]
+
+- name: 4.2 Persistent, compressed journald
+  ansible.builtin.copy:
+    dest: /etc/systemd/journald.conf.d/50-cis.conf
+    content: |
+      [Journal]
+      Storage=persistent
+      Compress=yes
+      ForwardToSyslog=no
+    owner: root
+    group: root
+    mode: "0644"
+  when: rhel_baseline_journald_persistent
+  notify: Restart journald
+  tags: [cis_4_2]

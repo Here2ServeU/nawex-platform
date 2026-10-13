@@ -1,0 +1,4 @@
+# Copy to backend.hcl and run: terraform init -backend-config=backend.hcl
+# State for the organization-level governance stack lives in the platform seed project.
+bucket = "REPLACE_ME-golden-tfstate"
+prefix = "golden/org"

@@ -1,0 +1,58 @@
+# OpenCost: Kubernetes cost allocation (namespace / workload / label) from node
+# prices x resource requests and usage. Its metrics (node_total_hourly_cost,
+# container_cpu_allocation, ...) feed observability/prometheus/rules/finops_rules.yml;
+# golden.finops.allocate_cluster_cost implements the same model offline.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: opencost
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    # Upstream chart (no first-party chart in this repo).
+    repoURL: https://opencost.github.io/opencost-helm-chart
+    chart: opencost
+    targetRevision: 2.5.32
+    helm:
+      valuesObject:
+        opencost:
+          exporter:
+            # Shows up as the cluster_id label on every OpenCost metric.
+            defaultClusterId: golden
+          prometheus:
+            internal:
+              enabled: true
+              # Prometheus from deploy/helm/monitoring-stack (Argo release name
+              # "monitoring-stack" -> <release>-<chart>-prometheus).
+              serviceName: monitoring-stack-monitoring-stack-prometheus
+              namespaceName: monitoring
+              port: 9090
+          metrics:
+            serviceMonitor:
+              # Enable when running the Prometheus Operator instead of the
+              # annotation-based scrape in monitoring-stack.
+              enabled: false
+          ui:
+            enabled: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 1Gi
+        podAnnotations:
+          prometheus.io/scrape: "true"
+          prometheus.io/port: "9003"
+          prometheus.io/path: /metrics
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: opencost
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
