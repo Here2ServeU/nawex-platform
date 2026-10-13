@@ -73,6 +73,19 @@ brew install python3.11 docker kubectl helm # macOS
 apt install python3.11 docker.io kubectl helm # Ubuntu
 ```
 
+#### OPA (policy tests)
+The OPA version is pinned in `.opa-version`; CI installs the same one.
+```bash
+brew install opa                                  # macOS
+scoop install opa   # or: choco install opa       # Windows
+opa version && opa test security/policies/opa     # expect PASS on every test
+```
+Without a package manager, download the single binary for your OS from
+https://openpolicyagent.org/downloads/ and put it on your `PATH`.
+
+Check everything at once with `make doctor` (macOS/Linux/WSL) or
+`pwsh scripts/doctor.ps1` (Windows PowerShell).
+
 #### Python Environment Setup
 ```bash
 cd src/golden/

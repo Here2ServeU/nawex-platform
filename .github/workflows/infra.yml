@@ -3,9 +3,9 @@ name: infra
 on:
   push:
     branches: [main]
-    paths: ["deploy/**", "security/**", "scripts/ci/**", "scripts/deploy.sh", ".github/workflows/infra.yml"]
+    paths: [".opa-version", "deploy/**", "security/**", "scripts/ci/**", "scripts/deploy.sh", "scripts/doctor.ps1", ".github/workflows/infra.yml"]
   pull_request:
-    paths: ["deploy/**", "security/**", "scripts/ci/**", "scripts/deploy.sh", ".github/workflows/infra.yml"]
+    paths: [".opa-version", "deploy/**", "security/**", "scripts/ci/**", "scripts/deploy.sh", "scripts/doctor.ps1", ".github/workflows/infra.yml"]
   workflow_dispatch:
 
 permissions:
@@ -35,11 +35,46 @@ jobs:
           curl -fsSL "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" \
             | sudo tar -xz -C /usr/local/bin kubeconform
           kubeconform -v
+      - name: Read pinned OPA version
+        id: opa
+        run: echo "version=$(cat .opa-version)" >> "$GITHUB_OUTPUT"
       - uses: open-policy-agent/setup-opa@v2
         with:
-          version: 0.70.0
+          version: ${{ steps.opa.outputs.version }}
       - name: Validate charts, overlays, manifests and OPA policies
         run: SKIP_TERRAFORM=1 scripts/ci/validate-infra.sh
+
+  opa-workstations:
+    name: opa on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read pinned OPA version
+        id: opa
+        run: '"version=$((Get-Content .opa-version -Raw).Trim())" >> $env:GITHUB_OUTPUT'
+      - uses: open-policy-agent/setup-opa@v2
+        with:
+          version: ${{ steps.opa.outputs.version }}
+      - name: Policy check + tests
+        run: |
+          opa check --strict security/policies/opa
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          opa test security/policies/opa
+      - name: Doctor reports the pinned OPA
+        if: runner.os == 'Windows'
+        run: |
+          $out = pwsh -NoProfile -File scripts/doctor.ps1 | Out-String
+          $out
+          # Match "<mark> opa <version>" with nothing after it (a mismatch adds "(repo pins ...)").
+          if ($out -notmatch "(?m)^\s*\S+ opa $([regex]::Escape((Get-Content .opa-version -Raw).Trim()))\s*$") { exit 1 }
 
   terraform:
     name: terraform fmt + validate
