@@ -9,13 +9,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 import signal
 import threading
 from pathlib import Path
 from typing import Any
-
-SAFE_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}")
 
 
 class CheckpointStore:
@@ -24,22 +21,15 @@ class CheckpointStore:
         self.enabled = enabled
 
     def _path(self, task_id: str) -> Path:
-        """Task ids come from callers (API, CLI files): never let one choose the file path."""
-        name = (
-            task_id
-            if SAFE_ID.fullmatch(task_id)
-            else "task-" + hashlib.sha256(task_id.encode()).hexdigest()[:24]
-        )
-        path = (self.dir / f"{name}.json").resolve()
-        if path.parent != self.dir.resolve():
-            raise ValueError(f"unsafe task id {task_id!r}")
-        return path
+        """File name is a hash of the task id: caller input never becomes part of a path."""
+        return self.dir / f"{hashlib.sha256(task_id.encode()).hexdigest()[:32]}.json"
 
     def load(self, task_id: str) -> dict[str, Any]:
         p = self._path(task_id)
         if not self.enabled or not p.exists():
             return {"completed": [], "spent_usd": 0.0}
-        return json.loads(p.read_text())
+        state: dict[str, Any] = json.loads(p.read_text())
+        return state
 
     def save(self, task_id: str, state: dict[str, Any]) -> None:
         if not self.enabled:
@@ -47,7 +37,7 @@ class CheckpointStore:
         self.dir.mkdir(parents=True, exist_ok=True)
         path = self._path(task_id)
         tmp = path.with_suffix(".tmp")
-        tmp.write_text(json.dumps(state))
+        tmp.write_text(json.dumps({**state, "task_id": task_id}))
         tmp.replace(path)
 
     def clear(self, task_id: str) -> None:

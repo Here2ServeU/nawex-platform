@@ -120,7 +120,9 @@ def test_day_budget_persists_across_runs(ident, tmp_path):
 def test_breach_stop_discards_checkpoint(ident, tmp_path):
     r = run(replace(ident, per_run_usd=0.03, on_breach="stop"), tmp_path, "good")
     assert r.result == "capped"
-    assert not (tmp_path / "checkpoints" / "invoice-4471.json").exists()
+    from golden.agentops import CheckpointStore
+
+    assert not CheckpointStore(tmp_path)._path("invoice-4471").exists()
 
 
 def test_breach_kill_engages_platform_kill_switch(ident, tmp_path, monkeypatch):
@@ -166,7 +168,7 @@ def test_checkpoint_paths_cannot_escape_state_dir(tmp_path):
         assert store._path(evil).parent == (tmp_path / "checkpoints").resolve()
         assert store.load(evil)["spent_usd"] == 1.0
     assert not (tmp_path.parent / "etc").exists()
-    assert store._path("invoice-4471").name == "invoice-4471.json"
+    assert store.load("invoice-4471") == {"completed": [], "spent_usd": 0.0}
 
 
 def test_regex_free_parsers_are_linear():
