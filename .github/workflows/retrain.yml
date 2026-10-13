@@ -1,0 +1,46 @@
+name: retrain
+
+# Weekly drift check -> retrain -> quality gate. A model that passes is registered as `challenger`;
+# promotion to champion is a separate, human-approved step (`golden model promote --approver ...`).
+on:
+  schedule:
+    - cron: "0 2 * * 1"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: retrain even without drift
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - name: Drift check (PSI + KS)
+        id: drift
+        run: |
+          set +e
+          golden model drift --registry models/registry > drift.json
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+          cat drift.json
+      - name: Retrain and gate
+        if: steps.drift.outputs.code == '2' || inputs.force
+        run: golden model retrain --registry models/registry ${{ inputs.force && '--force' || '' }} | tee retrain.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: model-lifecycle
+          path: |
+            drift.json
+            retrain.json
+            models/registry/
+          if-no-files-found: ignore

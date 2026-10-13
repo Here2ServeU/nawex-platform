@@ -40,6 +40,8 @@ class PlannerAgent:
             }
         if "latency" in risk_type and level in {"high", "critical"}:
             return {"action": "scale_up_replicas", "params": {}, "rule_id": "default-latency"}
+        if risk_type == "capacity_trend_risk":
+            return {"action": "scale_up_replicas", "params": {}, "rule_id": "default-capacity-trend"}
         if risk_type in {"cpu_risk", "memory_risk"}:
             return {"action": "optimize_resources", "params": {}, "rule_id": "default-capacity"}
         if "error" in risk_type:

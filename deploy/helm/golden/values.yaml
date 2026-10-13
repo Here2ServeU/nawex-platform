@@ -217,6 +217,19 @@ services:
       domain: identity
     podDisruptionBudget:
       enabled: false
+  agent-ops:
+    enabled: true
+    port: 8099
+    replicaCount: 1
+    podLabels:
+      domain: agent-ops
+    podDisruptionBudget:
+      enabled: false
+    # Run ledger, per-day budget state and checkpoints. /tmp is an emptyDir: enable persistence and
+    # point this at its mountPath (/data/agentops) so daily caps survive restarts.
+    env:
+      GOLDEN_AGENTOPS_DIR: /tmp/agentops
+      GOLDEN_LLM_PROVIDER: simulated
   gpu-optimizer:
     enabled: true
     port: 8096

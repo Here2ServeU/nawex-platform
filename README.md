@@ -12,6 +12,14 @@ Clone it, rename it, choose your cloud, and run one command. You get:
 - **Landing zones** on AWS (EKS/ECR), Azure (AKS/ACR), GCP (GKE/Artifact Registry) or OpenShift. Each can add an optional GPU node pool. Deploys use keyless OIDC.
 - **A VMware → OpenShift migration factory.** It takes an RVTools inventory and produces a readiness assessment and dependency-aware migration waves. It then generates Migration Toolkit for Virtualization (MTV) manifests for GitOps, with cutover and rollback runbooks.
 - **AWS IAM modernization.** Workforce access is persona-based through IAM Identity Center, with Active Directory groups provisioned through PingFederate (SAML + SCIM). The template adds SCPs and RCPs, a mandatory permission boundary, an OPA gate on every Terraform plan, role cleanup and consolidation, and a Wiz.io gap assessment mapped to a control-placement catalog.
+- **AI agent operations.** Every agent runs inside a safe runner:
+  - a registered identity with a tool allowlist;
+  - three-gate dollar budgets (drain, stop, or kill when a cap is hit);
+  - loop detection, checkpoints that drain cleanly on rollout, and a run ledger reporting cost per successful task;
+  - an LLM gateway that handles guardrails, budgets, caching, routing and retries.
+
+  The platform also covers OWASP LLM Top 10 controls, with Envoy ext_authz and a red-team gate in CI, plus evals-as-monitoring and RAG with citations.
+- **ML lifecycle.** Experiment tracking (with an MLflow mirror), a gated model registry with champion and challenger versions plus rollback, retraining triggered by PSI/KS drift, and canary, shadow and blue/green model rollout.
 - **Production-shaped services** for five domains: healthcare, financial services, GPU / AI-infrastructure optimization, migration, and AWS identity governance.
 - **An AI engine** with LSTM/TCN forecasters, explainable risk scoring, and governed AIOps remediation (observe → analyze → plan → execute). GPU-accelerated training is built in.
 - **AI security** built into every layer: guardrails and caps, autonomy modes, human approval, a kill switch, model integrity checks, auth and rate limiting, and a tamper-evident audit trail.
@@ -71,6 +79,19 @@ make iam-plan      # Terraform plan for SCPs/RCPs + Identity Center, gated by OP
 
 The access model is a single YAML file. Terraform (`deploy/terraform/modules/aws/identity-center`) and the `identity-governance` service both read it. Guardrails roll out one OU at a time (sandbox → nonprod → prod). Every landing-zone role carries the `golden-workload-boundary` permission boundary. The playbook is in [docs/modernization/aws-iam-modernization.md](docs/modernization/aws-iam-modernization.md), and the rollout and break-glass runbook is in [ops/runbooks/identity/guardrail-rollout.md](ops/runbooks/identity/guardrail-rollout.md).
 
+## AI agent operations
+
+```bash
+make agent-verify      # prove each cost control by switching it off, then on (offline, free)
+make agent-overnight   # what an unguarded looping fleet costs overnight vs one guarded run
+make redteam           # OWASP LLM Top 10 probe suite against the LLM gateway (CI gate)
+golden agent run --sample malformed       # watch loop detection stop a bouncing agent
+golden rag ask "How long are PHI audit logs retained?"   # grounded, cited answer
+make model-retrain     # drift → retrain → quality gate → challenger; promote with --approver
+```
+
+The model is simulated by default, so nothing is billed. To use Claude, set `GOLDEN_LLM_PROVIDER=anthropic` and install the `llm` extra. The guide is in [docs/agent-operations/](docs/agent-operations/README.md), and [concept-map.md](docs/agent-operations/concept-map.md) traces every course concept to the code that implements it.
+
 ## AI security model
 
 Every autonomous action passes through the **ActionGovernor**, and every model input and output passes **guardrails**.
@@ -104,12 +125,13 @@ Makefile                 ← every workflow, one verb each (`make help`)
 compose.yaml             ← the whole platform locally
 Dockerfile               ← one image for all Python services (`golden serve <service>`)
 src/golden/
-  ai/                    forecasting (LSTM/TCN), detection pipelines, explainability, ROI, AIOps agents, accel (GPU)
+  ai/                    forecasting (LSTM/TCN), detection, explainability, ROI, AIOps agents, GPU, drift, RAG, ML lifecycle
   security/              guardrails, action governor, kill switch, integrity, auth, rate limit, audit, redaction
   decision/              signal → incident → risk/severity → governed action
   gpu/                   GPU telemetry, fleet analysis, optimisation
   migration/             RVTools inventory, assessment, wave planning, MTV manifest generation
   identity/              AWS access model lint, IAM role cleanup/consolidation, control catalog, Wiz gap assessment
+  agentops/              safe agent runner, budgets, loops, checkpoints, ledger, LLM gateway, guardrails, red-team, evals
   services/              FastAPI microservices (fintech, healthcare, gpu, migration, identity) on a shared foundation
   api/                   platform API (scoring, decisions, ROI, approvals, audit)
   robotics/              clinical-robotics safety interceptor + gRPC telemetry
@@ -134,6 +156,7 @@ tests/                   pytest suite (unit, service contracts, models, robotics
 | `gpu-optimizer` | 8096 | GPU fleet optimization |
 | `migration-planner` | 8097 | VMware → OpenShift assessment, waves, MTV manifests |
 | `identity-governance` | 8098 | AWS access-model lint, IAM role cleanup, Wiz control gap assessment |
+| `agent-ops` | 8099 | LLM gateway, safe agent runs, cost report, guardrails / ext_authz, red-team, evals, RAG |
 | `client-portal` · `workload` | 3001 · 8080 | Executive console · instrumented target app |
 
 Every service exposes `/health`, `/ready`, and `/metrics` (Prometheus), and runs as non-root with a read-only filesystem.

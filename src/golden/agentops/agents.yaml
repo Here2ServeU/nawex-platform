@@ -1,0 +1,34 @@
+# Agent identities: every agent that runs on the platform has a name, an owning team, a human owner,
+# a model, a tool allowlist (least privilege) and pre-decided budgets. Unknown agents do not run.
+# Override with GOLDEN_AGENTS_FILE.
+agents:
+  invoice-reader:
+    team: finance-ops
+    owner: ap-automation@example.com
+    model: simulated
+    allowed_tools: [read, parse, validate, lookup, write, explore]
+    per_run_usd: 0.15
+    per_day_usd: 10.0
+    on_breach: drain
+    step_ceiling: 40
+    success_definition: produced the required output field and passed validation
+  incident-summarizer:
+    team: sre
+    owner: sre-oncall@example.com
+    model: claude-sonnet-5-5
+    allowed_tools: [read, query_metrics, query_logs, summarize]
+    per_run_usd: 0.50
+    per_day_usd: 20.0
+    on_breach: drain
+    step_ceiling: 20
+    success_definition: summary cites at least one metric and one log line
+  compliance-assistant:
+    team: grc
+    owner: grc@example.com
+    model: claude-opus-5-5
+    allowed_tools: [retrieve, answer]
+    per_run_usd: 0.25
+    per_day_usd: 15.0
+    on_breach: stop
+    step_ceiling: 6
+    success_definition: answer grounded in retrieved passages with citations

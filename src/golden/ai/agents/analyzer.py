@@ -6,6 +6,8 @@ import logging
 from collections import deque
 from typing import Any
 
+import numpy as np
+
 from golden.ai.prediction import predict_lstm, predict_tcn
 from golden.security.guardrails import GuardrailViolation
 
@@ -23,6 +25,13 @@ class AnalyzerAgent:
         self.enable_ml = bool(features.get("enable_ml_analysis", False))
         self.window = int(features.get("ml_sequence_window", 24))
         self.history: deque[float] = deque(maxlen=self.window)
+        # Trend + spike detection on saturation metrics: catches a slow climb before it crosses a threshold.
+        self.trend_slope = float(thresholds.get("trend_slope_per_reading", 1.5))
+        self.trend_min_points = int(features.get("trend_min_points", 6))
+        self.spike_z = float(thresholds.get("spike_zscore", 2.0))
+        self.saturation: dict[str, deque[float]] = {
+            m: deque(maxlen=self.window) for m in ("cpu_usage_percent", "memory_usage_percent")
+        }
 
     def analyze(self, metrics: dict[str, Any]) -> dict[str, Any]:
         if metrics.get("status") == "collection_failed":
@@ -46,6 +55,11 @@ class AnalyzerAgent:
             flags["cpu_risk"] = "high"
         if float(metrics.get("memory_usage_percent", 0) or 0) > self.memory_threshold:
             flags["memory_risk"] = "critical"
+
+        trend = self._trend(metrics)
+        if trend:
+            flags["capacity_trend_risk"] = "high"
+            flags["trend"] = trend
 
         if self.enable_ml and len(self.history) >= 4:
             try:
@@ -71,3 +85,21 @@ class AnalyzerAgent:
             "risk_flags": flags,
             "status": "risk_detected" if risky else "healthy",
         }
+
+    def _trend(self, metrics: dict[str, Any]) -> dict[str, Any]:
+        """Linear-regression slope (units per reading) and z-score spike per saturation metric."""
+        out: dict[str, Any] = {}
+        for name, series in self.saturation.items():
+            value = metrics.get(name)
+            if value is None:
+                continue
+            series.append(float(value))
+            if len(series) < self.trend_min_points:
+                continue
+            values = np.asarray(series)
+            slope = float(np.polyfit(np.arange(values.size), values, 1)[0])
+            prior = values[:-1]
+            z = float((values[-1] - prior.mean()) / prior.std()) if prior.std() > 0 else 0.0
+            if slope > self.trend_slope or z > self.spike_z:
+                out[name] = {"slope_per_reading": round(slope, 3), "zscore": round(z, 2)}
+        return out

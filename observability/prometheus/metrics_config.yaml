@@ -31,6 +31,7 @@ rule_files:
   - "rules/gpu_rules.yml"
   - "rules/migration_rules.yml"
   - "rules/identity_rules.yml"
+  - "rules/agentops_rules.yml"
 
 scrape_configs:
   # ── Platform API (golden serve api) ───────────────────────────
@@ -86,6 +87,14 @@ scrape_configs:
       - targets: ["identity-governance:8098"]
         labels:
           vertical: identity
+
+  # ── AI agent operations (LLM gateway, safe runner, RAG) ─────
+  - job_name: agent-ops
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["agent-ops:8099"]
+        labels:
+          vertical: agent-ops
 
   # ── NVIDIA DCGM exporter (real GPU clusters only) ────────────
   # Exposes DCGM_FI_DEV_GPU_UTIL, DCGM_FI_DEV_GPU_TEMP, DCGM_FI_DEV_FB_USED,

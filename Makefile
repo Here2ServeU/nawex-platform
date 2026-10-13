@@ -130,6 +130,29 @@ iam-policy-test: ## opa check + test the IAM and Kubernetes policy packs
 iam-plan: ## Terraform plan for the org identity stack (SCP/RCP + Identity Center), gated by OPA
 	scripts/iam-policy-gate.sh deploy/terraform/live/aws/org
 
+##@ AI agent operations & ML lifecycle
+.PHONY: agent-verify agent-overnight agent-report redteam rag-ask model-drift model-retrain
+agent-verify: ## Prove every agent cost control by turning it off, then on (offline, free)
+	$(GOLDEN) agent verify
+
+agent-overnight: ## What an unguarded looping agent fleet would cost overnight
+	$(GOLDEN) agent overnight
+
+agent-report: ## Unit economics from the run ledger (cost per successful task, failed-run tax)
+	$(GOLDEN) agent report
+
+redteam: ## Red-team probe suite against the LLM gateway (OWASP LLM Top 10); non-zero exit fails the gate
+	$(GOLDEN) agent redteam
+
+rag-ask: ## Grounded Q&A over docs: make rag-ask Q="How long are audit logs kept?" DOCS=docs/compliance
+	$(GOLDEN) rag ask "$(Q)" $(if $(DOCS),--docs $(DOCS),)
+
+model-drift: ## PSI + KS drift check for the fraud model (exit 2 on drift)
+	-$(GOLDEN) model drift
+
+model-retrain: ## Drift-triggered retrain; registers a challenger only if it passes the quality gate
+	$(GOLDEN) model retrain
+
 ##@ Build & deploy
 .PHONY: build validate-infra plan deploy destroy
 build: ## Build all container images

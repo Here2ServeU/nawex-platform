@@ -13,4 +13,5 @@ SERVICES: dict[str, tuple[str, int]] = {
     "gpu-optimizer": ("golden.services.gpu.optimizer:app", 8096),
     "migration-planner": ("golden.services.migration.planner:app", 8097),
     "identity-governance": ("golden.services.identity.governance:app", 8098),
+    "agent-ops": ("golden.services.agentops.gateway:app", 8099),
 }

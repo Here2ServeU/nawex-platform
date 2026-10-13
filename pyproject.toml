@@ -35,6 +35,10 @@ dependencies = [
 ml = ["torch>=2.4", "scikit-learn>=1.5"]
 worker = ["celery>=5.4", "redis>=5.0"]
 robotics = ["grpcio>=1.66", "protobuf>=5.27"]
+# Real LLM calls (Claude via the official SDK). Without it the platform uses the offline simulated model.
+llm = ["anthropic>=1.0"]
+# Optional ML tooling: MLflow mirror for experiment tracking, neural sentence embeddings for RAG.
+mlops = ["mlflow>=2.16", "sentence-transformers>=3.0"]
 dev = [
   "pytest>=8.3",
   "pytest-cov>=5.0",

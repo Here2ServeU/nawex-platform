@@ -68,3 +68,7 @@ Thumbs.db
 .vscode/
 *.swp
 tmp/
+
+# agent-ops run ledger / checkpoints and local model registry
+.agentops/
+models/registry/

@@ -69,6 +69,16 @@ jobs:
           golden gpu analyze --scenario hot > /dev/null
           golden demo client --vertical all --client "CI" --fast --output /tmp/demo > /dev/null
           golden demo engine --epochs 1 --output-dir /tmp/engine > /dev/null
+          golden iam model > /dev/null
+
+      - name: Agent-ops gates (cost controls proven, red-team, model quality)
+        env:
+          GOLDEN_AGENTOPS_DIR: /tmp/agentops
+        run: |
+          golden agent verify > /tmp/agent-verify.json
+          golden agent redteam > /tmp/redteam.json
+          golden model retrain --force --registry /tmp/registry > /tmp/retrain.json
+          golden rag ask "How long are PHI audit logs retained?" > /dev/null
 
       - uses: actions/upload-artifact@v4
         if: always() && matrix.python == '3.12'

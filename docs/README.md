@@ -20,6 +20,7 @@ Docs-as-code for the Golden Platform golden-path monorepo. Start with the
 | Fintech | [verticals/fintech.md](./verticals/fintech.md) · [product/fintech.md](./product/fintech.md) · [04-product/fintech-edition.md](./04-product/fintech-edition.md) |
 | GPU / AI infrastructure | [verticals/gpu.md](./verticals/gpu.md) · [04-product/ai-infra-edition.md](./04-product/ai-infra-edition.md) · [guides/gpu-acceleration.md](./guides/gpu-acceleration.md) |
 | Modernization / migration | [modernization/README.md](./modernization/README.md) · [modernization/vmware-to-openshift.md](./modernization/vmware-to-openshift.md) · runbooks: [cutover](../ops/runbooks/migration/cutover.md), [rollback](../ops/runbooks/migration/rollback.md) |
+| AI agent operations | [agent-operations/README.md](./agent-operations/README.md) · [concept map](./agent-operations/concept-map.md) · runbook: [runaway agent](../ops/runbooks/agent-ops/runaway-agent.md) |
 | AWS identity governance | [modernization/aws-iam-modernization.md](./modernization/aws-iam-modernization.md) · runbook: [guardrail rollout & break-glass](../ops/runbooks/identity/guardrail-rollout.md) |
 
 ## Architecture
