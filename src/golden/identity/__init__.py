@@ -2,6 +2,15 @@
 
 from golden.identity.controls import CONTROLS, Control, catalog, match_controls
 from golden.identity.model import AccessModel, Persona, lint_model, lint_summary, load_model, parse_model
+from golden.identity.multicloud import (
+    CloudAccessModel,
+    lint_cloud_model,
+    lint_cloud_summary,
+    load_cloud_model,
+    multicloud_summary,
+    parse_cloud_model,
+    persona_matrix,
+)
 from golden.identity.roles import (
     RoleAnalysis,
     analyze_authorization_details,
@@ -11,6 +20,13 @@ from golden.identity.roles import (
 from golden.identity.wiz import CloudFinding, assess_gaps, load_findings, sample_findings
 
 __all__ = [
+    "CloudAccessModel",
+    "lint_cloud_model",
+    "lint_cloud_summary",
+    "load_cloud_model",
+    "multicloud_summary",
+    "parse_cloud_model",
+    "persona_matrix",
     "CONTROLS",
     "AccessModel",
     "CloudFinding",

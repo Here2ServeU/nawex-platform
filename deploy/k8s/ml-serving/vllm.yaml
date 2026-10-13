@@ -1,0 +1,148 @@
+# vLLM OpenAI-compatible server on one GPU: /v1/chat/completions, /v1/completions, /v1/models, /health.
+# The agent-ops LLM gateway (golden serve agent-ops) is the only allowed client (see networkpolicy.yaml).
+# Model weights are pulled from Hugging Face on first start and cached on the PVC, so restarts and
+# rollouts do not re-download. Gated models need HF_TOKEN in the `hf-token` Secret (optional here).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vllm-hf-cache
+  namespace: golden-ml
+  labels:
+    app.kubernetes.io/name: vllm
+    app.kubernetes.io/part-of: golden
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm
+  namespace: golden-ml
+  labels:
+    app.kubernetes.io/name: vllm
+    app.kubernetes.io/component: llm-server
+    app.kubernetes.io/part-of: golden
+spec:
+  replicas: 1
+  # ReadWriteOnce cache + one GPU per pod: replace, don't surge (a surge pod could not get the volume/GPU).
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vllm
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vllm
+        app.kubernetes.io/component: llm-server
+        app.kubernetes.io/part-of: golden
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: /metrics
+    spec:
+      automountServiceAccountToken: false
+      # Labels set by GPU Feature Discovery (installed by the GPU Operator).
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:v0.6.3
+          args:
+            - --model=$(MODEL_ID)
+            - --served-model-name=$(SERVED_MODEL_NAME)
+            - --host=0.0.0.0
+            - --port=8000
+            - --gpu-memory-utilization=0.90
+            - --max-model-len=8192
+          env:
+            - name: MODEL_ID
+              value: Qwen/Qwen2.5-7B-Instruct
+            - name: SERVED_MODEL_NAME
+              value: qwen2.5-7b-instruct
+            - name: HF_HOME
+              value: /cache/huggingface
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token
+                  key: token
+                  optional: true
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "4"
+              memory: 24Gi
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "8"
+              memory: 32Gi
+              nvidia.com/gpu: "1"
+          # Model download + weight load can take minutes: the startup probe gives it up to 20 min
+          # before liveness takes over; readiness keeps the pod out of the Service until /health is OK.
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            failureThreshold: 120
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 15
+            failureThreshold: 4
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: hf-cache
+              mountPath: /cache
+            - name: dshm
+              mountPath: /dev/shm
+      volumes:
+        - name: hf-cache
+          persistentVolumeClaim:
+            claimName: vllm-hf-cache
+        # NCCL / PyTorch dataloaders need more shared memory than the 64Mi container default.
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 8Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm
+  namespace: golden-ml
+  labels:
+    app.kubernetes.io/name: vllm
+    app.kubernetes.io/part-of: golden
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: vllm
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+      protocol: TCP

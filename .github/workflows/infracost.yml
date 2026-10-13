@@ -1,0 +1,81 @@
+name: infracost
+
+# Cost estimate for Terraform changes, posted as a PR comment (FinOps "shift left";
+# docs/finops/README.md). Needs the INFRACOST_API_KEY repository secret (free key:
+# `infracost auth login`); without it the job logs a notice and succeeds, so forks
+# and repos without the secret are not blocked.
+
+on:
+  pull_request:
+    paths: ["deploy/terraform/**", ".github/workflows/infracost.yml"]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: infracost-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  INFRACOST_PATH: deploy/terraform/live/aws/dev
+
+jobs:
+  infracost:
+    name: cost diff (${{ github.event.pull_request.base.ref }} -> PR)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+    steps:
+      - name: Check for API key
+        id: key
+        run: |
+          if [ -z "$INFRACOST_API_KEY" ]; then
+            echo "::notice title=infracost skipped::INFRACOST_API_KEY secret is not set; no cost estimate for this PR."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Infracost
+        if: steps.key.outputs.enabled == 'true'
+        uses: infracost/actions/setup@v3
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Checkout base branch
+        if: steps.key.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Baseline cost (base branch)
+        if: steps.key.outputs.enabled == 'true'
+        run: |
+          infracost breakdown --path="$INFRACOST_PATH" \
+            --format=json --out-file=/tmp/infracost-base.json
+
+      - name: Checkout PR
+        if: steps.key.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+
+      - name: Cost diff (PR vs base)
+        if: steps.key.outputs.enabled == 'true'
+        run: |
+          infracost diff --path="$INFRACOST_PATH" \
+            --compare-to=/tmp/infracost-base.json \
+            --format=json --out-file=/tmp/infracost.json
+          infracost output --path=/tmp/infracost.json --format=diff >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Post PR comment
+        if: steps.key.outputs.enabled == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          infracost comment github --path=/tmp/infracost.json \
+            --repo="$GITHUB_REPOSITORY" \
+            --github-token="$GITHUB_TOKEN" \
+            --pull-request="$PR_NUMBER" \
+            --behavior=update

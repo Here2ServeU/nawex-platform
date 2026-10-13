@@ -1,0 +1,73 @@
+# NVIDIA GPU Operator ClusterPolicy (CRD nvidia.com/v1) — normally created by the Helm chart from its
+# values; kept here as the reviewed, declarative source of truth for the platform's GPU node stack.
+#
+#   driver + container toolkit  -> GPUs usable by containerd
+#   device plugin               -> advertises nvidia.com/gpu (and nvidia.com/mig-* in mixed strategy);
+#                                  time-slicing / MPS from the `time-slicing-config` ConfigMap
+#   GPU Feature Discovery       -> node labels nvidia.com/gpu.product, gpu.memory, mig.capable, ...
+#   MIG manager                 -> repartitions a node when its nvidia.com/mig.config label changes
+#   DCGM + DCGM exporter        -> per-GPU metrics for Prometheus (feeds golden.gpu analysis)
+apiVersion: nvidia.com/v1
+kind: ClusterPolicy
+metadata:
+  name: cluster-policy
+spec:
+  operator:
+    defaultRuntime: containerd
+  daemonsets:
+    priorityClassName: system-node-critical
+    tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+  driver:
+    enabled: true
+    # Managed node images (EKS/GKE/AKS GPU AMIs) ship the driver: set to false there.
+    useOpenKernelModules: false
+    upgradePolicy:
+      autoUpgrade: true
+      maxParallelUpgrades: 1
+      drain:
+        enable: true
+        force: false
+        timeoutSeconds: 600
+  toolkit:
+    enabled: true
+  devicePlugin:
+    enabled: true
+    config:
+      # ConfigMap with one sharing config per key; a node picks one with the label
+      # nvidia.com/device-plugin.config=<key>, otherwise `default` applies.
+      name: time-slicing-config
+      default: any
+  # mixed: each MIG profile is its own resource (nvidia.com/mig-1g.10gb, nvidia.com/mig-3g.40gb, ...),
+  # so one GPU can be split into different sizes. `single` would advertise them all as nvidia.com/gpu.
+  mig:
+    strategy: mixed
+  migManager:
+    enabled: true
+    config:
+      name: custom-mig-config
+      default: all-disabled
+    env:
+      - name: WITH_REBOOT
+        value: "false"
+  gfd:
+    enabled: true
+  nodeStatusExporter:
+    enabled: true
+  dcgm:
+    enabled: true
+  dcgmExporter:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 15s
+      honorLabels: false
+  validator:
+    plugin:
+      env:
+        - name: WITH_WORKLOAD
+          value: "false"
+  sandboxWorkloads:
+    enabled: false

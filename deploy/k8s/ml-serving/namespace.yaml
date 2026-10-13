@@ -1,0 +1,25 @@
+# Namespace for model serving (KServe predictors, vLLM, Triton).
+# Pod Security "baseline": the vLLM and Triton images run as root and need /dev/shm; the platform's own
+# predictor (golden-platform image) still runs non-root with a restricted securityContext.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: golden-ml
+  labels:
+    app.kubernetes.io/part-of: golden
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted
+---
+# Cap GPU spend for the namespace: requests for whole GPUs and MIG slices are counted separately.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: gpu-quota
+  namespace: golden-ml
+spec:
+  hard:
+    requests.nvidia.com/gpu: "4"
+    requests.nvidia.com/mig-1g.10gb: "14"
+    requests.nvidia.com/mig-3g.40gb: "4"
+    persistentvolumeclaims: "10"

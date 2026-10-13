@@ -1,0 +1,119 @@
+# The first strangled slice: the new payments service that takes over /api/v2/payments/*.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-v2
+  namespace: strangler
+  labels:
+    app: payments-v2
+    app.kubernetes.io/name: payments-v2
+    app.kubernetes.io/part-of: golden
+    golden.io/strangler-role: new
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: payments-v2
+  template:
+    metadata:
+      labels:
+        app: payments-v2
+        app.kubernetes.io/name: payments-v2
+        app.kubernetes.io/part-of: golden
+        golden.io/strangler-role: new
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: payments
+          image: ghcr.io/here2serveu/payments-v2:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            # Shadow mode: accept mirrored traffic but never commit side effects (no charge, no events).
+            - name: PAYMENTS_SHADOW_MODE
+              value: "false"
+            - name: LEGACY_BASE_URL
+              value: http://legacy-monolith.strangler.svc.cluster.local:8080
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-v2
+  namespace: strangler
+  labels:
+    app: payments-v2
+    app.kubernetes.io/part-of: golden
+    golden.io/strangler-role: new
+spec:
+  type: ClusterIP
+  selector:
+    app: payments-v2
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP
+---
+# Only the facade (and the mesh, for mirrored traffic) may call the new service directly.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payments-v2-from-facade
+  namespace: strangler
+spec:
+  podSelector:
+    matchLabels:
+      app: payments-v2
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: strangler-facade
+      ports:
+        - protocol: TCP
+          port: 8080

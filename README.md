@@ -20,6 +20,19 @@ Clone it, rename it, choose your cloud, and run one command. You get:
 
   The platform also covers OWASP LLM Top 10 controls, with Envoy ext_authz and a red-team gate in CI, plus evals-as-monitoring and RAG with citations.
 - **ML lifecycle.** Experiment tracking (with an MLflow mirror), a gated model registry with champion and challenger versions plus rollback, retraining triggered by PSI/KS drift, and canary, shadow and blue/green model rollout.
+- **Multi-cloud governance.** The same persona model runs on all three clouds:
+  - **AWS:** Identity Center, SCPs and RCPs, and account vending.
+  - **Azure:** management groups, Azure Policy, Entra ID and PIM.
+  - **GCP:** folders, org policy, deny policies and just-in-time privileged access (PAM).
+
+  STRIDE threat models cover the platform and the agent-operations layer.
+- **Enterprise networking.** On AWS, a Transit Gateway hub-and-spoke separates prod, nonprod, shared and inspection traffic. It also provides hybrid DNS and Direct Connect, and PrivateLink endpoints restricted to the organization. Azure gets a hub-spoke design and GCP a Shared VPC. An IP address planner, a reachability and segmentation checker, and OPA network guardrails complete it.
+- **FinOps.** Showback and chargeback built on FOCUS cost data. It covers tag coverage, cost anomalies and forecasts, and rightsizing and commitment recommendations. Budgets and anomaly detection are deployed on AWS, Azure and GCP. An OPA policy rejects Terraform plans with missing tags, and OpenCost and Infracost are included.
+- **Database performance.** Advisors for query workload (`pg_stat_statements`), EXPLAIN plans, indexes and vacuum, and capacity. Aurora PostgreSQL ships with Performance Insights and RDS Proxy; PgBouncer and `postgres_exporter` provide pooling and metrics. Database alerts and a dashboard are included.
+- **Platform engineering.** Argo Rollouts canary releases with automatic analysis, KEDA and Karpenter autoscaling, External Secrets, and Velero backup/DR. Images are signed with cosign (keyless) and verified at admission by Kyverno. A weekly OWASP ZAP scan tests the running API. There is a CIS-style Ansible baseline for RHEL, and a Jenkinsfile that mirrors CI.
+- **ML platform.** A feature store with point-in-time correct joins, and Open Inference Protocol model serving (KServe, vLLM, Triton). GPU sharing can be planned with MIG, time-slicing or MPS through the GPU Operator.
+- **Modernization beyond VMs.** A 7 Rs and TIME portfolio assessment, database migration planning (AWS SCT, DMS, CDC), and strangler-fig routing.
+- **Observability vendors.** Prometheus/Grafana/Loki/Tempo, plus Datadog, Dynatrace, Splunk and New Relic. New Relic is fed through the OpenTelemetry collector over OTLP.
 - **Production-shaped services** for five domains: healthcare, financial services, GPU / AI-infrastructure optimization, migration, and AWS identity governance.
 - **An AI engine** with LSTM/TCN forecasters, explainable risk scoring, and governed AIOps remediation (observe → analyze → plan → execute). GPU-accelerated training is built in.
 - **AI security** built into every layer: guardrails and caps, autonomy modes, human approval, a kill switch, model integrity checks, auth and rate limiting, and a tamper-evident audit trail.
@@ -92,6 +105,19 @@ make model-retrain     # drift → retrain → quality gate → challenger; prom
 
 The model is simulated by default, so nothing is billed. To use Claude, set `GOLDEN_LLM_PROVIDER=anthropic` and install the `llm` extra. The guide is in [docs/agent-operations/](docs/agent-operations/README.md), and [concept-map.md](docs/agent-operations/concept-map.md) traces every course concept to the code that implements it.
 
+## Cloud, network, FinOps, data and ML in one command each
+
+```bash
+make iam-multicloud      # lint AWS + Azure + GCP access models; persona parity across clouds
+make net-verify          # prove prod↔nonprod is blocked and both reach shared, in every hub mode
+make finops-report       # FOCUS showback/chargeback, tag coverage, anomalies, month-end forecast
+make db-demo             # workload, EXPLAIN, index and capacity advisors on a sample payments DB
+make features-demo       # point-in-time features → online store → training/serving skew check
+make gpu-partition       # MIG / time-slicing / MPS plan and GPUs saved
+make migrate-portfolio   # 7 Rs / TIME portfolio rationalization (uses the VM assessment)
+make ansible-check       # CIS-style RHEL baseline: syntax + ansible-lint (production profile)
+```
+
 ## AI security model
 
 Every autonomous action passes through the **ActionGovernor**, and every model input and output passes **guardrails**.
@@ -130,7 +156,10 @@ src/golden/
   decision/              signal → incident → risk/severity → governed action
   gpu/                   GPU telemetry, fleet analysis, optimisation
   migration/             RVTools inventory, assessment, wave planning, MTV manifest generation
-  identity/              AWS access model lint, IAM role cleanup/consolidation, control catalog, Wiz gap assessment
+  identity/              AWS/Azure/GCP access models, IAM role cleanup, control catalog, Wiz gap assessment
+  finops/                FOCUS cost data, showback/chargeback, anomalies, forecasts, rightsizing, k8s cost
+  network/               IP address planning (IPv4/IPv6), reachability and segmentation verification
+  database/              pg_stat_statements, EXPLAIN, index/vacuum and capacity advisors
   agentops/              safe agent runner, budgets, loops, checkpoints, ledger, LLM gateway, guardrails, red-team, evals
   services/              FastAPI microservices (fintech, healthcare, gpu, migration, identity) on a shared foundation
   api/                   platform API (scoring, decisions, ROI, approvals, audit)
@@ -140,9 +169,12 @@ deploy/
   terraform/             landing zones: live/{aws,azure,gcp}/{dev,staging,prod}, live/aws/org (SCP/RCP, Identity Center) + modules
   helm/golden/           platform chart + values-{aws,azure,gcp,openshift,local}.yaml
   openshift/             manifests, Helm values, virtualization (operators, MTV, waves)
-  gitops/  k8s/          Argo CD / Flux, plain manifests
+  gitops/  k8s/          Argo CD / Flux (incl. OpenCost, New Relic), plain manifests and add-ons (Karpenter,
+                         Velero, External Secrets, KServe/vLLM/Triton, GPU Operator, PgBouncer, strangler fig)
+  ansible/               CIS-style RHEL baseline role
 observability/           Prometheus rules (SLO, AI safety, GPU, migration), Grafana dashboards, Loki, Tempo
-security/  ops/  docs/   access model, policies (OPA k8s + AWS IAM, RBAC, Trivy) · runbooks, SRE, chaos · documentation
+security/  ops/  docs/   access models, policies (OPA: k8s, IAM, tagging, network · Kyverno), threat models · runbooks · docs
+Jenkinsfile              Jenkins mirror of the GitHub Actions CI pipeline
 tests/                   pytest suite (unit, service contracts, models, robotics)
 ```
 
@@ -157,6 +189,7 @@ tests/                   pytest suite (unit, service contracts, models, robotics
 | `migration-planner` | 8097 | VMware → OpenShift assessment, waves, MTV manifests |
 | `identity-governance` | 8098 | AWS access-model lint, IAM role cleanup, Wiz control gap assessment |
 | `agent-ops` | 8099 | LLM gateway, safe agent runs, cost report, guardrails / ext_authz, red-team, evals, RAG |
+| `model-server` | 8100 | Open Inference Protocol (v2) serving of the champion fraud model (KServe custom predictor) |
 | `client-portal` · `workload` | 3001 · 8080 | Executive console · instrumented target app |
 
 Every service exposes `/health`, `/ready`, and `/metrics` (Prometheus), and runs as non-root with a read-only filesystem.
@@ -166,9 +199,12 @@ Every service exposes `/health`, `/ready`, and `/metrics` (Prometheus), and runs
 | Workflow | Runs on | What it does |
 | --- | --- | --- |
 | `ci` | push, PR | ruff, mypy, pytest (3.11/3.12, coverage ≥ 75%), CLI smoke, Node lint/test, shellcheck, compose/YAML validation, end-to-end rebrand test |
-| `containers` | push, PR, tags | build, smoke-test, Trivy-scan, and push (main/tags) the three images to GHCR with SBOM + provenance |
+| `containers` | push, PR, tags | build, smoke-test, Trivy-scan, push (main/tags) to GHCR with SBOM + provenance; keyless cosign signing + SBOM attestation |
 | `infra` | infra changes | helm lint/template + kubeconform for every overlay; terraform fmt + validate for every module and environment |
 | `security` | push, PR, weekly | gitleaks, Trivy (deps + IaC, SARIF), pip-audit, npm audit, CodeQL |
+| `dast` | weekly, label `dast` | OWASP ZAP baseline + API scan of the running API (fails on High) |
+| `infracost` | PR (terraform) | cost diff of `live/aws/dev` posted to the PR |
+| `retrain` | weekly | drift check → retrain → quality gate → challenger |
 | `deploy` | manual | OIDC to AWS/Azure/GCP/OpenShift → Terraform plan/apply/destroy → Helm upgrade |
 
 ## Documentation

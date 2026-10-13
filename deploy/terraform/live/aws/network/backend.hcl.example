@@ -1,0 +1,7 @@
+# Copy to backend.hcl and run: terraform init -backend-config=backend.hcl
+# State for the network hub lives in the network account (one state per region).
+bucket         = "REPLACE_ME-golden-tfstate"
+key            = "golden/network/us-east-1/hub.tfstate"
+region         = "us-east-1"
+dynamodb_table = "golden-terraform-locks"
+encrypt        = true

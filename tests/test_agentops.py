@@ -323,6 +323,21 @@ def test_gateway_blocks_and_budgets():
     assert g.complete("another question entirely", caller="someone-else").status == "success"
 
 
+def test_gateway_cache_is_scoped_per_caller():
+    g = gateway()
+    assert g.complete("same question", caller="alice").status == "success"
+    assert g.complete("same question", caller="bob").status == "success"  # not alice's cached answer
+    assert g.complete("same question", caller="alice").status == "cache_hit"
+
+
+def test_identity_without_tools_gets_no_tools(tmp_path):
+    from golden.agentops import AgentIdentity
+
+    bare = AgentIdentity(name="bare", team="t")
+    r = SafeAgentRunner(bare, state_dir=tmp_path).run(SimulatedTaskAgent(), SAMPLE_TASKS["good"])
+    assert bare.allowed_tools == [] and r.result == "blocked"
+
+
 def test_gateway_withholds_leaked_secret():
     g = gateway(client=SimulatedLLM(answer=lambda p, s: f"the key is {AWS_KEY}"))
     r = g.complete("what is the deploy key?")

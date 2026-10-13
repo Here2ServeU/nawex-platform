@@ -1,0 +1,131 @@
+# -----------------------------------------------------------------------------------------------
+# azure-access-model.yaml — persona-based Azure access, the Azure twin of access-model.yaml (AWS).
+#
+#   AD group ──Entra Connect (cloud sync)──▶ Entra ID security group ──role assignment──▶ built-in role
+#                                                                     (active or PIM-eligible)  × scope
+#
+# Read by:
+#   * Terraform  deploy/terraform/modules/azure/governance  (role assignments, PIM eligibility,
+#                                                           PIM activation policies)
+#   * Python     golden.identity.multicloud                 (lint + cross-cloud persona matrix)
+#
+# Scopes are logical management-group keys created by the governance module (root → platform,
+# landing-zones → {prod, nonprod}, sandbox, decommissioned), so this file holds no tenant or
+# subscription IDs. Personas share their `name` with access-model.yaml and gcp-access-model.yaml;
+# `golden.identity.multicloud.persona_matrix` flags a persona that exists in one cloud only.
+#
+# Azure has no permission-set session duration. The equivalents used here:
+#   * standing access  → `assignment: active`   (azurerm_role_assignment)
+#   * just-in-time     → `assignment: eligible` (azurerm_pim_eligible_role_assignment) with
+#                        `activation_duration` enforced by a PIM role management policy
+# -----------------------------------------------------------------------------------------------
+version: 1
+
+identity_source:
+  idp: entra-id                     # Entra ID is the IdP for Azure; PingFederate may federate the domain
+  directory: active-directory       # users and groups are synced from AD by Entra Connect cloud sync
+  provisioning: entra-connect
+  mfa: conditional-access           # Conditional Access policy "require phishing-resistant MFA for Azure management"
+  group_pattern: "^AZ-[A-Za-z0-9]+(-[A-Za-z0-9]+)*$"
+
+# Logical management-group keys; modules/azure/governance creates one MG per key.
+scopes:
+  - root
+  - platform
+  - landing-zones
+  - landing-zones-prod
+  - landing-zones-nonprod
+  - sandbox
+  - decommissioned
+
+limits:
+  max_activation_hours: 8           # longest PIM activation for any eligible role
+  max_privileged_activation_hours: 1
+  max_eligibility_days: 365         # eligible assignments expire and must be re-certified
+
+personas:
+  - name: read-only
+    description: Look, don't touch — read access to platform and workload subscriptions.
+    roles: [Reader]
+    assignment: active
+    assignments:
+      - group: AZ-ReadOnly
+        scopes: [platform, landing-zones, sandbox]
+      - group: AZ-Developers            # developers can read production, never change it
+        scopes: [landing-zones-prod]
+
+  - name: security-auditor
+    description: Internal audit, GRC and external assessors — read security configuration everywhere.
+    roles: [Security Reader, Reader]
+    assignment: active
+    allow_root: true
+    assignments:
+      - group: AZ-SecurityAudit
+        scopes: [root]
+
+  - name: security-engineer
+    description: Security operations — Defender for Cloud, Sentinel and policy remediation.
+    roles: [Security Admin]
+    assignment: eligible
+    activation_duration: PT4H
+    require_approval: false
+    assignments:
+      - group: AZ-SecurityEngineering
+        scopes: [root]
+    allow_root: true
+
+  - name: developer
+    description: Application teams — build freely in non-production and sandbox.
+    roles: [Contributor]
+    assignment: active
+    assignments:
+      - group: AZ-Developers
+        scopes: [landing-zones-nonprod, sandbox]
+
+  - name: platform-engineer
+    description: Platform / cloud engineering — run the landing zones and shared platform services.
+    roles: [Contributor]
+    assignment: eligible                # Contributor in prod is never standing
+    activation_duration: PT4H
+    assignments:
+      - group: AZ-PlatformEngineering
+        scopes: [platform, landing-zones-prod, landing-zones-nonprod]
+
+  - name: sre-oncall
+    description: On-call SREs — read everything, activate bounded operator rights in prod for an incident.
+    roles: [Reader, Virtual Machine Contributor, Azure Kubernetes Service Cluster User Role]
+    assignment: eligible
+    activation_duration: PT4H
+    assignments:
+      - group: AZ-SRE
+        scopes: [landing-zones-prod, landing-zones-nonprod]
+
+  - name: network-admin
+    description: Network engineering — hub VNets, ExpressRoute, Private DNS in the connectivity subscription.
+    roles: [Network Contributor]
+    assignment: eligible
+    activation_duration: PT4H
+    assignments:
+      - group: AZ-NetworkAdmins
+        scopes: [platform]
+
+  - name: finops
+    description: FinOps — Cost Management and budgets, read-only, across the whole hierarchy.
+    roles: [Cost Management Reader]
+    assignment: active
+    allow_root: true
+    assignments:
+      - group: AZ-FinOps
+        scopes: [root]
+
+  - name: break-glass
+    description: Emergency Owner. Eligible only, approval-gated, 1h activation; group membership is empty by default.
+    roles: [Owner]
+    assignment: eligible
+    activation_duration: PT1H
+    require_approval: true
+    privileged: true
+    allow_root: true
+    assignments:
+      - group: AZ-BreakGlass
+        scopes: [root]

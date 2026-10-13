@@ -1,0 +1,37 @@
+# Every workload in golden namespaces carries the recommended labels the
+# golden chart already renders (app.kubernetes.io/name, part-of), so cost
+# allocation, NetworkPolicies, ServiceMonitors and Velero label selectors work.
+# Audit first; switch to Enforce once `kubectl get policyreport -A` is clean.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-labels
+  annotations:
+    policies.kyverno.io/title: Require recommended labels
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/severity: low
+    policies.kyverno.io/subject: Pod, Deployment, StatefulSet, Rollout
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: require-app-labels
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+                - Deployment
+                - StatefulSet
+                - DaemonSet
+                - argoproj.io/v1alpha1/Rollout
+              namespaces:
+                - golden
+                - "golden-*"
+      validate:
+        message: "app.kubernetes.io/name and app.kubernetes.io/part-of labels are required."
+        pattern:
+          metadata:
+            labels:
+              app.kubernetes.io/name: "?*"
+              app.kubernetes.io/part-of: "?*"

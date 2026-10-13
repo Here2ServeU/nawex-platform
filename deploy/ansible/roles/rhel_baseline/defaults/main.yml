@@ -1,0 +1,66 @@
+# Every control can be toggled; defaults follow CIS RHEL Benchmark Level 1 (Server) where safe to
+# apply automatically. Level 2 / disruptive controls default to false and are noted.
+
+# 1.x  Initial setup
+rhel_baseline_disable_filesystems: [cramfs, freevxfs, hfs, hfsplus, jffs2, squashfs, udf, usb-storage]
+rhel_baseline_tmp_mount_options: true           # nodev,nosuid,noexec on /tmp, /dev/shm (L1)
+rhel_baseline_aide: true                        # file integrity monitoring (1.3)
+rhel_baseline_aide_cron: "0 5 * * *"
+rhel_baseline_crypto_policy: DEFAULT:NO-SHA1    # update-crypto-policies; FUTURE is stricter (L2)
+rhel_baseline_selinux_state: enforcing          # 1.6
+rhel_baseline_banner_org: "Authorized"
+rhel_baseline_core_dumps_disabled: true         # 1.5
+
+# 2.x  Services
+rhel_baseline_time_sync: chrony
+rhel_baseline_ntp_servers: [time.cloudflare.com]
+rhel_baseline_remove_packages: [telnet, telnet-server, rsh, rsh-server, ypbind, ypserv, tftp, tftp-server, talk, xinetd, vsftpd]
+rhel_baseline_disable_services: [avahi-daemon, cups, nfs-server, rpcbind, snmpd, httpd, nginx, dovecot, smb, squid]
+
+# 3.x  Network
+rhel_baseline_sysctl:
+  net.ipv4.ip_forward: 0                   # set 1 on routers / k8s nodes via host_vars
+  net.ipv4.conf.all.send_redirects: 0
+  net.ipv4.conf.default.send_redirects: 0
+  net.ipv4.conf.all.accept_redirects: 0
+  net.ipv4.conf.default.accept_redirects: 0
+  net.ipv4.conf.all.secure_redirects: 0
+  net.ipv4.conf.all.accept_source_route: 0
+  net.ipv4.conf.all.log_martians: 1
+  net.ipv4.conf.all.rp_filter: 1
+  net.ipv4.icmp_echo_ignore_broadcasts: 1
+  net.ipv4.icmp_ignore_bogus_error_responses: 1
+  net.ipv4.tcp_syncookies: 1
+  net.ipv6.conf.all.accept_ra: 0
+  net.ipv6.conf.all.accept_redirects: 0
+  kernel.randomize_va_space: 2
+  kernel.dmesg_restrict: 1
+  kernel.kptr_restrict: 2
+  fs.suid_dumpable: 0
+rhel_baseline_firewalld: true
+rhel_baseline_firewall_zone: drop
+rhel_baseline_firewall_services: [ssh]
+
+# 4.x  Logging and auditing
+rhel_baseline_auditd: true
+rhel_baseline_audit_max_log_file: 32            # MB
+rhel_baseline_audit_space_left_action: email
+rhel_baseline_journald_persistent: true
+
+# 5.x  Access, authentication, authorization
+rhel_baseline_ssh_port: 22
+rhel_baseline_ssh_allowed_groups: [wheel]
+rhel_baseline_ssh_allow_tcp_forwarding: false
+rhel_baseline_ssh_client_alive_interval: 300
+rhel_baseline_ssh_max_auth_tries: 4
+rhel_baseline_password_min_length: 14
+rhel_baseline_password_min_classes: 4
+rhel_baseline_faillock_deny: 5
+rhel_baseline_faillock_unlock_time: 900
+rhel_baseline_pass_max_days: 365
+rhel_baseline_sudo_logfile: /var/log/sudo.log
+rhel_baseline_shell_timeout: 900
+
+# 6.x  System maintenance
+rhel_baseline_security_updates: true            # dnf-automatic, security advisories only
+rhel_baseline_security_updates_apply: false     # download only by default; patch in a change window

@@ -1,0 +1,39 @@
+# ILLUSTRATIVE database price table for golden.database.capacity — NOT live AWS prices.
+#
+# Values approximate published us-east-1 on-demand list prices for Aurora PostgreSQL at the
+# time of writing and exist so rightsizing maths is reproducible in tests and demos. Before
+# using the output for a real decision, replace this file (or point GOLDEN_DB_PRICING_FILE at
+# your own copy) with prices from the AWS Price List API / your EDP-discounted rates:
+#   aws pricing get-products --service-code AmazonRDS --region us-east-1 \
+#     --filters Type=TERM_MATCH,Field=databaseEngine,Value="Aurora PostgreSQL"
+illustrative: true
+currency: USD
+hours_per_month: 730
+engine: aurora-postgresql
+
+storage:
+  standard_gb_month: 0.10        # Aurora Standard storage
+  io_optimized_gb_month: 0.225   # Aurora I/O-Optimized storage
+io:
+  standard_per_million: 0.20     # Aurora Standard read+write I/O requests
+io_optimized:
+  instance_multiplier: 1.30      # I/O-Optimized instance price uplift vs Standard
+  break_even_io_share: 0.25      # AWS guidance: consider I/O-Optimized when I/O ≥ ~25% of the bill
+
+# instance class → vCPU, memory (GiB), on-demand $/hour (Aurora Standard), graviton
+instances:
+  db.r6g.large:    {vcpu: 2,  memory_gb: 16,  hourly: 0.260, graviton: true}
+  db.r6g.xlarge:   {vcpu: 4,  memory_gb: 32,  hourly: 0.519, graviton: true}
+  db.r6g.2xlarge:  {vcpu: 8,  memory_gb: 64,  hourly: 1.038, graviton: true}
+  db.r6g.4xlarge:  {vcpu: 16, memory_gb: 128, hourly: 2.076, graviton: true}
+  db.r6g.8xlarge:  {vcpu: 32, memory_gb: 256, hourly: 4.152, graviton: true}
+  db.r7g.large:    {vcpu: 2,  memory_gb: 16,  hourly: 0.276, graviton: true}
+  db.r7g.xlarge:   {vcpu: 4,  memory_gb: 32,  hourly: 0.553, graviton: true}
+  db.r7g.2xlarge:  {vcpu: 8,  memory_gb: 64,  hourly: 1.106, graviton: true}
+  db.r7g.4xlarge:  {vcpu: 16, memory_gb: 128, hourly: 2.211, graviton: true}
+  db.r7g.8xlarge:  {vcpu: 32, memory_gb: 256, hourly: 4.422, graviton: true}
+  db.r6i.large:    {vcpu: 2,  memory_gb: 16,  hourly: 0.290, graviton: false}
+  db.r6i.xlarge:   {vcpu: 4,  memory_gb: 32,  hourly: 0.580, graviton: false}
+  db.r6i.2xlarge:  {vcpu: 8,  memory_gb: 64,  hourly: 1.160, graviton: false}
+  db.r6i.4xlarge:  {vcpu: 16, memory_gb: 128, hourly: 2.320, graviton: false}
+  db.r6i.8xlarge:  {vcpu: 32, memory_gb: 256, hourly: 4.640, graviton: false}

@@ -52,7 +52,7 @@ class AgentIdentity:
     team: str
     owner: str = ""
     model: str = "simulated"
-    allowed_tools: list[str] = field(default_factory=lambda: ["*"])
+    allowed_tools: list[str] = field(default_factory=list)  # deny by default: no listed tools, no tools
     per_run_usd: float = 0.50
     per_day_usd: float = 25.0
     on_breach: str = "drain"

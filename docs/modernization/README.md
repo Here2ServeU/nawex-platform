@@ -102,5 +102,9 @@ R = responsible, A = accountable, C = consulted, I = informed.
 
 - [VMware → OpenShift runbook](./vmware-to-openshift.md)
 - [AWS IAM modernization](./aws-iam-modernization.md)
+- [Portfolio rationalization (7 Rs, TIME)](./portfolio-7rs.md)
+- [Database migration (SCT, DMS, CDC, cutover)](./database-migration.md)
+- [Strangler fig pattern](./strangler-fig.md)
+- [Database cutover runbook](../../ops/runbooks/migration/database-cutover.md)
 - [Architecture overview](../architecture/overview.md)
 - [Consulting playbook](../consulting/consulting_playbook.md)

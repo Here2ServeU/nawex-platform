@@ -1,0 +1,56 @@
+# Copy to terraform.tfvars and adjust. Applied from the network account, one root per region.
+project         = "golden"
+region          = "us-east-1"
+region_code     = "use1"
+organization_id = "o-REPLACEME00"
+
+# Share the TGW and on-prem resolver rules with the workload OUs only.
+ram_principals = [
+  "arn:aws:organizations::111111111111:ou/o-REPLACEME00/ou-xxxx-prod",
+  "arn:aws:organizations::111111111111:ou/o-REPLACEME00/ou-xxxx-nonprod",
+]
+
+shared_services_vpc = {
+  vpc_id              = "vpc-0sharedservices0000"
+  tgw_subnet_ids      = ["subnet-0tgwa", "subnet-0tgwb", "subnet-0tgwc"]
+  resolver_subnet_ids = ["subnet-0priva", "subnet-0privb"]
+  endpoint_subnet_ids = ["subnet-0priva", "subnet-0privb", "subnet-0privc"]
+  route_table_ids     = ["rtb-0priva", "rtb-0privb", "rtb-0privc"]
+}
+
+# Spoke attachments created from the workload accounts, accepted here, placed in a segment.
+spoke_attachments = {
+  payments-prod    = { attachment_id = "tgw-attach-0payprod", segment = "prod" }
+  payments-nonprod = { attachment_id = "tgw-attach-0paydev", segment = "nonprod" }
+}
+
+# us-east-1 environment summaries from `golden network plan --format tfvars` (segment_cidrs);
+# matches the sample address spec (10.0.0.0/12 reserved for on-prem).
+segment_cidrs = {
+  prod    = ["10.16.0.0/14"]
+  nonprod = ["10.20.0.0/14"]
+  shared  = ["10.24.0.0/14"]
+}
+
+# Uncomment to route north-south traffic through an inspection VPC (appliance mode).
+# inspection_vpc = {
+#   vpc_id         = "vpc-0inspection00000"
+#   tgw_subnet_ids = ["subnet-0inspa", "subnet-0inspb", "subnet-0inspc"]
+# }
+
+flow_log_s3_arn          = "arn:aws:s3:::REPLACE_ME-golden-log-archive"
+permissions_boundary_arn = "arn:aws:iam::444444444444:policy/golden-workload-boundary"
+
+dns_client_cidrs = ["10.0.0.0/8", "172.16.0.0/12"]
+onprem_dns_cidrs = ["172.16.0.10/32", "172.16.0.11/32"]
+onprem_forward_domains = {
+  "corp.example.com" = ["172.16.0.10", "172.16.0.11"]
+}
+
+direct_connect_enabled          = false
+direct_connect_allowed_prefixes = ["10.16.0.0/12"]
+
+tags = {
+  owner       = "network-engineering"
+  cost_center = "REPLACE_ME"
+}

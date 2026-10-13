@@ -1,0 +1,19 @@
+# Managed by Ansible (rhel_baseline) — CIS 5.2
+Port {{ rhel_baseline_ssh_port }}
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitEmptyPasswords no
+HostbasedAuthentication no
+IgnoreRhosts yes
+X11Forwarding no
+AllowTcpForwarding {{ 'yes' if rhel_baseline_ssh_allow_tcp_forwarding else 'no' }}
+MaxAuthTries {{ rhel_baseline_ssh_max_auth_tries }}
+MaxStartups 10:30:60
+MaxSessions 10
+LoginGraceTime 60
+ClientAliveInterval {{ rhel_baseline_ssh_client_alive_interval }}
+ClientAliveCountMax 3
+LogLevel VERBOSE
+Banner /etc/issue.net
+AllowGroups {{ rhel_baseline_ssh_allowed_groups | join(' ') }}

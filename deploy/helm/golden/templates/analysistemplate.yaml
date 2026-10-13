@@ -1,0 +1,49 @@
+{{- /*
+Argo Rollouts AnalysisTemplate shared by every Rollout of the release. Two
+Prometheus metrics; more than failureLimit failed measurements aborts the
+rollout and shifts traffic back to the stable ReplicaSet.
+*/}}
+{{- if and .Values.rollouts.enabled .Values.rollouts.analysis.enabled }}
+{{- $a := .Values.rollouts.analysis }}
+{{- $sel := `namespace="{{args.namespace}}",service=~"{{args.service}}",path!~"/health|/ready|/metrics"` }}
+{{- if $a.selectCanaryPods }}
+{{- $sel = printf "%s,%s" $sel `rollouts_pod_template_hash="{{args.canary-hash}}"` }}
+{{- end }}
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "golden.fullname" . }}-canary
+  labels:
+    {{- include "golden.labels" . | nindent 4 }}
+spec:
+  args:
+    - name: service
+    - name: namespace
+    {{- if $a.selectCanaryPods }}
+    - name: canary-hash
+    {{- end }}
+  metrics:
+    - name: success-rate
+      interval: {{ $a.interval }}
+      failureLimit: {{ $a.failureLimit }}
+      consecutiveErrorLimit: {{ $a.consecutiveErrorLimit }}
+      successCondition: {{ printf "result[0] >= %v" $a.minSuccessRate | quote }}
+      provider:
+        prometheus:
+          address: {{ .Values.metrics.prometheusAddress | quote }}
+          query: |
+            sum(rate(golden_http_requests_total{ {{- $sel }},status!~"5.."}[2m]))
+            /
+            sum(rate(golden_http_requests_total{ {{- $sel }}}[2m]))
+    - name: latency-p95
+      interval: {{ $a.interval }}
+      failureLimit: {{ $a.failureLimit }}
+      consecutiveErrorLimit: {{ $a.consecutiveErrorLimit }}
+      successCondition: {{ printf "result[0] <= %v" $a.maxP95LatencySeconds | quote }}
+      provider:
+        prometheus:
+          address: {{ .Values.metrics.prometheusAddress | quote }}
+          query: |
+            histogram_quantile(0.95,
+              sum by (le) (rate(golden_http_request_duration_seconds_bucket{ {{- $sel }}}[2m])))
+{{- end }}

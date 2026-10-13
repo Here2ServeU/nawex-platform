@@ -1,0 +1,13 @@
+# Feast repo for the fintech account features — the production equivalent of
+# src/golden/ai/features/store.py. Local provider: file (parquet) offline store, SQLite online store.
+# Swap for production: offline_store: {type: bigquery|redshift|snowflake.offline|spark},
+# online_store: {type: redis|dynamodb|bigtable}, registry: s3://... or gs://... (or a SQL registry).
+project: golden_fintech
+provider: local
+registry: data/registry.db
+online_store:
+  type: sqlite
+  path: data/online_store.db
+offline_store:
+  type: file
+entity_key_serialization_version: 2

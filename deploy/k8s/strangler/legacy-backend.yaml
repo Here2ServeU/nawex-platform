@@ -1,0 +1,88 @@
+# The legacy monolith as seen from inside the cluster. Pick ONE of the three Services and point the
+# Kong config at it (default: legacy-monolith).
+#
+# 1. legacy-monolith      selector-less Service + EndpointSlice → on-prem IP or a VM IP preserved on a
+#                         Multus VLAN after MTV migration (stage 1-3 default)
+# 2. legacy-monolith-dns  ExternalName → DNS name of the legacy load balancer
+# 3. legacy-monolith-vm   selector on the KubeVirt VM migrated by MTV (virt-launcher pod label)
+apiVersion: v1
+kind: Service
+metadata:
+  name: legacy-monolith
+  namespace: strangler
+  labels:
+    app.kubernetes.io/name: legacy-monolith
+    app.kubernetes.io/part-of: golden
+    golden.io/strangler-role: legacy
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: legacy-monolith-1
+  namespace: strangler
+  labels:
+    kubernetes.io/service-name: legacy-monolith
+    endpointslice.kubernetes.io/managed-by: golden.io/strangler
+    golden.io/strangler-role: legacy
+addressType: IPv4
+ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+endpoints:
+  # Replace with the monolith's addresses (on-prem VIP, or the VM's preserved IP after MTV).
+  - addresses:
+      - "10.20.30.40"
+    conditions:
+      ready: true
+  - addresses:
+      - "10.20.30.41"
+    conditions:
+      ready: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: legacy-monolith-dns
+  namespace: strangler
+  labels:
+    app.kubernetes.io/name: legacy-monolith
+    app.kubernetes.io/part-of: golden
+    golden.io/strangler-role: legacy
+spec:
+  type: ExternalName
+  externalName: monolith.corp.example.com
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: legacy-monolith-vm
+  namespace: strangler
+  labels:
+    app.kubernetes.io/name: legacy-monolith
+    app.kubernetes.io/part-of: golden
+    golden.io/strangler-role: legacy
+  annotations:
+    golden.io/note: >-
+      Selects the virt-launcher pod of the VM rehosted by MTV. The VM must run in this namespace
+      (or put this Service in the VM's namespace, e.g. migrated-vms, and update the Kong config).
+spec:
+  type: ClusterIP
+  selector:
+    vm.kubevirt.io/name: monolith-01
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP

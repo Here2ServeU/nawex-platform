@@ -70,6 +70,12 @@ jobs:
           golden demo client --vertical all --client "CI" --fast --output /tmp/demo > /dev/null
           golden demo engine --epochs 1 --output-dir /tmp/engine > /dev/null
           golden iam model > /dev/null
+          golden iam multicloud > /dev/null
+          golden network verify > /dev/null
+          golden finops report > /dev/null
+          golden db explain --scenario healthy > /dev/null
+          golden migrate portfolio > /dev/null
+          golden features demo > /dev/null
 
       - name: Agent-ops gates (cost controls proven, red-team, model quality)
         env:
@@ -131,22 +137,15 @@ jobs:
           docker compose -f observability/docker-compose.yml config -q
 
       - name: YAML & JSON parse
+        run: python3 scripts/ci/check-yaml-json.py
+
+      - name: Ansible baseline (syntax + ansible-lint production profile)
+        working-directory: deploy/ansible
         run: |
-          python3 - <<'PY'
-          import json, pathlib, subprocess, sys, yaml
-          bad = []
-          files = subprocess.run(["git", "ls-files", "*.yml", "*.yaml", "*.json"], capture_output=True, text=True).stdout.split()
-          for f in files:
-              if "/templates/" in f:  # Helm templates are validated by the infra workflow
-                  continue
-              try:
-                  text = pathlib.Path(f).read_text()
-                  list(yaml.safe_load_all(text)) if f.endswith(("yml", "yaml")) else json.loads(text)
-              except Exception as exc:  # noqa: BLE001
-                  bad.append(f"{f}: {exc}")
-          print("\n".join(bad) or f"{len(files)} files OK")
-          sys.exit(1 if bad else 0)
-          PY
+          python3 -m pip install --quiet ansible-core ansible-lint
+          ansible-galaxy collection install -r requirements.yml > /dev/null
+          ANSIBLE_CONFIG=ansible.cfg ansible-playbook --syntax-check playbooks/baseline.yml
+          ANSIBLE_CONFIG=ansible.cfg ansible-lint playbooks/baseline.yml roles/
 
       - name: Template rebrand works end to end
         run: |

@@ -1,0 +1,10 @@
+# Database access tier: connection pooling (PgBouncer) and metrics (postgres_exporter)
+# for the Aurora PostgreSQL cluster in deploy/terraform/modules/aws/aurora-postgres.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: golden-db
+  labels:
+    app.kubernetes.io/part-of: golden
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

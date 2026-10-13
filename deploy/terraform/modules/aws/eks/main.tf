@@ -66,10 +66,11 @@ module "vpc" {
     "kubernetes.io/cluster/${var.name}" = "shared"
     "kubernetes.io/role/elb"            = "1"
   }
-  private_subnet_tags = {
+  # karpenter.sh/discovery lets the EC2NodeClass find subnets (only when enabled).
+  private_subnet_tags = merge({
     "kubernetes.io/cluster/${var.name}" = "shared"
     "kubernetes.io/role/internal-elb"   = "1"
-  }
+  }, var.karpenter_enabled ? { "karpenter.sh/discovery" = var.name } : {})
 
   tags = var.tags
 }
@@ -109,6 +110,9 @@ module "eks" {
   }
 
   eks_managed_node_groups = merge(local.base_node_groups, local.gpu_node_groups)
+
+  # Karpenter-launched nodes join the shared node security group.
+  node_security_group_tags = var.karpenter_enabled ? { "karpenter.sh/discovery" = var.name } : {}
 
   tags = var.tags
 }

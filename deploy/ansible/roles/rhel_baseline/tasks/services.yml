@@ -1,0 +1,42 @@
+- name: 2.1 Install and configure chrony
+  ansible.builtin.dnf:
+    name: chrony
+    state: present
+  tags: [cis_2_1]
+
+- name: 2.1 Configure chrony servers
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart chronyd
+  tags: [cis_2_1]
+
+- name: 2.1 chronyd enabled
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: true
+  tags: [cis_2_1]
+
+- name: 2.2 Remove insecure and unneeded packages
+  ansible.builtin.dnf:
+    name: "{{ rhel_baseline_remove_packages }}"
+    state: absent
+  tags: [cis_2_2]
+
+- name: 2.2 Gather service facts
+  ansible.builtin.service_facts:
+  tags: [cis_2_2]
+
+- name: 2.2 Disable unneeded services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+    masked: true
+  loop: "{{ rhel_baseline_disable_services }}"
+  when: (item ~ '.service') in ansible_facts.services
+  tags: [cis_2_2]

@@ -1,0 +1,98 @@
+# Kong DB-less declarative config for the strangler facade (same Kong 3.x / KONG_DATABASE=off setup as
+# deploy/helm/kong-gateway). Edit the upstream weights to move traffic stage by stage; Kong reloads the
+# file on pod restart (kubectl rollout restart deploy/strangler-facade -n strangler).
+#
+# Routing (most specific wins — header-matching routes outrank path-only routes):
+#   x-strangler-route: v2      + /api/v2/payments/*  → payments-v2 (canary testers, synthetic checks)
+#   x-strangler-route: legacy  + /api/v2/payments/*  → legacy monolith (pin a client back during issues)
+#   /api/v2/payments/*                               → payments-split upstream (weighted v2 / legacy)
+#   everything else                                  → legacy monolith
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: strangler-kong-config
+  namespace: strangler
+  labels:
+    app.kubernetes.io/name: strangler-facade
+    app.kubernetes.io/part-of: golden
+data:
+  kong.yml: |
+    _format_version: "3.0"
+    _transform: true
+
+    upstreams:
+      # Stage weights: route (v2=0) → canary (v2=5..50) → migrated (v2=100, remove the legacy target).
+      - name: payments-split
+        algorithm: round-robin
+        targets:
+          - target: payments-v2.strangler.svc.cluster.local:8080
+            weight: 10
+          - target: legacy-monolith.strangler.svc.cluster.local:8080
+            weight: 90
+        healthchecks:
+          passive:
+            type: http
+            unhealthy:
+              http_failures: 5
+              timeouts: 3
+            healthy:
+              successes: 5
+
+    services:
+      - name: legacy-monolith
+        url: http://legacy-monolith.strangler.svc.cluster.local:8080
+        connect_timeout: 5000
+        read_timeout: 60000
+        routes:
+          - name: legacy-catch-all
+            paths: ["/"]
+            strip_path: false
+            preserve_host: true
+
+      - name: payments-v2
+        url: http://payments-v2.strangler.svc.cluster.local:8080
+        connect_timeout: 2000
+        read_timeout: 15000
+        retries: 0                       # payments are not idempotent unless an Idempotency-Key is sent
+        routes:
+          - name: payments-v2-header-canary
+            paths: ["~/api/v2/payments(/|$)"]
+            headers:
+              x-strangler-route: ["v2"]
+            strip_path: false
+            preserve_host: true
+
+      - name: payments-legacy-pinned
+        url: http://legacy-monolith.strangler.svc.cluster.local:8080
+        routes:
+          - name: payments-legacy-header-pin
+            paths: ["~/api/v2/payments(/|$)"]
+            headers:
+              x-strangler-route: ["legacy"]
+            strip_path: false
+            preserve_host: true
+
+      - name: payments-split
+        host: payments-split             # the weighted upstream above
+        port: 8080
+        protocol: http
+        retries: 0
+        routes:
+          - name: payments-weighted
+            paths: ["~/api/v2/payments(/|$)"]
+            strip_path: false
+            preserve_host: true
+
+    plugins:
+      # One correlation id across facade, legacy and new service: compare responses and logs per request.
+      - name: correlation-id
+        config:
+          header_name: X-Correlation-ID
+          generator: uuid#counter
+          echo_downstream: true
+      - name: prometheus
+        config:
+          per_consumer: false
+          status_code_metrics: true
+          latency_metrics: true
+          upstream_health_metrics: true

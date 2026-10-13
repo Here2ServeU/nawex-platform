@@ -1,0 +1,53 @@
+# Admission-time supply-chain check: every image from ghcr.io/here2serveu must
+# carry a keyless (Sigstore Fulcio + Rekor) signature produced by THIS repo's
+# containers workflow on main or a v* tag (.github/workflows/containers.yml,
+# job `sign`). Unsigned, tampered, or foreign-built images are rejected, and the
+# tag is rewritten to the verified digest so the kubelet pulls exactly what was
+# verified. The SPDX SBOM attestation (cosign attest) must also be present.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: verify-golden-images
+  annotations:
+    policies.kyverno.io/title: Verify Golden image signatures
+    policies.kyverno.io/category: Supply Chain Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      Requires a Sigstore keyless signature and SPDX SBOM attestation issued to
+      the Here2ServeU/nawex-platform containers workflow for ghcr.io/here2serveu images.
+spec:
+  validationFailureAction: Enforce
+  background: false
+  webhookTimeoutSeconds: 30
+  failurePolicy: Fail
+  rules:
+    - name: verify-keyless-signature
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      verifyImages:
+        - imageReferences:
+            - "ghcr.io/here2serveu/*"
+          mutateDigest: true
+          verifyDigest: true
+          required: true
+          attestors:
+            - count: 1
+              entries:
+                - keyless:
+                    issuer: https://token.actions.githubusercontent.com
+                    subjectRegExp: '^https://github\.com/Here2ServeU/nawex-platform/\.github/workflows/containers\.yml@refs/(heads/main|tags/v.+)$'
+                    rekor:
+                      url: https://rekor.sigstore.dev
+          attestations:
+            - type: https://spdx.dev/Document
+              attestors:
+                - entries:
+                    - keyless:
+                        issuer: https://token.actions.githubusercontent.com
+                        subjectRegExp: '^https://github\.com/Here2ServeU/nawex-platform/\.github/workflows/containers\.yml@refs/(heads/main|tags/v.+)$'
+                        rekor:
+                          url: https://rekor.sigstore.dev

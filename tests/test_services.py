@@ -16,8 +16,29 @@ def _app(name: str):
     return getattr(importlib.import_module(module), attr)
 
 
+@pytest.fixture(scope="module")
+def champion_registry(tmp_path_factory):
+    """A registry with a trained champion, so the model server is genuinely ready."""
+    from golden.ai.datasets.fintech_simulator import make_fraud_scenario_stream
+    from golden.ai.lifecycle import retrain_if_drifted
+
+    root = tmp_path_factory.mktemp("registry")
+    retrain_if_drifted(
+        make_fraud_scenario_stream(2000, seed=1), make_fraud_scenario_stream(500, seed=3), root=root
+    )
+    return root
+
+
 @pytest.fixture(params=sorted(SERVICES))
-def any_client(request):
+def any_client(request, champion_registry):
+    if request.param == "model-server":
+        from golden.ai.lifecycle import ModelRegistry
+        from golden.ai.serving.app import make_app
+        from golden.ai.serving.server import FraudModelServer
+
+        server = FraudModelServer(ModelRegistry(champion_registry))
+        server.load()
+        return TestClient(make_app(server)), request.param
     return TestClient(_app(request.param)), request.param
 
 

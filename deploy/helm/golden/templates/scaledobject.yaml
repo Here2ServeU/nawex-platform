@@ -1,0 +1,39 @@
+{{- /*
+KEDA ScaledObject per service with keda.enabled (replaces the HPA). Default
+trigger: Prometheus request rate of the service (golden_http_requests_total).
+*/}}
+{{- range $name, $raw := .Values.services }}
+{{- $ctx := dict "root" $ "name" $name "cfg" $raw }}
+{{- $svc := include "golden.serviceConfig" $ctx | fromYaml }}
+{{- $pctx := dict "root" $ "name" $name "svc" $svc }}
+{{- if and (ne (toString $svc.enabled) "false") (include "golden.isKeda" $pctx) }}
+{{- $k := $svc.keda }}
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "golden.serviceName" $ctx }}
+  labels:
+    {{- include "golden.serviceLabels" $ctx | nindent 4 }}
+spec:
+  scaleTargetRef:
+    {{- include "golden.scaleTargetRef" $pctx | nindent 4 }}
+  minReplicaCount: {{ $k.minReplicaCount }}
+  maxReplicaCount: {{ $k.maxReplicaCount }}
+  pollingInterval: {{ $k.pollingInterval }}
+  cooldownPeriod: {{ $k.cooldownPeriod }}
+  triggers:
+    - type: prometheus
+      metadata:
+        serverAddress: {{ $.Values.metrics.prometheusAddress | quote }}
+        {{- if $k.query }}
+        query: {{ $k.query | quote }}
+        {{- else }}
+        query: {{ printf "sum(rate(golden_http_requests_total{%s}[2m]))" (include "golden.promSelector" $pctx) | quote }}
+        {{- end }}
+        threshold: {{ $k.requestsPerSecondThreshold | quote }}
+    {{- with $k.extraTriggers }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}
+{{- end }}

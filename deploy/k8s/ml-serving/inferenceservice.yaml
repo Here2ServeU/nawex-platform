@@ -1,0 +1,98 @@
+# KServe InferenceService for the fraud model — a *custom predictor* running the platform image.
+#
+# The container serves the Open Inference Protocol (V2) from src/golden/ai/serving (FraudModelServer):
+#   POST /v2/models/fraud-detector/infer   GET /v2/health/ready   GET /v2/models/fraud-detector
+# It loads <GOLDEN_SERVING_MODEL>@<GOLDEN_SERVING_ALIAS> from the model registry that KServe's storage
+# initializer copies to /mnt/models (STORAGE_URI). `golden serve model-server` requires the
+# "model-server" entry in golden.services.registry (golden.ai.serving.app:app); until it is wired, use
+#   command: ["uvicorn"]  args: ["golden.ai.serving.app:app", "--host", "0.0.0.0", "--port", "8080"]
+#
+# Canary: edit the spec (e.g. GOLDEN_SERVING_ALIAS=challenger or a new image tag) and KServe creates a
+# new revision that receives canaryTrafficPercent of traffic; the previous revision keeps the rest.
+# Promote with `canaryTrafficPercent: 100` (or remove it); roll back by setting it to 0.
+# Autoscaling (Serverless mode, Knative KPA): scale on in-flight requests per pod, 2..10 replicas.
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: fraud-detector
+  namespace: golden-ml
+  labels:
+    app.kubernetes.io/name: fraud-detector
+    app.kubernetes.io/component: model-server
+    app.kubernetes.io/part-of: golden
+  annotations:
+    serving.kserve.io/deploymentMode: Serverless
+    # Keep one warm pod per zone-ish failure domain; never scale to zero for a fraud decision path.
+    autoscaling.knative.dev/target-utilization-percentage: "70"
+    autoscaling.knative.dev/window: "60s"
+spec:
+  predictor:
+    minReplicas: 2
+    maxReplicas: 10
+    scaleMetric: concurrency
+    scaleTarget: 20
+    canaryTrafficPercent: 10
+    timeout: 10
+    serviceAccountName: fraud-detector-predictor
+    containers:
+      - name: kserve-container
+        image: ghcr.io/here2serveu/golden-platform:0.1.0
+        args: ["serve", "model-server"]
+        ports:
+          - containerPort: 8080
+            protocol: TCP
+        env:
+          - name: PORT
+            value: "8080"
+          - name: STORAGE_URI
+            value: pvc://model-registry/registry
+          - name: GOLDEN_MODEL_REGISTRY
+            value: /mnt/models
+          - name: GOLDEN_SERVING_MODEL
+            value: fraud-detector
+          - name: GOLDEN_SERVING_ALIAS
+            value: champion
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: "1"
+            memory: 512Mi
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 10001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+          seccompProfile:
+            type: RuntimeDefault
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fraud-detector-predictor
+  namespace: golden-ml
+  labels:
+    app.kubernetes.io/part-of: golden
+automountServiceAccountToken: false
+---
+# Registry volume (written by the training / promotion pipeline, read-only for predictors).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-registry
+  namespace: golden-ml
+  labels:
+    app.kubernetes.io/part-of: golden
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 5Gi

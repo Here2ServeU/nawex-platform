@@ -116,3 +116,63 @@ variable "permissions_boundary_arn" {
   type        = string
   default     = null
 }
+
+# ------------------------------------------------------------------------------
+# Karpenter
+# ------------------------------------------------------------------------------
+variable "karpenter_enabled" {
+  description = "Install Karpenter (controller IRSA role, node role, SQS interruption queue, Helm release). Apply NodePools from deploy/k8s/platform-addons/karpenter/."
+  type        = bool
+  default     = false
+}
+
+variable "karpenter_chart_version" {
+  description = "Karpenter Helm chart version (oci://public.ecr.aws/karpenter/karpenter)."
+  type        = string
+  default     = "1.1.1"
+}
+
+# ------------------------------------------------------------------------------
+# Velero
+# ------------------------------------------------------------------------------
+variable "velero_enabled" {
+  description = "Install Velero with a KMS-encrypted, versioned S3 bucket and an IRSA role (backup / DR)."
+  type        = bool
+  default     = false
+}
+
+variable "velero_bucket_name" {
+  description = "Backup bucket name. null = \"<name>-velero-backups\" (S3 names are global; override if taken)."
+  type        = string
+  default     = null
+}
+
+variable "velero_namespace" {
+  description = "Namespace for the Velero server."
+  type        = string
+  default     = "velero"
+}
+
+variable "velero_chart_version" {
+  description = "Velero Helm chart version (vmware-tanzu/velero)."
+  type        = string
+  default     = "7.2.1"
+}
+
+variable "velero_aws_plugin_image" {
+  description = "velero-plugin-for-aws image matching the Velero server version of the chart."
+  type        = string
+  default     = "velero/velero-plugin-for-aws:v1.10.0"
+}
+
+variable "velero_noncurrent_version_days" {
+  description = "Days to keep noncurrent (overwritten / deleted) backup object versions."
+  type        = number
+  default     = 30
+}
+
+variable "velero_service_monitor_enabled" {
+  description = "Render a ServiceMonitor for Velero metrics (requires the Prometheus Operator CRDs)."
+  type        = bool
+  default     = false
+}

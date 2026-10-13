@@ -1,0 +1,32 @@
+# New Relic via OpenTelemetry: the first-party OTel Collector chart with the New Relic overlay.
+# Prerequisite: Secret monitoring/newrelic-license (key: license-key) — create it from your secret
+# manager (External Secrets: deploy/k8s/platform-addons/external-secrets), never commit it.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: otel-newrelic
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: golden
+    component: observability
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Here2ServeU/nawex-platform
+    targetRevision: main
+    path: deploy/helm/otel-collector
+    helm:
+      releaseName: otel-newrelic
+      valueFiles:
+        - values-newrelic.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

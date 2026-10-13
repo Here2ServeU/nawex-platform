@@ -13,6 +13,17 @@ spec:
     matchLabels:
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/part-of: golden
+    {{- if .Values.rollouts.enabled }}
+    # Skip the Rollout canary/stable Services (same pods; avoids double scrapes).
+    matchExpressions:
+      - key: golden.io/rollout-role
+        operator: DoesNotExist
+    {{- end }}
+  {{- if and .Values.rollouts.enabled .Values.rollouts.analysis.selectCanaryPods }}
+  # Lets canary analysis select the new ReplicaSet's series.
+  podTargetLabels:
+    - rollouts-pod-template-hash
+  {{- end }}
   namespaceSelector:
     matchNames:
       - {{ .Release.Namespace }}

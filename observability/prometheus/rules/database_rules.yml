@@ -1,0 +1,192 @@
+# Golden Platform — PostgreSQL / Aurora PostgreSQL performance alerts.
+# Sources: postgres_exporter (job "postgres", deploy/k8s/database/postgres-exporter.yaml, including
+# its custom queries) and pgbouncer-exporter (job "pgbouncer"). Aurora-native signals (AuroraReplicaLag,
+# FreeableMemory, MaximumUsedTransactionIDs) are CloudWatch alarms in
+# deploy/terraform/modules/aws/aurora-postgres. Runbook: ops/runbooks/playbooks/database_performance.md
+groups:
+  - name: golden_database_recordings
+    interval: 30s
+    rules:
+      - record: pg:connections:saturation
+        expr: |
+          sum by (instance) (pg_stat_activity_count)
+          / on (instance) max by (instance) (pg_settings_max_connections)
+      - record: pg:transactions:rate5m
+        expr: |
+          sum by (instance, datname) (
+            rate(pg_stat_database_xact_commit[5m]) + rate(pg_stat_database_xact_rollback[5m])
+          )
+      - record: pg:blks_read:rate5m
+        expr: sum by (instance, datname) (rate(pg_stat_database_blks_read[5m]))
+      - record: pg:cache_hit:ratio
+        expr: |
+          sum by (instance, datname) (rate(pg_stat_database_blks_hit[5m]))
+          / (
+            sum by (instance, datname) (rate(pg_stat_database_blks_hit[5m]))
+            + pg:blks_read:rate5m
+          ) > 0
+      - record: pg:statements:calls_rate5m
+        expr: sum by (instance, datname) (rate(pg_stat_statements_top_calls[5m]))
+      - record: pg:statement_mean_latency_seconds:rate5m
+        expr: |
+          sum by (instance, datname, queryid, query) (rate(pg_stat_statements_top_total_exec_time_seconds[5m]))
+          / (sum by (instance, datname, queryid, query) (rate(pg_stat_statements_top_calls[5m])) > 0)
+      - record: pg:dead_tuple:ratio
+        expr: |
+          pg_stat_user_tables_n_dead_tup
+          / clamp_min(pg_stat_user_tables_n_live_tup + pg_stat_user_tables_n_dead_tup, 1)
+
+  - name: golden_database
+    interval: 30s
+    rules:
+      - alert: PostgresExporterDown
+        expr: up{job="postgres"} == 0 or pg_up == 0
+        for: 2m
+        labels:
+          severity: warning
+          vertical: database
+        annotations:
+          summary: "postgres_exporter cannot scrape {{ $labels.instance }}"
+          description: "Database metrics and every alert below are blind. Check the exporter pod, its DSN secret and the database's reachability."
+          runbook: "ops/runbooks/playbooks/database_performance.md"
+
+      - alert: PostgresConnectionSaturation
+        expr: pg:connections:saturation > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          vertical: database
+        annotations:
+          summary: "{{ $labels.instance }} uses {{ $value | humanizePercentage }} of max_connections"
+          description: "New connections will soon be refused. Pool through PgBouncer / RDS Proxy and size pools with `golden db capacity`; do not just raise max_connections."
+          runbook: "ops/runbooks/playbooks/database_performance.md"
+
+      - alert: PostgresConnectionsExhausted
+        expr: pg:connections:saturation > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          vertical: database
+        annotations:
+          summary: "{{ $labels.instance }} is at {{ $value | humanizePercentage }} of max_connections"
+          description: "Clients are about to get 'too many clients already'. Look for connection leaks and idle-in-transaction sessions (runbook step 2)."
+          runbook: "ops/runbooks/playbooks/database_performance.md"
+
+      - alert: PostgresReplicationLagHigh
+        expr: max by (instance) (pg_replication_lag_seconds) > 30
+        for: 5m
+        labels:
+          severity: warning
+          vertical: database
+        annotations:
+          summary: "Replica {{ $labels.instance }} is {{ $value | humanizeDuration }} behind"
+          description: "Reads routed to this replica are stale. Check long queries on the replica (hot_standby_feedback / conflicts), WAL volume on the primary and replica I/O. Aurora readers: CloudWatch AuroraReplicaLag alarm."
+          runbook: "ops/runbooks/playbooks/database_performance.md"
+
+      - alert: PostgresCacheHitRatioLow
+        expr: pg:cache_hit:ratio < 0.99 and on (instance, datname) pg:blks_read:rate5m > 100
+        for: 15m
+        labels:
+          severity: warning
+          vertical: database
+        annotations:
+          summary: "Cache hit ratio {{ $value | humanizePercentage }} on {{ $labels.instance }}/{{ $labels.datname }}"
+          description: "The working set no longer fits in memory or a new query scans large tables. `golden db workload` (top by I/O) finds the statements; fix them before adding RAM."
+          runbook: "ops/runbooks/playbooks/database_performance.md"
+
+      - alert: PostgresDeadlocks
+        expr: sum by (instance, datname) (increase(pg_stat_database_deadlocks[10m])) > 0
+        for: 0m
+        labels:
+          severity: warning
+          vertical: database
+        annotations:
+          summary: "{{ $value }} deadlock(s) in 10m on {{ $labels.instance }}/{{ $labels.datname }}"
+          description: "Transactions lock the same rows in different orders. The postgresql log (log_lock_waits) shows both statements; make lock ordering consistent or use SELECT … FOR UPDATE in key order."
+          runbook: "ops/runbooks/playbooks/database_performance.md"
+
+      - alert: PostgresLongRunningTransaction
+        expr: max by (instance) (pg_long_running_transactions_max_age_seconds) > 600
+        for: 5m
+        labels:
+          severity: warning
+          vertical: database
+        annotations:
+          summary: "A transaction on {{ $labels.instance }} has been open for {{ $value | humanizeDuration }}"
+          description: "Long transactions hold locks and the xmin horizon: vacuum cannot remove dead tuples anywhere in the cluster. Identify it in pg_stat_activity (runbook step 2) and cancel if it is not an approved batch job."
+          runbook: "ops/runbooks/playbooks/database_performance.md"
+
+      - alert: PostgresIdleInTransaction
+        expr: max by (instance) (pg_long_running_transactions_idle_in_transaction) > 5
+        for: 10m
+        labels:
+          severity: info
+          vertical: database
+        annotations:
+          summary: "{{ $value }} sessions idle in transaction on {{ $labels.instance }}"
+          description: "Application code opens a transaction and waits (network call, user input) before committing. idle_in_transaction_session_timeout terminates them; fix the code path."
+
+      - alert: PostgresLockContention
+        expr: max by (instance) (pg_blocked_sessions_count) > 10 or max by (instance) (pg_blocked_sessions_max_wait_seconds) > 60
+        for: 2m
+        labels:
+          severity: warning
+          vertical: database
+        annotations:
+          summary: "Lock waits on {{ $labels.instance }} ({{ $value }})"
+          description: "Sessions are queued behind a lock. Find the head of the blocking chain with pg_blocking_pids() (runbook step 3); a DDL without lock_timeout is the usual culprit."
+          runbook: "ops/runbooks/playbooks/database_performance.md"
+
+      - alert: PostgresXIDWraparoundRisk
+        expr: max by (instance, datname) (pg_database_wraparound_ratio) > 0.5
+        for: 30m
+        labels:
+          severity: warning
+          vertical: database
+        annotations:
+          summary: "{{ $labels.datname }} has used {{ $value | humanizePercentage }} of the transaction-ID space"
+          description: "Autovacuum is not freezing fast enough. Remove what blocks it (long transactions, stale replication slots, prepared transactions) and VACUUM (FREEZE) the oldest tables (`golden db indexes`)."
+          runbook: "ops/runbooks/playbooks/database_performance.md"
+
+      - alert: PostgresXIDWraparoundCritical
+        expr: max by (instance, datname) (pg_database_wraparound_ratio) > 0.75
+        for: 5m
+        labels:
+          severity: critical
+          vertical: database
+        annotations:
+          summary: "{{ $labels.datname }} is at {{ $value | humanizePercentage }} of XID wraparound"
+          description: "PostgreSQL stops accepting writes ~3M transactions before the limit. Page the database owner now."
+          runbook: "ops/runbooks/playbooks/database_performance.md"
+
+      - alert: PostgresDeadTupleRatioHigh
+        expr: pg:dead_tuple:ratio > 0.2 and on (instance, datname, schemaname, relname) pg_stat_user_tables_n_dead_tup > 100000
+        for: 1h
+        labels:
+          severity: warning
+          vertical: database
+        annotations:
+          summary: "{{ $labels.relname }} is {{ $value | humanizePercentage }} dead tuples"
+          description: "Autovacuum is falling behind or is blocked by the xmin horizon. `golden db indexes` proposes per-table autovacuum settings."
+          runbook: "ops/runbooks/playbooks/database_performance.md"
+
+      - alert: PostgresTempSpillHigh
+        expr: sum by (instance, datname) (rate(pg_stat_database_temp_bytes[10m])) > 50e6
+        for: 15m
+        labels:
+          severity: info
+          vertical: database
+        annotations:
+          summary: "{{ $labels.datname }} writes {{ $value | humanize1024 }}B/s of temp files"
+          description: "Sorts / hashes exceed work_mem. Find them with `golden db workload` (TEMP_SPILL) and `golden db explain` (SORT_SPILL/HASH_SPILL)."
+
+      - alert: PgBouncerClientsWaiting
+        expr: max by (instance, database) (pgbouncer_pools_client_waiting_connections) > 0
+        for: 2m
+        labels:
+          severity: warning
+          vertical: database
+        annotations:
+          summary: "{{ $value }} clients waiting for a server connection in PgBouncer pool {{ $labels.database }}"
+          description: "The pool is saturated: queries are slow (the usual cause) or default_pool_size is too small for the workload. Check slow queries before growing the pool."
+          runbook: "ops/runbooks/playbooks/database_performance.md"

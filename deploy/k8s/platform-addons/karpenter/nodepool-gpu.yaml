@@ -1,0 +1,40 @@
+# NVIDIA GPU capacity for gpu-optimizer (chart: gpu.enabled=true). Tainted so
+# only pods tolerating nvidia.com/gpu land here; labelled to match the chart's
+# GPU nodeSelector. On-demand only: GPU spot capacity is scarce and
+# interruptions are expensive for long jobs.
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: gpu
+spec:
+  template:
+    metadata:
+      labels:
+        nvidia.com/gpu.present: "true"
+        workload-type: gpu
+    spec:
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+      taints:
+        - key: nvidia.com/gpu
+          value: present
+          effect: NoSchedule
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+        - key: karpenter.k8s.aws/instance-family
+          operator: In
+          values: ["g5", "g6", "p4d"]
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+      expireAfter: 720h
+  disruption:
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 10m
+  limits:
+    nvidia.com/gpu: "8"
+  weight: 10

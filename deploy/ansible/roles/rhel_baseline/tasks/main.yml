@@ -1,0 +1,31 @@
+- name: Assert a supported platform
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'RedHat'
+      - ansible_facts['distribution_major_version'] in ['8', '9']
+    fail_msg: "rhel_baseline supports RHEL/Rocky/Alma 8 and 9 (got {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }})"
+  tags: [always]
+
+- name: 1 Initial setup
+  ansible.builtin.import_tasks: initial_setup.yml
+  tags: [cis_1]
+
+- name: 2 Services
+  ansible.builtin.import_tasks: services.yml
+  tags: [cis_2]
+
+- name: 3 Network
+  ansible.builtin.import_tasks: network.yml
+  tags: [cis_3]
+
+- name: 4 Logging and auditing
+  ansible.builtin.import_tasks: logging.yml
+  tags: [cis_4]
+
+- name: 5 Access and authentication
+  ansible.builtin.import_tasks: access.yml
+  tags: [cis_5]
+
+- name: 6 System maintenance
+  ansible.builtin.import_tasks: maintenance.yml
+  tags: [cis_6]

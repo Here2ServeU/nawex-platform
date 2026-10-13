@@ -22,6 +22,13 @@ Docs-as-code for the Golden Platform golden-path monorepo. Start with the
 | GPU / AI infrastructure | [verticals/gpu.md](./verticals/gpu.md) · [04-product/ai-infra-edition.md](./04-product/ai-infra-edition.md) · [guides/gpu-acceleration.md](./guides/gpu-acceleration.md) |
 | Modernization / migration | [modernization/README.md](./modernization/README.md) · [modernization/vmware-to-openshift.md](./modernization/vmware-to-openshift.md) · runbooks: [cutover](../ops/runbooks/migration/cutover.md), [rollback](../ops/runbooks/migration/rollback.md) |
 | AI agent operations | [agent-operations/README.md](./agent-operations/README.md) · [concept map](./agent-operations/concept-map.md) · runbook: [runaway agent](../ops/runbooks/agent-ops/runaway-agent.md) |
+| Multi-cloud governance & threat models | [security/multicloud-governance.md](./security/multicloud-governance.md) · [security/threat-modeling.md](./security/threat-modeling.md) · [threat models](../security/threat-models/README.md) |
+| Enterprise networking | [networking/README.md](./networking/README.md) · [IPv6 / dual-stack on EKS](./networking/ipv6-and-eks.md) |
+| FinOps | [finops/README.md](./finops/README.md) |
+| Database performance & optimization | [database/README.md](./database/README.md) · runbook: [database is slow](../ops/runbooks/playbooks/database_performance.md) |
+| Platform engineering | [platform/README.md](./platform/README.md) (Rollouts, KEDA, Karpenter, External Secrets, Velero, signing, DAST) · [Ansible baseline](../deploy/ansible/README.md) · Jenkins: [devsecops-integration.md](./guides/devsecops-integration.md#6-jenkins) |
+| ML platform & GPU sharing | [ai-engine/ml-platform.md](./ai-engine/ml-platform.md) · [verticals/gpu-partitioning.md](./verticals/gpu-partitioning.md) |
+| Portfolio & database modernization | [modernization/portfolio-7rs.md](./modernization/portfolio-7rs.md) · [database-migration.md](./modernization/database-migration.md) · [strangler-fig.md](./modernization/strangler-fig.md) · runbook: [database cutover](../ops/runbooks/migration/database-cutover.md) |
 | AWS identity governance | [modernization/aws-iam-modernization.md](./modernization/aws-iam-modernization.md) · runbook: [guardrail rollout & break-glass](../ops/runbooks/identity/guardrail-rollout.md) |
 
 ## Architecture

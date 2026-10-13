@@ -1,0 +1,48 @@
+# Daily backup of the platform namespaces (RPO <= 24h; add the hourly schedule
+# below for a tighter RPO). Kubernetes objects go to the S3 bucket, PVs are
+# EBS-snapshotted. Backups expire after 30 days (ttl).
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: golden-daily
+  namespace: velero
+  labels:
+    app.kubernetes.io/part-of: golden
+spec:
+  schedule: "0 2 * * *"
+  useOwnerReferencesInBackup: false
+  template:
+    includedNamespaces:
+      - golden
+      - migrated-vms
+    includeClusterResources: true
+    snapshotVolumes: true
+    storageLocation: default
+    volumeSnapshotLocations:
+      - default
+    ttl: 720h0m0s
+    metadata:
+      labels:
+        golden.io/backup-tier: daily
+---
+# Hourly, objects only (no volume snapshots): cheap, RPO <= 1h for config/state
+# held in Kubernetes objects. Kept 72h.
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: golden-hourly-objects
+  namespace: velero
+  labels:
+    app.kubernetes.io/part-of: golden
+spec:
+  schedule: "15 * * * *"
+  template:
+    includedNamespaces:
+      - golden
+      - migrated-vms
+    snapshotVolumes: false
+    storageLocation: default
+    ttl: 72h0m0s
+    metadata:
+      labels:
+        golden.io/backup-tier: hourly

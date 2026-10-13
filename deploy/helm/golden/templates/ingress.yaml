@@ -28,11 +28,17 @@ spec:
           {{- if not $raw }}
           {{- fail (printf "ingress path %s references unknown service %q" .path $target) }}
           {{- end }}
+          {{- $backend := include "golden.serviceName" (dict "root" $ "name" $target) }}
+          {{- $tsvc := include "golden.serviceConfig" (dict "root" $ "name" $target "cfg" $raw) | fromYaml }}
+          {{- if and (include "golden.isRollout" (dict "root" $ "svc" $tsvc)) $tsvc.rollout.trafficRouting }}
+          {{- /* Argo Rollouts trafficRouting: the ingress targets the stable Service. */}}
+          {{- $backend = printf "%s-stable" $backend }}
+          {{- end }}
           - path: {{ .path }}
             pathType: {{ .pathType | default "Prefix" }}
             backend:
               service:
-                name: {{ include "golden.serviceName" (dict "root" $ "name" $target) }}
+                name: {{ $backend }}
                 port:
                   number: {{ $raw.port }}
           {{- end }}

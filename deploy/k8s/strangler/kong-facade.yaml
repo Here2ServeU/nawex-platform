@@ -1,0 +1,150 @@
+# The facade ("intercept" stage): every client request enters here instead of hitting the monolith.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strangler-facade
+  namespace: strangler
+  labels:
+    app: strangler-facade
+    app.kubernetes.io/name: strangler-facade
+    app.kubernetes.io/part-of: golden
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: strangler-facade
+  template:
+    metadata:
+      labels:
+        app: strangler-facade
+        app.kubernetes.io/name: strangler-facade
+        app.kubernetes.io/part-of: golden
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: kong
+          image: kong:3.7
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: KONG_DATABASE
+              value: "off"
+            - name: KONG_DECLARATIVE_CONFIG
+              value: /kong/kong.yml
+            - name: KONG_PROXY_LISTEN
+              value: "0.0.0.0:8000"
+            # Admin API only on loopback: the facade is configured from Git, not at runtime.
+            - name: KONG_ADMIN_LISTEN
+              value: "127.0.0.1:8001"
+            - name: KONG_STATUS_LISTEN
+              value: "0.0.0.0:8100"
+            - name: KONG_PREFIX
+              value: /kong_prefix
+            - name: KONG_PROXY_ACCESS_LOG
+              value: /dev/stdout
+            - name: KONG_PROXY_ERROR_LOG
+              value: /dev/stderr
+          ports:
+            - name: proxy
+              containerPort: 8000
+              protocol: TCP
+            - name: status
+              containerPort: 8100
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /status/ready
+              port: status
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: status
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: config
+              mountPath: /kong
+              readOnly: true
+            - name: prefix
+              mountPath: /kong_prefix
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: config
+          configMap:
+            name: strangler-kong-config
+        - name: prefix
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: strangler-facade
+  namespace: strangler
+  labels:
+    app: strangler-facade
+    app.kubernetes.io/part-of: golden
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8100"
+    prometheus.io/path: /metrics
+spec:
+  type: ClusterIP
+  selector:
+    app: strangler-facade
+  ports:
+    - name: http
+      port: 80
+      targetPort: proxy
+      protocol: TCP
+    - name: status
+      port: 8100
+      targetPort: status
+      protocol: TCP
+---
+# Clients reach the facade at the monolith's public hostname; DNS moves once, at the intercept stage.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: strangler-facade
+  namespace: strangler
+  labels:
+    app.kubernetes.io/part-of: golden
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - app.example.com
+      secretName: strangler-facade-tls
+  rules:
+    - host: app.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: strangler-facade
+                port:
+                  name: http

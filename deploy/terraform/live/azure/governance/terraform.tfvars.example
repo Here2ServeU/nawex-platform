@@ -1,0 +1,26 @@
+# Copy to terraform.tfvars and adjust. Applied once per Entra tenant.
+project           = "golden"
+root_display_name = "Golden"
+
+# null = directly under the tenant root group.
+# parent_management_group_id = "/providers/Microsoft.Management/managementGroups/<tenant-id>"
+
+# Subscription GUID -> management group key (scopes in azure-access-model.yaml).
+subscription_placement = {
+  "00000000-0000-0000-0000-000000000001" = "platform"              # identity / connectivity / management
+  "00000000-0000-0000-0000-000000000002" = "landing-zones-prod"
+  "00000000-0000-0000-0000-000000000003" = "landing-zones-nonprod"
+  "00000000-0000-0000-0000-000000000004" = "sandbox"
+}
+
+location          = "eastus2"
+allowed_locations = ["eastus2", "centralus"]
+
+# Staged rollout, mirroring the SCP rollout on AWS: start audit-only, then move deny
+# assignments down from sandbox to the whole hierarchy.
+enforce_policies = false
+policy_scope_overrides = {
+  deny-nic-public-ip = "sandbox"
+}
+
+pim_approver_group = "AZ-PIM-Approvers"
