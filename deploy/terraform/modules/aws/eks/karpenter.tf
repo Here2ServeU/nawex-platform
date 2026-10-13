@@ -15,7 +15,7 @@
 module "karpenter" {
   count   = var.karpenter_enabled ? 1 : 0
   source  = "terraform-aws-modules/eks/aws//modules/karpenter"
-  version = "~> 20.24" # same major as module.eks; 20.24+ ships the Karpenter v1 policy
+  version = "~> 21.29" # same major as module.eks; 20.24+ ships the Karpenter v1 policy
 
   cluster_name          = module.eks.cluster_name
   enable_v1_permissions = true
