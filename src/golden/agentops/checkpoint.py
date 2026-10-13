@@ -7,11 +7,15 @@ skips completed steps — the money already spent is not spent again.
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 import signal
 import threading
 from pathlib import Path
 from typing import Any
+
+SAFE_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}")
 
 
 class CheckpointStore:
@@ -20,7 +24,16 @@ class CheckpointStore:
         self.enabled = enabled
 
     def _path(self, task_id: str) -> Path:
-        return self.dir / f"{task_id}.json"
+        """Task ids come from callers (API, CLI files): never let one choose the file path."""
+        name = (
+            task_id
+            if SAFE_ID.fullmatch(task_id)
+            else "task-" + hashlib.sha256(task_id.encode()).hexdigest()[:24]
+        )
+        path = (self.dir / f"{name}.json").resolve()
+        if path.parent != self.dir.resolve():
+            raise ValueError(f"unsafe task id {task_id!r}")
+        return path
 
     def load(self, task_id: str) -> dict[str, Any]:
         p = self._path(task_id)
@@ -32,9 +45,10 @@ class CheckpointStore:
         if not self.enabled:
             return
         self.dir.mkdir(parents=True, exist_ok=True)
-        tmp = self._path(task_id).with_suffix(".tmp")
+        path = self._path(task_id)
+        tmp = path.with_suffix(".tmp")
         tmp.write_text(json.dumps(state))
-        tmp.replace(self._path(task_id))
+        tmp.replace(path)
 
     def clear(self, task_id: str) -> None:
         self._path(task_id).unlink(missing_ok=True)

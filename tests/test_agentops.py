@@ -157,6 +157,31 @@ def test_checkpoint_resume_does_not_pay_twice(ident, tmp_path):
     assert resumed.steps == 3 and resumed.saved_by_checkpoint_usd == pytest.approx(killed.cost_usd)
 
 
+def test_checkpoint_paths_cannot_escape_state_dir(tmp_path):
+    from golden.agentops import CheckpointStore
+
+    store = CheckpointStore(tmp_path)
+    for evil in ("../../etc/passwd", "/abs/path", "..", "a/b", "x" * 500):
+        store.save(evil, {"completed": [], "spent_usd": 1.0})
+        assert store._path(evil).parent == (tmp_path / "checkpoints").resolve()
+        assert store.load(evil)["spent_usd"] == 1.0
+    assert not (tmp_path.parent / "etc").exists()
+    assert store._path("invoice-4471").name == "invoice-4471.json"
+
+
+def test_regex_free_parsers_are_linear():
+    import time
+
+    from golden.agentops.llm import leaks_system_prompt
+    from golden.ai.rag.pipeline import _extractive_answer
+
+    hostile = "[9] " + "[9] a" * 20_000
+    started = time.perf_counter()
+    _extractive_answer(f"Context:\n{hostile}\n\nQuestion: anything here", "")
+    leaks_system_prompt("x", "0" * 50_000 + "-")
+    assert time.perf_counter() - started < 2.0
+
+
 def test_drain_on_rollout(ident, tmp_path):
     drain = DrainSignal()
     drain.request()

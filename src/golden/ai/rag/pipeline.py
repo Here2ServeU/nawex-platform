@@ -175,14 +175,41 @@ class VectorIndex:
         return index
 
 
+def _passages(prompt: str) -> list[tuple[str, str]]:
+    """Split the "[n] text" context block into (n, text) — linear-time, no backtracking regex."""
+    context = prompt.split("\n\nQuestion:", 1)[0]
+    passages: list[tuple[str, list[str]]] = []
+    for line in context.splitlines():
+        head, _, rest = line.partition("] ")
+        if line.startswith("[") and head[1:].isdigit():
+            passages.append((head[1:], [rest]))
+        elif passages:
+            passages[-1][1].append(line)
+    return [(n, "\n".join(lines)) for n, lines in passages]
+
+
+def _sentences(text: str) -> list[str]:
+    out: list[str] = []
+    for line in text.splitlines():
+        current = ""
+        for ch in line:
+            current += ch
+            if ch in ".!?":
+                out.append(current.strip())
+                current = ""
+        if current.strip():
+            out.append(current.strip())
+    return [s for s in out if s]
+
+
 def _extractive_answer(prompt: str, _system: str) -> str:
     """Offline answerer for the simulated model: best-overlapping sentence from the passages, cited."""
     question = prompt.rsplit("Question:", 1)[-1]
     q_words = {w for w in _WORDS.findall(question.lower()) if len(w) > 3}
     best, best_score = "", 0
-    for n, passage in re.findall(r"\[(\d+)\] (.*?)(?=\n\[\d+\] |\n\nQuestion:)", prompt, re.S):
-        for sentence in re.split(r"(?<=[.!?])\s+|\n+", passage):
-            if sentence.lstrip().startswith("#"):
+    for n, passage in _passages(prompt):
+        for sentence in _sentences(passage):
+            if sentence.startswith("#"):
                 continue
             score = len(q_words & set(_WORDS.findall(sentence.lower())))
             if score > best_score:

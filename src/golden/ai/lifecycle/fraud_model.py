@@ -131,7 +131,8 @@ def train(
     for t in np.linspace(0.05, 0.95, 91):
         pred = probs >= t
         tp = float((pred & (ytr == 1)).sum())
-        precision = tp / pred.sum() if pred.sum() else 0.0
+        flagged = float(pred.sum())
+        precision = tp / flagged if flagged else 0.0
         recall = tp / positives if positives else 0.0
         f2 = 5 * precision * recall / (4 * precision + recall) if precision + recall else 0.0
         if f2 > best:

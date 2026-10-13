@@ -19,7 +19,6 @@ import hashlib
 import logging
 import os
 import random
-import re
 import threading
 import time
 from collections import OrderedDict
@@ -166,8 +165,13 @@ def leaks_system_prompt(output: str, system: str, window: int = 24) -> bool:
     step = max(1, window // 2)
     if any(norm_sys[i : i + window] in norm_out for i in range(0, len(norm_sys) - window + 1, step)):
         return True
-    # distinctive identifiers (codes, keys) leaked on their own
-    return any(tok in norm_out for tok in re.findall(r"[a-z0-9]+(?:-[a-z0-9]+)+", norm_sys) if len(tok) >= 8)
+    # distinctive identifiers (codes, keys) leaked on their own: hyphenated alphanumeric tokens
+    for raw in norm_sys.split():
+        tok = raw.strip(".,;:!?()[]{}\"'")
+        parts = tok.split("-")
+        if len(tok) >= 8 and len(parts) > 1 and all(p.isalnum() for p in parts) and tok in norm_out:
+            return True
+    return False
 
 
 # ----------------------------------------------------------------------------- gateway
