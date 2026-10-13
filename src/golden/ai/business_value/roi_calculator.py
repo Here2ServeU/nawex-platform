@@ -128,13 +128,15 @@ class ROICalculator:
                 },
             },
             "executive_summary": (
-                f"The platform generates {roi_ratio:.0f}x ROI for your organization, protecting "
+                f"Modelled: about {roi_ratio:.0f}x ROI for your organization, protecting "
                 f"{self.estimator._format_usd(monthly_value)}/month in risk exposure "
                 f"on a {self.estimator._format_usd(self.monthly_cost)}/month contract. "
-                f"The platform pays for itself in {payback_days:.0f} days through readmission "
+                f"Payback in about {payback_days:.0f} days through readmission "
                 f"prevention, PHI breach avoidance, and EHR reliability — with "
                 f"{self.estimator._format_usd(annual_value - self.monthly_cost * 12)} "
                 f"in net annual benefit."
+                f" (A modelled estimate based on stated assumptions, not a measured result: model performance and loss "
+                f"benchmarks are inputs; swap in your own measurements and sourced benchmarks.)"
             ),
             "details": {
                 "readmission": readmission,
@@ -228,12 +230,14 @@ class ROICalculator:
                 },
             },
             "executive_summary": (
-                f"The platform generates {roi_ratio:.0f}x ROI for your institution, protecting "
+                f"Modelled: about {roi_ratio:.0f}x ROI for your institution, protecting "
                 f"{self.estimator._format_usd(monthly_value)}/month in fraud, downtime, "
                 f"and compliance exposure on a {self.estimator._format_usd(self.monthly_cost)}/month contract. "
-                f"The platform recovers its cost in {payback_days:.0f} days, with "
+                f"Payback in about {payback_days:.0f} days, with "
                 f"{self.estimator._format_usd(annual_value - self.monthly_cost * 12)} "
                 f"in net annual benefit."
+                f" (A modelled estimate based on stated assumptions, not a measured result: model performance and loss "
+                f"benchmarks are inputs; swap in your own measurements and sourced benchmarks.)"
             ),
             "details": {
                 "fraud": fraud,
@@ -270,9 +274,11 @@ class ROICalculator:
                 for key, (label, value) in breakdown.items()
             },
             "executive_summary": (
-                f"The platform generates {roi_ratio:.0f}x ROI, delivering {fmt(monthly_value)}/month in value "
+                f"Modelled: about {roi_ratio:.0f}x ROI, {fmt(monthly_value)}/month in value "
                 f"on a {fmt(self.monthly_cost)}/month engagement through {pitch}. It pays for itself in "
                 f"{payback_days:.0f} days, with {fmt(annual_value - self.monthly_cost * 12)} in net annual benefit."
+                f" (A modelled estimate based on stated assumptions, not a measured result: model performance and loss "
+                f"benchmarks are inputs; swap in your own measurements and sourced benchmarks.)"
             ),
             "details": details,
         }

@@ -29,8 +29,8 @@ Golden Platform implements the three pillars of observability: **Logs**, **Metri
 │ └───────┘ └────────┘ └───────┘ │
 │ │
 │ SLO/Error Budget Tracking │
-│ ├─ 99.999% availability target │
-│ ├─ 31 seconds downtime/year error budget │
+│ ├─ 99.999% availability target (design) │
+│ ├─ ~5.3 min downtime/year error budget   │
 │ ├─ Automatic alert on budget burn │
 │ └─ Compliance dashboard │
 │ │
@@ -311,7 +311,7 @@ class ServiceLevelObjective:
 # Define SLOs
 FINTECH_TRANSACTION_SLO = ServiceLevelObjective(
     service_name="fintech-processor",
-    availability_percent=99.999, # 31 seconds downtime/year
+    availability_percent=99.999, # ~5.3 minutes downtime/year
     latency_p99_ms=50, # <50ms to process transaction
     latency_p95_ms=30,
     error_budget_percent=0.001, # 0.001% of allowed errors

@@ -8,11 +8,11 @@ Use the following content to explain how your [surgical_server.py](https://githu
 
 ## The Challenge: The "Last-Mile" Jitter Gap
 
-In [connected medical robotics](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine), standard REST or JSON-over-HTTP protocols introduce overhead that can lead to kinematic desynchronization. A [3-second cloud disconnect](https://gemini.google.com/app/95037d332637f270) can result in a [surgical failure](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine).
+In [connected medical robotics](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine), standard REST or JSON-over-HTTP protocols introduce overhead that can lead to kinematic desynchronization. Even a short cloud disconnect can disrupt a [surgical workflow](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine).
 
 ## The Solution: Bi-Directional gRPC Streams
 
-This directory houses the [gRPC implementation](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics/grpc) of our [surgical_telemetry.proto](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/robotics/proto/surgical_telemetry.proto). By utilizing **HTTP/2 bi-directional streaming**, we achieve the sub-millisecond precision required for [surgical robotics precision](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-solution-predictive-self-healing-infrastructure).
+This directory houses the [gRPC implementation](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics/grpc) of our [surgical_telemetry.proto](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/robotics/proto/surgical_telemetry.proto). By utilizing **HTTP/2 bi-directional streaming**, we aim for the low, consistent latency that [surgical robotics](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-solution-predictive-self-healing-infrastructure) needs (end-to-end latency has not been benchmarked).
 
 ### Components:
 
@@ -40,7 +40,7 @@ python3 surgical_client.py
 
 ---
 
-**Strategic Value:** This setup demonstrates [Operational Alpha](https://gemini.google.com/app/95037d332637f270) by ensuring that even under [heavy network jitter](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine), the [Naweji Reliability Platform (NRP)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/README.md) maintains full control over the clinical environment.
+**Strategic Value:** This setup demonstrates how, under [network jitter](https://github.com/Here2ServeU/Naweji-Reliability-Platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine), the [Naweji Reliability Platform (NRP)](https://github.com/Here2ServeU/Naweji-Reliability-Platform/blob/main/README.md) is designed to keep a safety channel (EMERGENCY_STOP / REROUTE_TO_EDGE) to the clinical device. This is a simulation, not a validated medical device.
 
 ---
 

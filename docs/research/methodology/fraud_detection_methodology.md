@@ -2,7 +2,9 @@
 
 **Golden Platform Research Division | Rev. Dr. Emmanuel Naweji, PhD**
 **Audience:** Bank Risk Officers, Compliance Teams, BSA Officers
-**Status:** Production Deployed | v2.0 | April 2026
+**Status:** Reference implementation (synthetic data; not production-deployed) | v2.0 | April 2026
+
+> **Evidence status.** This system is a reference implementation evaluated on synthetic data ([`src/golden/ai/datasets`](../../../src/golden/ai/datasets/README.md)); it is not deployed in production and has no client results. The performance figures below (95.6% precision, 92.3% recall, 0.08% FPR, 18.75x FPR reduction) are **design targets carried over from an earlier version and are not reproduced by any command in this repository** — treat them as [needs source] until re-measured. Measured today: the trained fraud model scores precision 0.7532, recall 0.9508, AUC 0.9942, FPR 1.83% on synthetic data (`golden model retrain --force --registry /tmp/reg`, deterministic seed). See [CLAIMS.md](../../CLAIMS.md).
 
 ---
 
@@ -10,8 +12,8 @@
 
 Golden Platform's fraud detection engine implements a real-time composite risk scoring
 architecture that evaluates five orthogonal fraud signals for each transaction
-within a single inference pass (avg. 12.5ms latency). The composite scoring
-approach — grounded in Bayesian expected-value methodology — achieves 95.6%
+within a single inference pass (in-process p95 ≈ 2 ms measured on a laptop; see CLAIMS.md). The composite scoring
+approach — grounded in Bayesian expected-value methodology — targets 95.6%
 precision and 92.3% recall on synthetic transaction workloads modeled after
 Federal Reserve Payments Study 2024 baseline rates. The system is designed
 for integration with BSA/AML workflows and provides SAR-filing-ready

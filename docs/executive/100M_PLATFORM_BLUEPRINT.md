@@ -2,11 +2,11 @@
 
 ## Vision
 
-Golden Platform is engineered as an AI-driven reliability platform for critical infrastructure where downtime is unacceptable and compliance is non-negotiable. The operating target is a $100M-class enterprise platform with predictable delivery, measurable reliability gains, and multi-cloud resilience.
+Golden Platform is engineered as an AI-driven reliability platform for critical infrastructure where downtime is unacceptable and compliance is non-negotiable. The "$100M" in the title is a long-term business ambition, not current revenue, valuation or customer count — there are no production customers yet. The near-term goal is predictable delivery, measurable reliability gains, and multi-cloud resilience. See [CLAIMS.md](../CLAIMS.md).
 
 ## Enterprise Outcomes
 
-- Protect mission-critical transactions and clinical workloads with 99.999% availability objectives.
+- Protect mission-critical transactions and clinical workloads, starting from the 99.9% API availability SLO objective defined today and progressing towards 99.99%+ only where the architecture (e.g., active-active) is built and measured.
 - Shift from reactive operations to predictive reliability through continuous ML inference.
 - Reduce incident impact using automated remediation, chaos readiness, and rapid recovery playbooks.
 - Enable regulated growth with policy-driven controls and audit-ready observability.
@@ -16,31 +16,31 @@ Golden Platform is engineered as an AI-driven reliability platform for critical 
 ### 1. Predictive Intelligence
 
 - LSTM and TCN model families for trend and burst anomaly prediction.
-- Dedicated model domains in `src/golden/ai/models/lstm`, `src/golden/ai/models/tcn`, `src/golden/ai/models/anomaly_detection`, and `src/golden/ai/models/fraud_detection`.
+- Dedicated model domains in `src/golden/ai/models/lstm`, `src/golden/ai/models/tcn`, `src/golden/ai/anomaly_detection`, and the trained fraud model in `src/golden/ai/lifecycle/fraud_model.py`.
 - Online inference integrated with event streams for near real-time risk scoring.
 
 ### 2. Reliability as a Product
 
-- Core reliability services in `platform/telemetry`, `platform/event_streams`, `platform/resilience_engine`, `platform/automation_engine`, and `platform/notification_system`.
+- Core reliability services in `src/golden/decision` (decision engine), `src/golden/ai/remediation` (governed remediation), `src/golden/security` (ActionGovernor, kill switch, audit chain) and `observability/`.
 - Automated detection to action loops for failover, throttling, and rollback.
 - SLO-based release gating with error budget policies.
 
 ### 3. Multi-Cloud Resilience
 
-- Infrastructure segmentation under `deploy/terraform`, `deploy/k8s`, `deploy/helm`, and `deploy/networking`.
+- Infrastructure segmentation under `deploy/terraform`, `deploy/k8s`, `deploy/helm`, and `deploy/openshift`.
 - GitOps deployment controls under `deploy/gitops/argocd` and `deploy/gitops/environments`.
-- Cloud-portable service architecture for AWS, Azure, GCP, and OCI operating models.
+- Cloud-portable service architecture with per-cloud landing zones for AWS, Azure, GCP, and OCI (cross-cloud failover is Maturity 4, not built yet).
 
 ### 4. Regulated Vertical Readiness
 
-- Healthcare domains in `healthcare/ehr_ingestion`, `healthcare/clinical_monitoring`, and `healthcare/compliance`.
-- Fintech domains in `src/golden/services/fintech/transaction_engine.py`, `fintech/fraud_detection`, and `fintech/payment_resilience`.
+- Healthcare domain services in `src/golden/services/healthcare` (EHR ingestion, clinical decision, patient gateway).
+- Fintech domain services in `src/golden/services/fintech` (transaction engine, fraud detector, payment gateway) and `src/golden/ai/pipelines/detect_fraud.py`.
 - Security boundaries in `security/iam`, `security/secrets`, and `security/policies`.
 
 ### 5. Enterprise Operations
 
 - Monitoring stack in `observability/prometheus`, `observability/grafana`, and `observability/alerting`.
-- Reliability practice in `sre/slis_slos`, `sre/chaos_testing`, and `sre/recovery`.
+- Reliability practice in `observability/prometheus/rules/slo_rules.yml`, `ops/sre/chaos`, `ops/sre/reliability`, and `ops/runbooks`.
 - Operational automation through `make bootstrap`, `make up`, `golden orchestrate`, and `make demo`.
 
 ## Capability Maturity Targets
@@ -53,7 +53,7 @@ Golden Platform is engineered as an AI-driven reliability platform for critical 
 
 ## KPIs for Enterprise Value
 
-- Availability: 99.99% to 99.999% target progression by domain.
+- Availability: measured SLO attainment against the 99.9% objective, with 99.99% → 99.999% as later targets per domain once measured.
 - Incident response: MTTD and MTTR reduction quarter over quarter.
 - Financial protection: avoided downtime cost and fraud loss prevented.
 - Compliance posture: policy coverage and audit control pass rate.

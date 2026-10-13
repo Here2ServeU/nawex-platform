@@ -2,7 +2,7 @@
 
 ## Testing Strategy
 
-Golden Platform uses a comprehensive testing pyramid to achieve 99.999% availability:
+Golden Platform uses a comprehensive testing pyramid in support of its availability SLOs (99.9% objective today in `observability/prometheus/rules/slo_rules.yml`; higher tiers are targets):
 
 ```
                       

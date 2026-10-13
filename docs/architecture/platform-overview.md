@@ -12,7 +12,7 @@ Golden Platform is organized to support five purposes at once:
 
 - AI prediction and explainability
 - Decision engine and policy routing
-- Automation and self-healing workflows
+- Automation and governed self-healing workflows (dry-run by default; approvals and kill switch)
 - Observability and incident intelligence
 - Domain verticals for fintech and healthcare
 - Compliance and audit readiness

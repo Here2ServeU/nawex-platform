@@ -3,7 +3,9 @@
 **Golden Platform Research Division | Rev. Dr. Emmanuel Naweji, PhD**
 **Audience:** Chief Medical Information Officers (CMIOs), Clinical Informatics Teams,
 Patient Safety Officers
-**Status:** Production Deployed | v2.0 | April 2026
+**Status:** Reference implementation (synthetic data; not production-deployed) | v2.0 | April 2026
+
+> **Evidence status.** This system is a reference implementation evaluated on synthetic data ([`src/golden/ai/datasets`](../../../src/golden/ai/datasets/README.md)); it is not deployed in production and has no client results. The performance figures below (97.1% sensitivity, 94.5% specificity, 42% alarm-fatigue reduction) are **design targets carried over from an earlier version and are not reproduced by any command in this repository** — treat them as [needs source] until re-measured. The same 0.971 / 0.945 values are default assumptions in `src/golden/ai/business_value/impact_estimator.py`, which is where `golden roi` gets them. See [CLAIMS.md](../../CLAIMS.md).
 
 ---
 
@@ -13,9 +15,9 @@ Golden Platform's clinical safety monitoring system provides real-time multi-par
 vital sign surveillance aligned with the National Early Warning Score 2 (NEWS2)
 framework and Sepsis-3 consensus criteria. The system continuously monitors
 inpatient vital sign streams, applies department-weighted risk stratification,
-and generates clinical alerts at 97.1% sensitivity and 94.5% specificity —
-exceeding the manual nursing assessment sensitivity benchmark of 82%
-(Royal College of Physicians, 2017). Alert logic is implemented in
+and generates clinical alerts. Target performance is 97.1% sensitivity and 94.5% specificity,
+compared with the manual nursing assessment sensitivity benchmark of 82%
+(Royal College of Physicians, 2017) — see the evidence status note above. Alert logic is implemented in
 `src/golden/ai/pipelines/detect_phi_anomalies.py` (`detect_patient_safety_risk()`).
 
 ---

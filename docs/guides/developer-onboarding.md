@@ -18,14 +18,14 @@ Welcome to the Golden Platform development team. This guide gets you from zero t
 #### Step 2: Quick Platform Tour (30 minutes)
 ```bash
 # Clone the platform
-git clone https://github.com/here2serveu/golden-platform
+git clone https://github.com/Here2ServeU/nawex-platform
 cd golden
 
 # Explore directory structure
 tree -L 2 -d golden/
 # Output:
 # golden/
-# ├─ api/ (REST, GraphQL, gRPC)
+# ├─ api/ (REST/OpenAPI; gRPC protos in proto/)
 # ├─ multi-tenancy/ (Tenant isolation)
 # ├─ security/ (Zero-trust, encryption)
 # ├─ observability/ (Tracing, metrics, logs)
@@ -800,7 +800,7 @@ psql -h localhost -U golden -d golden
 ## Getting Help
 
 - **Documentation:** [docs.golden-platform.example](https://docs.golden-platform.example)
-- **GitHub Issues:** [github.com/here2serveu/golden-platform/issues](https://github.com/here2serveu/golden-platform/issues)
+- **GitHub Issues:** [github.com/Here2ServeU/nawex-platform/issues](https://github.com/Here2ServeU/nawex-platform/issues)
 - **Slack:** #golden-developers (internal)
 - **Office Hours:** Thursdays 2-3pm PST
 - **Mentor:** Your assigned engineering buddy

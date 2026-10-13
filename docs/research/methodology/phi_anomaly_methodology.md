@@ -2,7 +2,9 @@
 
 **Golden Platform Research Division | Rev. Dr. Emmanuel Naweji, PhD**
 **Audience:** Hospital Compliance Officers, Privacy Officers, HIPAA Coordinators
-**Status:** Production Deployed | v2.0 | April 2026
+**Status:** Reference implementation (synthetic data; not production-deployed) | v2.0 | April 2026
+
+> **Evidence status.** This system is a reference implementation evaluated on synthetic data ([`src/golden/ai/datasets`](../../../src/golden/ai/datasets/README.md)); it is not deployed in production and has no client results. The performance figures below (96.1% precision, 93.8% recall, <6.2% miss rate) are **design targets carried over from an earlier version and are not reproduced by any command in this repository** — treat them as [needs source] until re-measured. See [CLAIMS.md](../../CLAIMS.md).
 
 ---
 
@@ -12,7 +14,7 @@ Golden Platform's PHI access anomaly detection system implements a real-time com
 risk scoring model for Protected Health Information access events, aligned
 with HIPAA's Minimum Necessary Standard (45 CFR §164.514(d)) and Access Audit
 requirements (§164.312(b)). The system evaluates five orthogonal access risk
-signals per event, achieving 96.1% precision and 93.8% recall. All risk scores
+signals per event, with targets of 96.1% precision and 93.8% recall. All risk scores
 are fully explainable, providing audit-ready documentation for HHS OCR
 investigations and internal privacy compliance reviews.
 

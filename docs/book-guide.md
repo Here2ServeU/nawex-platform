@@ -1,5 +1,7 @@
 # Golden Platform — Master Guide
 
+> This guide is a compiled snapshot of documents from across the repository; some sections predate the v2 layout. Where it disagrees with the source file, the source file wins. Every number is either reproducible or labelled as a target — see the [claims register](CLAIMS.md). Quantum methods are not implemented ([research note](architecture/06-quantum-optimization-layer.md)).
+
 
 ---
 
@@ -10,37 +12,37 @@
 
 ## Executive Summary: Bridging the Gap Between AI and Infrastructure
 
-The **Golden Platform** is an enterprise-grade ecosystem designed for high-availability healthcare environments. By integrating **Deep Learning (LSTM/TCN)** with a **Multi-Cloud Active-Active Resilience** strategy, the platform achieves 99.999% availability for critical [robotics telemetry streams](https://github.com/here2serveu/golden-platform/tree/main/robotics), effectively transforming infrastructure from reactive to predictive.
+The **Golden Platform** is an enterprise-grade ecosystem designed for high-availability healthcare environments. By integrating **Deep Learning (LSTM/TCN)** with per-cloud landing zones and a multi-cloud active-active *design target*, the platform aims to move infrastructure for critical [robotics telemetry streams](../src/golden/robotics) from reactive to predictive. The API availability SLO objective is 99.9%; no production uptime has been measured.
 
 ## Architectural Excellence (Golden Project Standard)
 
-This project utilizes the **Golden Platform-Golden-Project** structure to ensure SOC 2 and [HIPAA-compliant](https://github.com/here2serveu/golden-platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md) auditability and operational clarity.
+This project utilizes the **Golden Platform-Golden-Project** structure to support SOC 2 and [HIPAA-mapped](compliance/01-hipaa-compliance-mapping.md) auditability (mappings, not certifications).
 
-* **[Core AI Brain](https://github.com/here2serveu/golden-platform/tree/main/ai)**: Dual-model ensemble (LSTM for long-range trends; TCN for high-frequency anomalies) for 92%+ prediction precision.
-* **[Multi-Cloud Topology](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md)**: Global orchestration across **AWS, Azure, GCP, and OCI** using modular [Terraform](https://github.com/here2serveu/golden-platform/tree/main/terraform) and [GitOps](https://github.com/here2serveu/golden-platform/tree/main/gitops).
-* **[Resilience Engine](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/05-active-active-resilience.md)**: Sub-30 second RTO (Recovery Time Objective) driven by [predictive failover logic](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md).
+* **[Core AI Brain](../src/golden/ai)**: Dual-model ensemble (LSTM for long-range trends; TCN for high-frequency anomalies). Precision targets are listed in [CLAIMS.md](CLAIMS.md); models are trained on synthetic data.
+* **[Multi-Cloud Topology](architecture/03-infrastructure-topology.md)**: Global orchestration across **AWS, Azure, GCP, and OCI** using modular [Terraform](../deploy/terraform) and [GitOps](../deploy/gitops).
+* **[Resilience Engine](architecture/05-active-active-resilience.md)**: [Predictive failover logic](architecture/04-predictive-reliability-framework.md) with a < 30 s RTO *target* (not measured; cross-cloud failover not implemented).
 
 ## Ph.D. Research Implementation
 
-The platform serves as a production-hardened implementation of advanced AI research in healthcare resilience:
+The platform is a reference implementation of AI research in healthcare resilience (synthetic data; not deployed in production):
 
-* **Agentic Safety Mediation**: Real-time kinematic telemetry analysis at the [Robotics Edge](https://github.com/here2serveu/golden-platform/tree/main/robotics).
-* **MLOps Lifecycle**: Continuous model evolution using [GCP Vertex AI](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md) for compute-heavy re-training loops.
+* **Agentic Safety Mediation**: Real-time kinematic telemetry analysis at the [Robotics Edge](../src/golden/robotics).
+* **MLOps Lifecycle**: Drift-triggered retraining and a gated model registry (`golden model`); [GCP Vertex AI](architecture/03-infrastructure-topology.md) offload is a design option.
 
 ## Compliance & Governance
 
-Built for the most stringent regulatory environments, including **HIPAA**, **SOC 2**, and **French HDS**.
+Designed to be mapped to **HIPAA**, **SOC 2**, and **French HDS** (not certified).
 
-* **[Audit Logging Policy](https://www.google.com/search?q=https://github.com/here2serveu/golden-platform/blob/main/docs/compliance/03-audit-logging-policy.md)**: Immutable, WORM-protected telemetry and decision logs.
-* **[Disaster Recovery Plan](https://github.com/here2serveu/golden-platform/blob/main/docs/compliance/04-disaster-recovery-plan.md)**: Legally-defensible Active-Active business continuity strategy.
+* **[Audit Logging Policy](compliance/03-audit-logging-policy.md)**: Tamper-evident, hash-chained decision logs; WORM storage is a deployment requirement.
+* **[Disaster Recovery Plan](compliance/04-disaster-recovery-plan.md)**: Active-Active business continuity plan with target RTO/RPO.
 
 ---
 
 ### Navigation
 
-* **[Architecture Deep Dives](https://github.com/here2serveu/golden-platform/tree/main/docs/architecture)**
-* **[Compliance Mapping](https://github.com/here2serveu/golden-platform/tree/main/docs/compliance)**
-* **[Operator Guides](https://www.google.com/search?q=https://github.com/here2serveu/golden-platform/tree/main/docs/guides)**
+* **[Architecture Deep Dives](architecture)**
+* **[Compliance Mapping](compliance)**
+* **[Operator Guides](guides)**
 * **[Robotics Demo](robotics/README.md)**
 
 ---
@@ -87,7 +89,7 @@ scripts/tools/heal.sh
 # AIOps & Predictive Resilience Engine (/ai)
 
 ## The Nervous System of the Express Platform
-This directory contains the **Autonomous Reliability Agents** and **Deep Learning Models** that power the platform's self-healing capabilities. It transforms raw telemetry into actionable remediation plans using a continuous *Observe-Analyze-Plan-Execute* control loop.
+This directory contains the **Autonomous Reliability Agents** and **Deep Learning Models** that power the platform's governed self-healing: every action passes the `ActionGovernor` and the default autonomy mode is `dry_run` (`golden security status`). It transforms raw telemetry into actionable remediation plans using a continuous *Observe-Analyze-Plan-Execute* control loop.
 
 ---
 
@@ -459,15 +461,15 @@ These documents detail the implementation strategies for our observability backe
     * **Focus:** **Log Aggregation Strategy.**
     * **Key Decisions:** Universal Forwarder vs. HEC, Index Segmentation (`main` vs. `audit`), and Data Retention policies.
 
-* **File:** [`prometheus-grafana.md`](./prometheus-grafana.md)
+* **File:** [`observability/README.md`](../observability/README.md) (Prometheus/Grafana stack, metric contract, alert routing)
     * **Focus:** **Open Source Metrics & Alerting.**
     * **Key Decisions:** "Pull" model architecture, `ServiceMonitor` CRD usage, and "Dashboards-as-Code" lifecycle management.
 
-* **File:** [`datadog-observability.md`](./datadog-observability.md)
+* **File:** [`deploy/gitops/argocd/app-datadog.yaml`](../deploy/gitops/argocd/app-datadog.yaml) and [`ops/sre/observability/datadog-apm-setup.md`](../ops/sre/observability/datadog-apm-setup.md)
     * **Focus:** **Unified SaaS Monitoring.**
     * **Key Decisions:** Agent-based collection (DaemonSet), APM trace sampling rates, and Cost Management (custom metrics filtering).
 
-* **File:** [`dynatrace-intelligence.md`](./dynatrace-intelligence.md)
+* **File:** [`deploy/gitops/argocd/app-dynatrace.yaml`](../deploy/gitops/argocd/app-dynatrace.yaml) and [`architecture/advanced-observability.md`](architecture/advanced-observability.md)
     * **Focus:** **AI-Driven Root Cause Analysis.**
     * **Key Decisions:** OneAgent Operator deployment, Davis AI integration for automated problem detection, and "PurePath" distributed tracing.
 
@@ -618,26 +620,31 @@ This document covers the **Dynatrace** implementation, specifically focusing on 
 
 ## Executive Overview
 
-The **Golden Platform** is a specialized ecosystem designed to bridge the gap between autonomous robotics and enterprise-grade infrastructure resilience. By integrating predictive machine learning models with real-time telemetry, the platform ensures 99.999% availability for critical healthcare applications.
+The **Golden Platform** is a specialized ecosystem designed to bridge the gap between autonomous systems and enterprise-grade infrastructure resilience. By integrating predictive machine learning models with real-time telemetry, the platform is designed for high availability of critical **healthcare** and **fintech** applications. The API availability SLO objective is 99.9% ([`slo_rules.yml`](../observability/prometheus/rules/slo_rules.yml)); no production uptime has been measured.
 
 ## Core Architectural Pillars
 
-1. **Predictive Intelligence**: Utilizing [LSTM and TCN models](https://github.com/here2serveu/golden-platform/tree/main/ai) to forecast infrastructure and robotic kinematic failures before they manifest.
-2. **Autonomous Remediation**: A self-healing loop powered by [GitOps](https://github.com/here2serveu/golden-platform/tree/main/gitops) and custom SRE controllers that re-provision resources based on risk probability scores.
-3. **Regulatory Compliance**: Native integration of [HIPAA and SOC 2](https://www.google.com/search?q=https://github.com/here2serveu/golden-platform/tree/main/docs/compliance) guardrails within the CI/CD and deployment pipelines.
+1. **Predictive Intelligence**: Utilizing [LSTM and TCN models](../src/golden/ai) to forecast infrastructure failures, robotic kinematic anomalies, and financial transaction irregularities before they manifest.
+2. **Governed Remediation**: A remediation loop (observe → analyze → plan → execute, gated by the `ActionGovernor`) powered by [GitOps](../deploy/gitops) and custom SRE controllers that re-provision resources based on risk probability scores.
+3. **Regulatory Alignment**: [HIPAA, SOC 2, PCI-DSS, and SOX](compliance/01-hipaa-compliance-mapping.md) control mappings (not certifications), with security scanning and policy gates in CI/CD.
 
 ## Functional Components
 
 | Layer | Component | Description |
 | --- | --- | --- |
-| **Inference** | [AI Brain](https://github.com/here2serveu/golden-platform/tree/main/ai) | Deep learning engine processing time-series data for anomaly detection. |
-| **Telemetry** | [Robotics Collector](https://github.com/here2serveu/golden-platform/tree/main/robotics) | High-fidelity data ingestion from edge-based clinical devices. |
-| **Orchestration** | [Multi-Cloud IaC](https://github.com/here2serveu/golden-platform/tree/main/terraform) | Automated provisioning across EKS, AKS, GCP, and OKE for geographical redundancy. |
-| **Operations** | [SRE Framework](https://github.com/here2serveu/golden-platform/tree/main/sre) | SLO-driven alerting and automated incident response playbooks. |
+| **Inference** | [AI Brain](../src/golden/ai) | Deep learning engine processing time-series data for anomaly and fraud detection. |
+| **Telemetry** | [Robotics Collector](../src/golden/robotics) | High-fidelity data ingestion from edge-based clinical devices. |
+| **Fintech** | [Transaction Engine](/src/golden/ai/pipelines/detect_fraud.py) | Real-time transaction monitoring, fraud scoring, and payment reliability assurance. |
+| **Orchestration** | [Multi-Cloud IaC](../deploy/terraform) | Per-cloud landing zones for EKS, AKS, GKE and OKE (each deployed independently; no cross-cloud traffic routing yet). |
+| **Operations** | [SRE Framework](../ops/sre) | SLO-driven alerting and automated incident response playbooks. |
 
-## Strategic Value Proposition
+## Industry-Specific Value
 
-Unlike traditional monitoring, this architecture is **proactive rather than reactive**. It reduces Mean Time to Detection (MTTD) to near-zero by identifying subtle statistical drifts in kinematic telemetry, preventing costly downtime in life-critical clinical settings.
+### Healthcare
+Aims to reduce Mean Time to Detection (MTTD) by identifying statistical drift in kinematic telemetry before it becomes downtime. MTTD reduction has not been measured.
+
+### Fintech
+Ensures transaction integrity and payment system resilience through real-time fraud detection, automated payment gateway failover, and continuous PCI-DSS compliance monitoring. The design target for transaction processing is sub-100 ms; end-to-end latency under load has not been measured (see [CLAIMS.md](CLAIMS.md)).
 
 ---
 
@@ -657,7 +664,9 @@ Unlike traditional monitoring, this architecture is **proactive rather than reac
 
 ## Executive Summary
 
-This architecture integrates **Agentic Clinical Safety** with a **High-Availability AIOps Plane**. By utilizing dual-model inference (LSTM/TCN), the platform predicts kinematic anomalies in robotics telemetry before they result in clinical failure, triggering automated GitOps-driven failover.
+This architecture integrates **Agentic Clinical Safety** with a **High-Availability AIOps Plane**. By utilizing dual-model inference (LSTM/TCN), the platform is designed to predict kinematic anomalies in robotics telemetry before they result in clinical failure and to trigger governed, GitOps-driven remediation.
+
+> Scope note: the diagram shows the target design. Cross-cloud active-active failover (GSLB) is not implemented in `deploy/`; each cloud has its own landing zone. The thresholds below are illustrative policy values. See [CLAIMS.md](CLAIMS.md).
 
 ## System Architecture Diagram
 
@@ -709,10 +718,10 @@ graph TD
 
 | Component | Technology Stack | Responsibility |
 | --- | --- | --- |
-| **Edge Layer** | [Robotics Module](https://github.com/here2serveu/golden-platform/tree/main/robotics) | Real-time kinematic telemetry ingestion and local safety mediation. |
-| **Predictive Engine** | [AI Brain (LSTM/TCN)](https://github.com/here2serveu/golden-platform/tree/main/ai) | Time-series forecasting to identify "pre-failure" signatures in sensor data. |
-| **Resilience Engine** | [SRE / GitOps](https://github.com/here2serveu/golden-platform/tree/main/gitops) | Automated re-provisioning and failover via [ArgoCD](https://github.com/here2serveu/golden-platform/tree/main/gitops) based on risk scores. |
-| **Audit Plane** | [Compliance Docs](https://www.google.com/search?q=https://github.com/here2serveu/golden-platform/tree/main/docs/compliance) | Ensures every automated action is logged for HIPAA and HDS regulatory standards. |
+| **Edge Layer** | [Robotics Module](../src/golden/robotics) | Real-time kinematic telemetry ingestion and local safety mediation. |
+| **Predictive Engine** | [AI Brain (LSTM/TCN)](../src/golden/ai) | Time-series forecasting to identify "pre-failure" signatures in sensor data. |
+| **Resilience Engine** | [SRE / GitOps](../deploy/gitops) | Automated re-provisioning and failover via [ArgoCD](../deploy/gitops) based on risk scores. |
+| **Audit Plane** | [Compliance Docs](compliance) | Ensures every automated action is logged for HIPAA and HDS regulatory standards. |
 
 ---
 
@@ -730,39 +739,42 @@ Notice that I added **Probability Thresholds** (e.g., `p > 0.85`) to the diagram
 
 ## Executive Overview
 
-This document outlines the global footprint of the **Golden Platform**. To ensure zero-downtime for clinical operations, the infrastructure utilizes a **Multi-Cloud Active-Active** strategy. The orchestration layer spans Amazon Web Services (AWS), Microsoft Azure, **Google Cloud Platform (GCP)**, and Oracle Cloud Infrastructure (OCI), managed via a unified [Terraform](https://github.com/here2serveu/golden-platform/tree/main/terraform) and GitOps workflow.
+This document outlines the target global footprint of the **Golden Platform**. The goal is to minimise downtime for clinical operations with a **Multi-Cloud Active-Active** strategy.
+
+> **What is implemented today:** independent per-cloud landing zones in [`deploy/terraform/live`](../deploy/terraform) (AWS, Azure, GCP, OCI) and OpenShift assets. The global load balancer, cross-cluster mesh and private interconnects described below are **design targets** — there is no GSLB or cross-cloud replication code in the repository. See [CLAIMS.md](CLAIMS.md).
+
+The target orchestration layer spans Amazon Web Services (AWS), Microsoft Azure, **Google Cloud Platform (GCP)**, and Oracle Cloud Infrastructure (OCI), managed via a unified [Terraform](../deploy/terraform) and GitOps workflow.
 
 ## Global Distribution Map
 
-The platform is architected to survive a complete regional or provider outage by distributing workloads across the following managed Kubernetes clusters:
+The target design distributes workloads across the following managed Kubernetes clusters so that a regional or provider outage can be survived (not yet validated by a drill):
 
 | Cloud Provider | Managed Service | Primary Region | Role |
 | --- | --- | --- | --- |
-| **AWS** | [Elastic Kubernetes Service (EKS)](https://github.com/here2serveu/golden-platform/tree/main/terraform) | `us-east-1` | Primary Inference Plane |
-| **Azure** | [Azure Kubernetes Service (AKS)](https://github.com/here2serveu/golden-platform/tree/main/terraform) | `eastus` | Disaster Recovery & Data Sync |
-| **GCP** | [Google Kubernetes Engine (GKE)](https://github.com/here2serveu/golden-platform/tree/main/terraform) | `us-central1` | **AI/ML Model Training & Big Data Analytics** |
-| **OCI** | [Oracle Container Engine (OKE)](https://github.com/here2serveu/golden-platform/tree/main/terraform) | `us-ashburn-1` | High-Performance Robotics Edge Aggregator |
+| **AWS** | [Elastic Kubernetes Service (EKS)](../deploy/terraform) | `us-east-1` | Primary Inference Plane |
+| **Azure** | [Azure Kubernetes Service (AKS)](../deploy/terraform) | `eastus` | Disaster Recovery & Data Sync |
+| **GCP** | [Google Kubernetes Engine (GKE)](../deploy/terraform) | `us-central1` | **AI/ML Model Training & Big Data Analytics** |
+| **OCI** | [Oracle Container Engine (OKE)](../deploy/terraform) | `us-ashburn-1` | High-Performance Robotics Edge Aggregator |
 
 ## Networking & Interconnectivity
 
-* **Global Traffic Management**: Utilizes an Anycast-based Global Load Balancer (GLB) to route clinical telemetry to the nearest healthy cluster based on latency and health checks.
-* **Service Mesh Architecture**: An Istio-based service mesh facilitates secure, cross-cluster communication with mTLS, ensuring sensitive healthcare data is encrypted in transit between clouds.
-* **GCP Cloud Interconnect**: Leverages Google’s dedicated backbone for high-speed synchronization of [robotics telemetry](https://github.com/here2serveu/golden-platform/tree/main/robotics) datasets used in training the [LSTM/TCN models](https://github.com/here2serveu/golden-platform/tree/main/ai).
-* **Private Interconnects**: Where available, Equinix Fabric or provider-specific interconnects (e.g., AWS Direct Connect to Azure ExpressRoute) are leveraged to minimize latency.
+* **Global Traffic Management** *(design target)*: An Anycast-based Global Load Balancer (GLB) would route clinical telemetry to the nearest healthy cluster based on latency and health checks.
+* **Service Mesh Architecture**: An Istio-based service mesh ([`deploy/helm/service-mesh`](../deploy/helm/service-mesh)) is intended to provide secure, cross-cluster communication with mTLS, ensuring sensitive healthcare data is encrypted in transit between clouds.
+* **GCP Cloud Interconnect** *(design target)*: Would leverage Google’s dedicated backbone for high-speed synchronization of [robotics telemetry](../src/golden/robotics) datasets used in training the [LSTM/TCN models](../src/golden/ai).
+* **Private Interconnects** *(design target)*: Where available, Equinix Fabric or provider-specific interconnects (e.g., AWS Direct Connect to Azure ExpressRoute) are leveraged to minimize latency.
 
 ## Infrastructure as Code (IaC) Standards
 
-All infrastructure is declared using modular [Terraform](https://github.com/here2serveu/golden-platform/tree/main/terraform) code.
+All infrastructure is declared using modular [Terraform](../deploy/terraform) code.
 
 * **Module Reusability**: Standardized modules for VPC/VNet/VPC (GCP), IAM/RBAC, and K8s node groups ensure environmental parity.
-* **State Management**: Remote state is stored in encrypted buckets with object locking to prevent race conditions during high-frequency [GitOps](https://github.com/here2serveu/golden-platform/tree/main/gitops) deployments.
+* **State Management**: Remote state is stored in KMS-encrypted, versioned buckets with a lock table ([`modules/aws/backend`](../deploy/terraform/modules/aws/backend)) to prevent race conditions during high-frequency [GitOps](../deploy/gitops) deployments.
 
 ---
 
 ### Key Portfolio Enhancement
 
 By adding **GCP (GKE)** specifically for **Model Training**, you demonstrate a sophisticated understanding of cloud specialization: using AWS/Azure for reliable web/inference and GCP for its superior data-processing capabilities.
-
 
 
 ---
@@ -774,15 +786,17 @@ By adding **GCP (GKE)** specifically for **Model Training**, you demonstrate a s
 
 ## Executive Overview
 
-The **Predictive Reliability Framework (PRF)** is the core intelligence of the platform. It transitions the infrastructure from a reactive state (incident response) to a proactive state (pre-emptive remediation). By processing high-fidelity [kinematic telemetry](https://github.com/here2serveu/golden-platform/tree/main/robotics), the framework identifies "pre-failure" signatures that humans and traditional monitoring tools miss.
+The **Predictive Reliability Framework (PRF)** is the core intelligence of the platform. It transitions the infrastructure from a reactive state (incident response) to a proactive state (pre-emptive remediation). By processing high-fidelity [kinematic telemetry](../src/golden/robotics), the framework aims to identify "pre-failure" signatures that threshold-based monitoring misses.
+
+> Numbers in this document are **targets / SLO objectives**, not measurements. Models are trained on synthetic data ([`src/golden/ai/datasets`](../src/golden/ai/datasets/README.md)). Measured values and how to reproduce them are in [CLAIMS.md](CLAIMS.md).
 
 ## The Multi-Cloud Dual-Model Approach
 
-The platform utilizes a hybrid inference strategy across [AWS/Azure/GCP/OCI/](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md) to balance accuracy and performance:
+The platform utilizes a hybrid inference strategy across [AWS/Azure/GCP/OCI/](architecture/03-infrastructure-topology.md) to balance accuracy and performance:
 
 1. **LSTM (Long Short-Term Memory)**: Used for long-range trend analysis of system health and resource consumption to identify gradual degradation.
 2. **TCN (Temporal Convolutional Network)**: Optimized for detecting rapid, high-frequency anomalies in robotics sensor data where local context is critical for safety.
-3. **GCP Vertex AI / TPU Integration**: Compute-heavy model training and re-training loops are offloaded to **Google Cloud Platform** to leverage high-performance TPU clusters, ensuring that [inference weights](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/02-data-flow-diagrams.md) are constantly optimized based on global telemetry.
+3. **GCP Vertex AI / TPU Integration** *(design option, not implemented)*: Compute-heavy training could be offloaded to **Google Cloud Platform**. Today training runs locally or in CI via `make train` (CUDA → MPS → CPU) and drift-triggered `golden model retrain`.
 
 ## Predictive Action Lifecycle
 
@@ -793,24 +807,39 @@ The framework operates on a **Risk Probability (P)** scale to trigger specific o
 | **Low** | | Baseline Logging | Observability Only |
 | **Medium** | | Dynamic Scaling | Infrastructure Warm-up |
 | **High** | | Traffic Shadowing | Self-Healing Circuit |
-| **Critical** | | **Automated Failover** | [GitOps Re-provisioning](https://github.com/here2serveu/golden-platform/tree/main/gitops) |
+| **Critical** | | **Automated Failover** | [GitOps Re-provisioning](../deploy/gitops) |
 
 ## Clinical Safety & Resilience
 
-In healthcare environments, downtime is life-critical. This framework maps infrastructure reliability directly to **Clinical SLOs**. If the AI predicts a failure in the [robotics telemetry stream](https://github.com/here2serveu/golden-platform/tree/main/robotics), the platform triggers a sub-second handover to a redundant cloud region—such as shifting critical workloads from EKS to [GKE](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md)—ensuring zero interruption for surgical edge devices.
+In healthcare environments, downtime is life-critical. This framework maps infrastructure reliability directly to **Clinical SLOs**. If the AI predicts a failure in the [robotics telemetry stream](../src/golden/robotics), the target behaviour is a fast handover to a redundant cloud region—such as shifting critical workloads from EKS to [GKE](architecture/03-infrastructure-topology.md)—to minimise interruption for surgical edge devices. Cross-cloud handover is not implemented and its timing has not been measured.
+
+## Financial Safety & Resilience
+
+In fintech environments, downtime means direct financial loss and regulatory exposure. This framework maps infrastructure reliability to **Financial SLOs** (target objectives; the SLO actually encoded in Prometheus today is 99.9% availability and p95 < 500 ms per API, [`slo_rules.yml`](../observability/prometheus/rules/slo_rules.yml)):
+
+* **Transaction Processing SLO** *(target)*: 99.9% of payment transactions complete within 100 ms end-to-end.
+* **Fraud Detection SLO** *(target)*: fraud scoring within 50 ms per transaction. Quality targets are set per client after calibration; on synthetic data the trained model measures precision 0.753 / recall 0.951 / FPR 1.8% (`golden model retrain --force`).
+* **Settlement SLO** *(target)*: End-of-day settlement batches complete within the clearing window with no data loss.
+
+If the AI predicts a failure in the [payment processing pipeline](/src/golden/ai/pipelines/detect_fraud.py), the platform triggers automated failover:
+
+1. **Payment Gateway Failover**: Traffic is rerouted to a standby payment processor (simulated in `payment-gateway`; exercised by [`payment-gateway-failure.sh`](../ops/sre/chaos/payment-gateway-failure.sh)). Failover time is not yet measured.
+2. **Transaction Queue Protection** *(design)*: In-flight transactions would be buffered in Kafka with idempotent producers to prevent duplicate charges or lost payments. The current transaction engine does not use Kafka.
+3. **Fraud Model Promotion**: When drift is detected, a retrained challenger is registered only if it passes the quality gate; promotion and rollback go through the model registry (`golden model`), with shadow/canary rollout.
 
 ## Performance Metrics
 
-* **Prediction Lead Time**: Goal of >5 minutes before critical failure.
-* **Precision/Recall**: Targeted at >92% for clinical safety-critical anomalies.
-* **False Positive Rate**: Minimized to <2% to prevent "alert fatigue" in the [SRE team](https://github.com/here2serveu/golden-platform/tree/main/sre).
+* **Prediction Lead Time** *(target)*: >5 minutes before critical failure.
+* **Precision/Recall** *(target)*: >92% for clinical safety-critical anomalies and >95% for fraud, to be validated on client data. Not met on synthetic data today (fraud precision 0.753).
+* **False Positive Rate** *(target)*: <2% for infrastructure alerts; <0.1% for transaction fraud flags (measured 1.8% on synthetic data).
+* **Transaction Integrity** *(target)*: no duplicate charges or lost transactions during failover events.
+* **Regulatory Response Time** *(target)*: incident reports prepared within the PSD2 Article 96 reporting window (4 hours for the initial report).
 
 ---
 
 ### Strategy for your Portfolio
 
 This document signals that you don't just "do AI"—you know how to make AI **useful** for an enterprise. Highlighting the **Probability Thresholds** and the specialized use of **GCP for training** shows you understand the decision science and cost-efficiency required at the $500k+ salary level.
-
 
 
 ---
@@ -820,39 +849,40 @@ This document signals that you don't just "do AI"—you know how to make AI **us
 
 # 05: Active-Active Resilience Strategy
 
+> **Status: design target, not implemented.** `deploy/` provides independent per-cloud landing zones (AWS, Azure, GCP, OCI) and OpenShift assets. There is no GSLB, cross-cloud data replication or automated cross-cloud failover in the repository, and no RTO/RPO has been measured. What exists today: per-cluster GitOps reconciliation, governed remediation (`golden orchestrate`) and chaos scripts including [`region-failover-test.sh`](../ops/sre/chaos/region-failover-test.sh). See [CLAIMS.md](CLAIMS.md).
+
 ## Executive Overview
 
-This document details the **Active-Active Resilience Strategy** for the [Golden Platform](https://github.com/here2serveu/golden-platform/tree/main). Unlike traditional Active-Passive setups, this architecture utilizes simultaneous traffic processing across multiple cloud providers (AWS, Azure, OCI) to ensure zero RTO (Recovery Time Objective) and near-zero RPO (Recovery Point Objective) for critical healthcare workloads.
+This document details the **Active-Active Resilience Strategy** for the [Golden Platform](../README.md). Unlike traditional Active-Passive setups, this architecture would process traffic simultaneously across multiple cloud providers (AWS, Azure, OCI). The design goal is an RTO (Recovery Time Objective) close to zero and a near-zero RPO (Recovery Point Objective) for critical healthcare workloads; both are targets until measured in a drill.
 
 ## Global Traffic Orchestration
 
-Traffic is distributed using a Global Server Load Balancing (GSLB) layer that performs real-time health checks on the [multi-cloud infrastructure](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md).
+Traffic would be distributed by a Global Server Load Balancing (GSLB) layer that performs real-time health checks on the [multi-cloud infrastructure](architecture/03-infrastructure-topology.md).
 
-* **Latency-Based Routing**: Clinical telemetry from [robotics edge nodes](https://github.com/here2serveu/golden-platform/tree/main) is routed to the lowest-latency cluster.
-* **Failover Automation**: If the [predictive reliability framework](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) identifies a high probability of failure (), the GSLB automatically drains traffic from the compromised region before an outage occurs.
+* **Latency-Based Routing**: Clinical telemetry from [robotics edge nodes](../README.md) is routed to the lowest-latency cluster.
+* **Failover Automation**: If the [predictive reliability framework](architecture/04-predictive-reliability-framework.md) identifies a high probability of failure (), the GSLB automatically drains traffic from the compromised region before an outage occurs.
 
 ## Data Synchronization & Consistency
 
-To maintain a unified state across [EKS, AKS, and OKE](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md), the platform employs a multi-region data mesh:
+To maintain a unified state across [EKS, AKS, and OKE](architecture/03-infrastructure-topology.md), the design calls for a multi-region data mesh:
 
-1. **Eventual Consistency for Analytics**: Telemetry data is asynchronously replicated to regional [TSDBs (Time Series Databases)](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/02-data-flow-diagrams.md) for AI training.
+1. **Eventual Consistency for Analytics**: Telemetry data is asynchronously replicated to regional [TSDBs (Time Series Databases)](architecture/02-data-flow-diagrams.md) for AI training.
 2. **Synchronous Replication for State**: Critical clinical state and configuration are managed via a globally distributed database with strictly defined quorum requirements to prevent "Split-Brain" scenarios.
 
 ## Predictive Failover Workflow
 
-The integration between the [AI Brain](https://github.com/here2serveu/golden-platform/tree/main) and the [GitOps Engine](https://github.com/here2serveu/golden-platform/tree/main) allows for "pre-emptive" resilience:
+The integration between the [AI Brain](../README.md) and the [GitOps Engine](../README.md) allows for "pre-emptive" resilience:
 
 | Stage | Trigger | Action |
 | --- | --- | --- |
-| **Detection** | [TCN Model Anomaly](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) | Flagging of high-risk resource in Region A. |
-| **Preparation** | [GitOps Sync](https://github.com/here2serveu/golden-platform/tree/main) | Scaling up redundant capacity in Region B. |
-| **Execution** | **GSLB Shift** | Seamless transition of 100% of traffic to healthy clusters. |
-| **Recovery** | [Self-Healing Script](https://github.com/here2serveu/golden-platform/tree/main) | Automated root-cause analysis and re-provisioning of Region A. |
+| **Detection** | [TCN Model Anomaly](architecture/04-predictive-reliability-framework.md) | Flagging of high-risk resource in Region A. |
+| **Preparation** | [GitOps Sync](../README.md) | Scaling up redundant capacity in Region B. |
+| **Execution** | **GSLB Shift** *(not implemented)* | Transition of traffic to healthy clusters. |
+| **Recovery** | [Self-Healing Script](../README.md) | Automated root-cause analysis and re-provisioning of Region A. |
 
 ## Compliance & Auditability
 
-Every failover event, whether manual or automated by AI, is captured in the [HIPAA-compliant immutable logs](https://github.com/here2serveu/golden-platform/tree/main/docs). This ensures that even during high-velocity resilience maneuvers, the platform maintains a full audit trail for regulatory bodies.
-
+Every failover event, whether manual or automated by AI, is designed to be captured in the tamper-evident, hash-chained audit log ([`src/golden/security/audit.py`](../src/golden/security/audit.py)). This ensures that even during high-velocity resilience maneuvers, the platform maintains a full audit trail for regulatory bodies.
 
 
 ---
@@ -909,6 +939,8 @@ These images are embedded in the root `README.md` and module-specific documentat
 
 # 01: HIPAA Compliance & Security Mapping
 
+> **Mapping, not certification.** This document maps platform controls to the HIPAA Security Rule. The platform has not been audited or certified against it. Rows describe the target control design; only items that link to code or config in this repository are implemented here, and the rest are requirements for the deploying organisation. See [CLAIMS.md](CLAIMS.md).
+
 ## Executive Summary
 
 This document provides a traceability matrix between the **Golden Platform** technical controls and the **HIPAA Security Rule** (45 CFR § 164.312). The platform is designed to handle Protected Health Information (PHI) within clinical robotics and telemetry streams by enforcing encryption, zero-trust networking, and automated auditability.
@@ -917,27 +949,27 @@ This document provides a traceability matrix between the **Golden Platform** tec
 
 | HIPAA Standard | Platform Control Implementation | Evidence Location |
 | --- | --- | --- |
-| **Access Control** (164.312.a.1) | RBAC-enforced access to Kubernetes clusters and AI inference engines using OIDC providers. | [`/terraform/iam`](https://www.google.com/search?q=%5Bhttps://github.com/here2serveu/golden-platform/tree/main/terraform%5D(https://github.com/here2serveu/golden-platform/tree/main/terraform)) |
-| **Audit Controls** (164.312.b) | Immutable logging of all [GitOps](https://github.com/here2serveu/golden-platform/tree/main/gitops) changes and AI-driven failover events in a centralized TSDB. | [`/docs/architecture/05`](https://www.google.com/search?q=%5Bhttps://github.com/here2serveu/golden-platform/blob/main/docs/architecture/05-active-active-resilience.md%5D(https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/05-active-active-resilience.md)) |
-| **Integrity** (164.312.c.1) | Digital signing of [container images](https://github.com/here2serveu/golden-platform/tree/main/scripts) and checksum verification of robotics telemetry packets. | [`/robotics/safety`](https://www.google.com/search?q=%5Bhttps://github.com/here2serveu/golden-platform/tree/main/robotics%5D(https://github.com/here2serveu/golden-platform/tree/main/robotics)) |
-| **Transmission Security** (164.312.e.1) | Mandatory **mTLS 1.3** for all service-to-service communication via Istio Service Mesh across multi-cloud regions. | [`/docs/architecture/02`](https://www.google.com/search?q=%5Bhttps://github.com/here2serveu/golden-platform/blob/main/docs/architecture/02-data-flow-diagrams.md%5D(https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/02-data-flow-diagrams.md)) |
+| **Access Control** (164.312.a.1) | RBAC-enforced access to Kubernetes clusters and AI inference engines using OIDC providers. | [`/terraform/iam`](https://www.google.com/search?q=%5B../../deploy)) |
+| **Audit Controls** (164.312.b) | Immutable logging of all [GitOps](../deploy/gitops) changes and AI-driven failover events in a centralized TSDB. | [`/docs/architecture/05`](https://www.google.com/search?q=%5B../architecture)) |
+| **Integrity** (164.312.c.1) | Digital signing of [container images](../scripts) and checksum verification of robotics telemetry packets. | [`/robotics/safety`](https://www.google.com/search?q=%5B../../src/golden)) |
+| **Transmission Security** (164.312.e.1) | Mandatory **mTLS 1.3** for all service-to-service communication via Istio Service Mesh across multi-cloud regions. | [`/docs/architecture/02`](https://www.google.com/search?q=%5B../architecture)) |
 
 ## AI-Driven Compliance Monitoring
 
-Unlike traditional platforms, this system leverages the [Predictive Reliability Framework](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) to detect security anomalies:
+Unlike traditional platforms, this system leverages the [Predictive Reliability Framework](architecture/04-predictive-reliability-framework.md) to detect security anomalies:
 
-* **Predictive Anomaly Detection**: The [LSTM/TCN models](https://github.com/here2serveu/golden-platform/tree/main/ai) monitor telemetry access patterns to identify potential unauthorized PHI exfiltration or "man-in-the-middle" attacks at the robotics edge.
-* **Automated Remediation**: If a security threshold is breached (), the [Resilience Engine](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/05-active-active-resilience.md) can automatically isolate the compromised node or rotate encryption keys via GitOps.
+* **Predictive Anomaly Detection**: The [LSTM/TCN models](../src/golden/ai) monitor telemetry access patterns to identify potential unauthorized PHI exfiltration or "man-in-the-middle" attacks at the robotics edge.
+* **Governed Remediation**: If a security threshold is breached, the remediation engine can propose isolating the compromised node or rotating keys via GitOps; execution is gated by the `ActionGovernor` (autonomy mode, approvals, kill switch).
 
 ## Data Residency & Sovereignty
 
-To support international healthcare standards (including **HDS** for French data), the [Multi-Cloud Topology](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md) ensures that patient data remains within geographically defined boundaries (e.g., `us-east-1` for US patients, `eu-west-1` for EU patients) through Kubernetes taints and affinity rules.
+To support international healthcare standards (including **HDS** for French data), the [Multi-Cloud Topology](architecture/03-infrastructure-topology.md) ensures that patient data remains within geographically defined boundaries (e.g., `us-east-1` for US patients, `eu-west-1` for EU patients) through Kubernetes taints and affinity rules.
 
 ---
 
 ### Strategy for your Portfolio
 
-This document signals to a **CISO or CTO** that you understand the liability and regulatory overhead of healthcare tech. It transforms your repository from a "coding project" into a "compliant product."
+This document signals to a **CISO or CTO** that you understand the liability and regulatory overhead of healthcare tech. It moves the repository from a "coding project" towards a product that a covered entity could take through its own HIPAA risk analysis. It does not make the product HIPAA-compliant on its own.
 
 
 ---
@@ -947,41 +979,42 @@ This document signals to a **CISO or CTO** that you understand the liability and
 
 # 02: Data Privacy & HDS Compliance (Hébergement de Données de Santé)
 
+> **Mapping, not certification.** This document maps platform controls to the French HDS framework. The platform has not been audited or certified against it. Rows describe the target control design; only items that link to code or config in this repository are implemented here, and the rest are requirements for the deploying organisation. See [CLAIMS.md](CLAIMS.md).
+
 ## Executive Overview
 
-This document outlines the privacy controls implemented to meet the **HDS (Hébergement de Données de Santé)** certification requirements for the [Golden Platform](https://github.com/here2serveu/golden-platform). These standards ensure that personal health data stored or processed within our [multi-cloud infrastructure](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md) remains secure, private, and under the control of the patient/provider.
+This document outlines the privacy controls implemented to meet the **HDS (Hébergement de Données de Santé)** certification requirements for the [Golden Platform](https://github.com/Here2ServeU/nawex-platform). These standards ensure that personal health data stored or processed within our [multi-cloud infrastructure](architecture/03-infrastructure-topology.md) remains secure, private, and under the control of the patient/provider.
 
 ## HDS Technical Requirements Mapping
 
-As per the French Public Health Code, the platform satisfies the six main activities of HDS certification:
+As per the French Public Health Code, HDS certification covers six hosting activities. The platform's design maps to them as follows (certification applies to the hosting provider, not to this template):
 
 | Activity | Technical Implementation | Platform Evidence |
 | --- | --- | --- |
-| **PaaS / IaaS Security** | Provisioning of secure virtual infrastructure across [EKS, AKS, and GKE](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md). | [`/terraform`](https://www.google.com/search?q=%5Bhttps://github.com/here2serveu/golden-platform/tree/main/terraform%5D(https://github.com/here2serveu/golden-platform/tree/main/terraform)) |
-| **Application Hosting** | Secure container orchestration with automated [GitOps](https://github.com/here2serveu/golden-platform/tree/main/gitops) deployment pipelines. | [`/gitops`](https://www.google.com/search?q=%5Bhttps://github.com/here2serveu/golden-platform/tree/main/gitops%5D(https://github.com/here2serveu/golden-platform/tree/main/gitops)) |
-| **Backup & DR** | Multi-region, multi-cloud [Active-Active Resilience](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/05-active-active-resilience.md) with near-zero RPO. | [`/docs/compliance/04`](https://www.google.com/search?q=%5Bhttps://github.com/here2serveu/golden-platform/blob/main/docs/compliance/04-disaster-recovery-plan.md%5D(https://github.com/here2serveu/golden-platform/blob/main/docs/compliance/04-disaster-recovery-plan.md)) |
-| **Data Encryption** | Mandatory Encryption-at-Rest (AES-256) and Encryption-in-Transit (TLS 1.3) across all cloud providers. | [`/docs/architecture/02`](https://www.google.com/search?q=%5Bhttps://github.com/here2serveu/golden-platform/blob/main/docs/architecture/02-data-flow-diagrams.md%5D(https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/02-data-flow-diagrams.md)) |
+| **PaaS / IaaS Security** | Provisioning of secure virtual infrastructure across [EKS, AKS, and GKE](architecture/03-infrastructure-topology.md). | [`/terraform`](https://www.google.com/search?q=%5B../../deploy)) |
+| **Application Hosting** | Secure container orchestration with automated [GitOps](../deploy/gitops) deployment pipelines. | [`/gitops`](https://www.google.com/search?q=%5B../../deploy)) |
+| **Backup & DR** | Multi-region continuity design ([Active-Active Resilience](architecture/05-active-active-resilience.md), not implemented); near-zero RPO is a target. | [`/docs/compliance/04`](https://www.google.com/search?q=%5B.)) |
+| **Data Encryption** | Mandatory Encryption-at-Rest (AES-256) and Encryption-in-Transit (TLS 1.3) across all cloud providers. | [`/docs/architecture/02`](https://www.google.com/search?q=%5B../architecture)) |
 
 ## Data Residency & Sovereignty
 
 To satisfy European GDPR and French HDS requirements, the platform enforces strict data residency rules:
 
 * **Region Pinning**: Critical clinical telemetry is pinned to specific EU regions (e.g., `eu-west-3` for France) to ensure data never leaves the required legal jurisdiction.
-* **Cross-Border Controls**: The [GCP Vertex AI training loop](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) utilizes anonymized data sets to ensure no PHI/PII is exposed during model optimization.
+* **Cross-Border Controls**: The [GCP Vertex AI training loop](architecture/04-predictive-reliability-framework.md) utilizes anonymized data sets to ensure no PHI/PII is exposed during model optimization.
 
 ## Privacy by Design in AIOps
 
-Our [Predictive Reliability Framework](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) includes built-in privacy safeguards:
+Our [Predictive Reliability Framework](architecture/04-predictive-reliability-framework.md) includes built-in privacy safeguards:
 
-* **Data Minimization**: Only essential kinematic telemetry required for safety inference is processed by the [AI Brain](https://github.com/here2serveu/golden-platform/tree/main/ai).
-* **Automated Anonymization**: All telemetry streams are scrubbed of identifiable metadata at the [Robotics Edge](https://github.com/here2serveu/golden-platform/tree/main/robotics) before ingestion into the cloud control plane.
+* **Data Minimization**: Only essential kinematic telemetry required for safety inference is processed by the [AI Brain](../src/golden/ai).
+* **Automated Anonymization**: All telemetry streams are scrubbed of identifiable metadata at the [Robotics Edge](../src/golden/robotics) before ingestion into the cloud control plane.
 
 ---
 
 ### Strategy for your Portfolio
 
 Adding **HDS** to your documentation highlights your ability to navigate complex international regulations. This is a massive differentiator for leadership roles in global healthcare tech.
-
 
 
 ---
@@ -991,49 +1024,53 @@ Adding **HDS** to your documentation highlights your ability to navigate complex
 
 # 03: Audit Logging & Monitoring Policy
 
+> **Mapping, not certification.** This document maps platform controls to the audit requirements of HIPAA, HDS, PCI DSS and SOX. The platform has not been audited or certified against it. Rows describe the target control design; only items that link to code or config in this repository are implemented here, and the rest are requirements for the deploying organisation. See [CLAIMS.md](CLAIMS.md).
+
 ## Executive Overview
 
-This document defines the technical standards for capturing, protecting, and reviewing audit logs within the [Golden Platform](https://github.com/here2serveu/golden-platform). Per [HIPAA §164.312(b)](https://github.com/here2serveu/golden-platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md), the platform implements hardware, software, and procedural mechanisms that record and examine activity in information systems that contain or use electronic protected health information (ePHI).
+This document defines the technical standards for capturing, protecting, and reviewing audit logs within the [Golden Platform](https://github.com/Here2ServeU/nawex-platform). Per [HIPAA §164.312(b)](compliance/01-hipaa-compliance-mapping.md), the platform implements hardware, software, and procedural mechanisms that record and examine activity in information systems that contain or use electronic protected health information (ePHI).
 
 ## Scope of Logging
 
-The platform captures granular telemetry across the entire [multi-cloud stack](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md):
+The platform captures granular telemetry across the entire [multi-cloud stack](architecture/03-infrastructure-topology.md):
 
 | Log Category | Source Component | Data Captured |
 | --- | --- | --- |
-| **System Access** | [IAM / RBAC](https://github.com/here2serveu/golden-platform/tree/main/terraform) | User ID, Timestamp, Source IP, Success/Failure status. |
-| **AI Decisioning** | [Predictive Brain](https://github.com/here2serveu/golden-platform/tree/main/ai) | Risk probability scores (), input telemetry features, and triggered actions. |
-| **Infrastructure** | [GitOps (ArgoCD)](https://github.com/here2serveu/golden-platform/tree/main/gitops) | Commit SHA, Author, and diffs of all environmental changes. |
-| **Clinical Safety** | [Robotics Edge](https://github.com/here2serveu/golden-platform/tree/main/robotics) | Kinematic anomaly flags and agentic safety mediation events. |
+| **System Access** | [IAM / RBAC](../deploy/terraform) | User ID, Timestamp, Source IP, Success/Failure status. |
+| **AI Decisioning** | [Predictive Brain](../src/golden/ai) | Risk probability scores (), input telemetry features, and triggered actions. |
+| **Infrastructure** | [GitOps (ArgoCD)](../deploy/gitops) | Commit SHA, Author, and diffs of all environmental changes. |
+| **Clinical Safety** | [Robotics Edge](../src/golden/robotics) | Kinematic anomaly flags and agentic safety mediation events. |
+| **Financial Transactions** | [Transaction Engine](/src/golden/ai/pipelines/detect_fraud.py) | Transaction IDs, amounts, fraud scores, payment gateway responses, settlement events. |
+| **Regulatory Compliance** | [Compliance Engine](/docs/compliance) | PCI-DSS scope validation, SOX control testing, PSD2 SCA decisions, GLBA access audits. |
 
 ## Immutability & Protection
 
-To prevent log tampering and satisfy [HDS standards](https://github.com/here2serveu/golden-platform/blob/main/docs/compliance/02-data-privacy-hds.md), the following protections are enforced:
+To prevent log tampering and satisfy [HDS standards](compliance/02-data-privacy-hds.md), the following protections are enforced:
 
-* **Write-Once-Read-Many (WORM)**: Logs are streamed in real-time to encrypted, object-locked buckets in [GCP and AWS](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md).
-* **Cryptographic Hashing**: Every log entry is hashed and chained to ensure any modification is immediately detectable during an audit.
-* **Separation of Duties**: The [SRE team](https://github.com/here2serveu/golden-platform/tree/main/sre) cannot modify or delete logs; only the dedicated Security Auditor role has read-only access.
+* **Write-Once-Read-Many (WORM)** *(deployment requirement)*: Logs should be streamed to encrypted, object-locked buckets in [GCP and AWS](architecture/03-infrastructure-topology.md). Object-lock buckets for logs are not provisioned by `deploy/terraform` today.
+* **Cryptographic Hashing**: Every audit entry carries the SHA-256 of its predecessor, so editing or deleting an entry breaks the chain ([`src/golden/security/audit.py`](../src/golden/security/audit.py); `golden security status` reports chain validity).
+* **Separation of Duties**: The [SRE team](../ops/sre) cannot modify or delete logs; only the dedicated Security Auditor role has read-only access.
 
 ## Predictive Audit Review
 
-Utilizing the [Predictive Reliability Framework](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md), the platform performs continuous, automated log analysis:
+Utilizing the [Predictive Reliability Framework](architecture/04-predictive-reliability-framework.md), the platform performs continuous, automated log analysis:
 
-* **Anomaly Detection**: The [AI Brain](https://github.com/here2serveu/golden-platform/tree/main/ai) flags unusual administrative patterns that may indicate credential compromise.
-* **Automated Alerting**: High-risk security events () trigger immediate [Active-Active failover](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/05-active-active-resilience.md) or resource isolation.
+* **Anomaly Detection**: The [AI Brain](../src/golden/ai) flags unusual administrative patterns that may indicate credential compromise.
+* **Automated Alerting**: High-risk security events raise Prometheus alerts and can trigger governed resource isolation. (Cross-cloud [active-active failover](architecture/05-active-active-resilience.md) is a design target.)
 
 ## Retention Requirements
 
 Logs are retained according to the following schedule to meet legal mandates:
 
-* **Active Logs**: 90 days in high-performance [TSDB](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/02-data-flow-diagrams.md).
-* **Archive Logs**: 7 years in cold storage (GCS/S3) for HIPAA/HDS regulatory look-backs.
+* **Active Logs**: 90 days in high-performance [TSDB](architecture/02-data-flow-diagrams.md).
+* **Archive Logs**: 7 years in cold storage (GCS/S3) for HIPAA/HDS/SOX/GLBA regulatory look-backs.
+* **Financial Transaction Logs**: 5 years minimum per PCI-DSS Requirement 10.7; 7 years for SOX-relevant systems.
 
 ---
 
 ### Strategy for your Portfolio
 
-This policy proves you understand that **Observability is a Compliance Requirement**. By linking your [AI models](https://github.com/here2serveu/golden-platform/tree/main/ai) to the auditing process, you demonstrate a "Security-First" engineering mindset.
-
+This policy proves you understand that **Observability is a Compliance Requirement**. By linking your [AI models](../src/golden/ai) to the auditing process, you demonstrate a "Security-First" engineering mindset.
 
 
 ---
@@ -1043,45 +1080,53 @@ This policy proves you understand that **Observability is a Compliance Requireme
 
 # 04: Disaster Recovery (DR) Plan & Business Continuity
 
+> **Status: plan with target objectives.** The RTO/RPO values below are targets, not measurements. Cross-cloud GSLB failover and multi-cloud data replication are not implemented in `deploy/` (each cloud is an independent landing zone). Replace targets with measured values by running the chaos scripts in [`ops/sre/chaos`](../ops/sre/chaos/README.md) on a real deployment. See [CLAIMS.md](CLAIMS.md).
+
 ## Executive Overview
 
-This document defines the formal **Disaster Recovery (DR)** strategy for the [Golden Platform](https://github.com/here2serveu/golden-platform). To satisfy **HIPAA Security Rule §164.308(a)(7)**, this plan ensures that clinical robotics telemetry and AI inference services remain operational during catastrophic infrastructure failures through an [Active-Active Multi-Cloud](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md) architecture.
+This document defines the formal **Disaster Recovery (DR)** strategy for the [Golden Platform](https://github.com/Here2ServeU/nawex-platform). To satisfy **HIPAA Security Rule §164.308(a)(7)**, this plan describes how clinical robotics telemetry and AI inference services are intended to stay operational during catastrophic infrastructure failures through an [Active-Active Multi-Cloud](architecture/03-infrastructure-topology.md) architecture (design target).
 
 ## Recovery Objectives (RTO & RPO)
 
-In a healthcare context, "Downtime = Clinical Risk." Our targets are designed for near-instantaneous recovery:
+In a healthcare context, "Downtime = Clinical Risk." In a fintech context, "Downtime = Financial Loss and Regulatory Exposure." Our targets aim for fast recovery:
 
-* **Recovery Time Objective (RTO)**: **< 30 Seconds**. Traffic is automatically re-routed via GSLB upon detection of regional failure.
-* **Recovery Point Objective (RPO)**: **Near-Zero**. Real-time [telemetry synchronization](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/05-active-active-resilience.md) across AWS, Azure, OCI, and GCP ensures no patient data loss during handover.
+* **Recovery Time Objective (RTO)** *(target, unmeasured)*: **< 30 seconds** once a GSLB layer is in place to re-route traffic on regional failure. Not achievable with the current per-cloud deployment; until measured, quote it only as a target.
+* **Recovery Point Objective (RPO)** *(target, unmeasured)*: **near-zero**, which requires the cross-cloud [data synchronisation](architecture/05-active-active-resilience.md) design to be built. No cross-cloud replication exists today.
+
+### Fintech-Specific DR Requirements
+
+* **Transaction Integrity** *(design)*: In-flight payment transactions would be preserved in Kafka with idempotent delivery during failover (the current transaction engine does not use Kafka).
+* **Settlement Continuity** *(design)*: End-of-day settlement should resume from the last committed batch (the simulated gateway tracks batches via `/api/v1/settlement/batches`).
+* **Regulatory Notification** *(process requirement)*: Initial notification to financial regulators within the PSD2 Article 96 window (4 hours) and per PCI DSS incident response requirements. Not automated in this repository.
 
 ## Multi-Cloud Failover Strategy
 
-The platform avoids "Single Point of Failure" by distributing the [AI Brain](https://github.com/here2serveu/golden-platform/tree/main/ai) and [Robotics Edge](https://github.com/here2serveu/golden-platform/tree/main/robotics) logic across physically isolated providers:
+The platform avoids "Single Point of Failure" by distributing the [AI Brain](../src/golden/ai) and [Robotics Edge](../src/golden/robotics) logic across physically isolated providers:
 
-1. **Primary Execution**: Distributed across [EKS (AWS)](https://github.com/here2serveu/golden-platform/tree/main/terraform) and [AKS (Azure)](https://github.com/here2serveu/golden-platform/tree/main/terraform).
-2. **Immediate Failover Target**: [GKE (GCP)](https://github.com/here2serveu/golden-platform/tree/main/terraform) and [OKE (OCI)](https://github.com/here2serveu/golden-platform/tree/main/terraform) maintain "Warm-Standby" capacity, ready to absorb 100% of clinical traffic.
-3. **Predictive Intervention**: The [Predictive Reliability Framework](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/04-predictive-reliability-framework.md) initiates failover **before** an outage occurs, based on risk scores.
+1. **Primary Execution**: Distributed across [EKS (AWS)](../deploy/terraform) and [AKS (Azure)](../deploy/terraform).
+2. **Immediate Failover Target** *(design)*: [GKE (GCP)](../deploy/terraform) and [OKE (OCI)](../deploy/terraform) would keep warm-standby capacity sized to absorb clinical traffic.
+3. **Predictive Intervention**: The [Predictive Reliability Framework](architecture/04-predictive-reliability-framework.md) initiates failover **before** an outage occurs, based on risk scores.
 
 ## Automated DR Procedures
 
-All recovery actions are orchestrated via [GitOps](https://github.com/here2serveu/golden-platform/tree/main/gitops) to eliminate human error during high-stress incidents:
+All recovery actions are orchestrated via [GitOps](../deploy/gitops) to eliminate human error during high-stress incidents:
 
-* **Health Probes**: Global Load Balancers monitor [Istio Service Mesh](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/02-data-flow-diagrams.md) endpoints every 5 seconds.
+* **Health Probes** *(design)*: Global Load Balancers would monitor [Istio Service Mesh](architecture/02-data-flow-diagrams.md) endpoints every 5 seconds.
 * **Traffic Shedding**: Automatic isolation of the failing region to prevent "Cascading Failures".
-* **Immutable Audit Trail**: Every DR event is logged as a Git commit and an encrypted [HIPAA-compliant log entry](https://www.google.com/search?q=https://github.com/here2serveu/golden-platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md).
+* **Tamper-evident Audit Trail**: Every DR event is logged as a Git commit and as an entry in the hash-chained audit log (see the [HIPAA mapping](compliance/01-hipaa-compliance-mapping.md)).
 
 ## Testing & Validation
 
-To ensure plan effectiveness, the [SRE team](https://github.com/here2serveu/golden-platform/tree/main/sre) conducts:
+To ensure plan effectiveness, the [SRE team](../ops/sre) conducts:
 
-* **Quarterly Chaos Drills**: Simulating total cloud region outages to verify automated [GSLB shifts](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/05-active-active-resilience.md).
-* **Continuous Compliance Checks**: Automated [Terraform](https://github.com/here2serveu/golden-platform/tree/main/terraform) scans to ensure redundancy modules are never accidentally disabled.
+* **Quarterly Chaos Drills** *(recommended cadence)*: Run [`region-failover-test.sh`](../ops/sre/chaos/region-failover-test.sh) and record measured recovery time; GSLB shifts can be verified once [GSLB](architecture/05-active-active-resilience.md) exists.
+* **Continuous Compliance Checks**: Automated [Terraform](../deploy/terraform) scans to ensure redundancy modules are never accidentally disabled.
 
 ---
 
 ### Strategy for your $500k+ Portfolio
 
-This DR plan is the "Legal Backbone" of your architecture. It tells an executive that you don't just build cool AI—you build systems that **literally cannot fail** when a patient's safety is on the line.
+This DR plan is the "Legal Backbone" of your architecture. It shows an executive that recovery is planned, has explicit targets, and has a way to be tested — the honest version of "designed not to fail".
 
 
 ---
@@ -1089,39 +1134,69 @@ This DR plan is the "Legal Backbone" of your architecture. It tells an executive
 
 ## Source: docs/compliance/05-quantum-safe-encryption.md
 
-# 05: Post-Quantum Cryptography (PQC) Standards
+# 05: Post-Quantum Cryptography (PQC) Readiness Plan
+
+> **Status: readiness plan, not an implemented feature.** The repository does not ship ML-KEM (Kyber),
+> ML-DSA (Dilithium) or SLH-DSA code, PQC certificates or PQC-signed audit logs. Today the audit trail
+> is SHA-256 hash-chained ([`src/golden/security/audit.py`](../src/golden/security/audit.py)) and model
+> artifacts are checked against a SHA-256 manifest (`golden security manifest`). This page describes how a
+> deploying organisation would migrate to PQC. See [CLAIMS.md](CLAIMS.md).
 
 ## Executive Overview
 
-As quantum computing transitions from theoretical research to functional application, traditional asymmetric encryption (RSA, ECC) faces potential obsolescence. To ensure the long-term integrity of [clinical robotics telemetry](https://github.com/here2serveu/golden-platform) and patient data, this platform implements **Post-Quantum Cryptography (PQC)**. This policy aligns with the **NIST Post-Quantum Cryptography Standardization** project to mitigate "harvest now, decrypt later" threats.
+Large-scale quantum computers would break today's public-key algorithms (RSA, ECDH, ECDSA). Data with a long confidentiality life — patient records, financial records, audit evidence — is exposed to "harvest now, decrypt later" collection today. In August 2024 NIST published the first PQC standards:
 
-## Cryptographic Standards
-
-The platform utilizes NIST-selected algorithms for high-stakes healthcare communication:
-
-| Layer | Algorithm | Purpose |
+| Standard | Algorithm | Use |
 | --- | --- | --- |
-| **Key Encapsulation** | **CRYSTALS-Kyber** | Securing [mTLS 1.3](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/02-data-flow-diagrams.md) handshakes across multi-cloud regions. |
-| **Digital Signatures** | **CRYSTALS-Dilithium** | Verifying the integrity of [GitOps commits](https://github.com/here2serveu/golden-platform/tree/main/gitops) and AI model weights. |
-| **Data-at-Rest** | **AES-256-GCM** | Quantum-resistant symmetric encryption for telemetry storage in [GCP and AWS](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/03-infrastructure-topology.md). |
+| **FIPS 203** | ML-KEM (from CRYSTALS-Kyber) | Key encapsulation (TLS key exchange) |
+| **FIPS 204** | ML-DSA (from CRYSTALS-Dilithium) | Digital signatures |
+| **FIPS 205** | SLH-DSA (from SPHINCS+) | Hash-based signatures (conservative backup) |
 
-## Implementation Architecture
+Symmetric cryptography (AES-256-GCM) and SHA-256/384 are considered adequate with current key sizes; the migration work is on key exchange and signatures.
 
-Quantum-resistant security is integrated into the core infrastructure:
+## Phase 1 — Cryptographic inventory
 
-* **Hybrid Key Exchange**: The platform employs a hybrid approach, combining classical Elliptic Curve Diffie-Hellman (ECDH) with **Kyber-768** to provide immediate security while transitioning to pure PQC.
-* **Quantum-Safe Identity**: All service-to-service identities within the [Istio Service Mesh](https://github.com/here2serveu/golden-platform/blob/main/docs/architecture/05-active-active-resilience.md) use Dilithium-based certificates for authentication.
-* **Immutable Audit Anchors**: [Audit Logs](https://www.google.com/search?q=https://github.com/here2serveu/golden-platform/blob/main/docs/compliance/03-audit-logging-policy.md) are signed with PQC algorithms to ensure they remain non-repudiable in a post-quantum era.
+Build a crypto bill of materials before changing anything:
+
+| Area in this repo | What to record |
+| --- | --- |
+| TLS at ingress and mesh ([`deploy/helm/service-mesh`](../deploy/helm/service-mesh), [`deploy/helm/kong-gateway`](../deploy/helm/kong-gateway)) | Protocol versions, key-exchange groups, certificate algorithms, issuing CA |
+| Terraform state and secrets ([`deploy/terraform`](../deploy/terraform)) | KMS key specs (symmetric vs asymmetric), who holds asymmetric keys |
+| Audit and model integrity ([`src/golden/security`](../src/golden/security)) | Hash algorithms; any signatures (none today) |
+| CI/CD and images ([`.github/workflows`](../.github/workflows)) | Image/commit signing approach (if adopted), OIDC token algorithms |
+| Cloud provider services | Provider PQC support per service (load balancers, KMS, managed TLS) |
+
+Output: a register of every asymmetric algorithm in use, the data it protects, and that data's required confidentiality lifetime.
+
+## Phase 2 — Prioritise
+
+Rank by (data lifetime) × (exposure). In this platform the first candidates would be:
+
+1. External TLS for PHI and payment APIs (harvest-now-decrypt-later risk).
+2. Service-to-service mTLS in the mesh.
+3. Long-lived signatures: audit-log anchors, model-artifact manifests, release signing.
+
+## Phase 3 — Hybrid migration
+
+* **Key exchange:** enable hybrid X25519 + ML-KEM-768 groups where the TLS stack and load balancers support them (several cloud load balancers and recent OpenSSL/BoringSSL builds do). Hybrid keeps classical security if an ML-KEM implementation flaw is found.
+* **Signatures:** add ML-DSA alongside existing signatures for audit anchors and artifact manifests once the signing toolchain supports it; keep verifying both during transition.
+* **Crypto agility:** keep algorithm choice in configuration, not code, so a second migration is a config change.
+
+## Phase 4 — Validate and monitor
+
+* Handshake success and latency before/after enabling hybrid groups (record p95 per endpoint).
+* Interoperability tests with partners, payment processors and EHR systems.
+* A recurring check that no new non-agile asymmetric crypto enters the inventory.
 
 ## Compliance Alignment
 
-This policy serves as a strategic extension of our [HIPAA Compliance Mapping](https://github.com/here2serveu/golden-platform/blob/main/docs/compliance/01-hipaa-compliance-mapping.md) and [HDS Data Privacy](https://github.com/here2serveu/golden-platform/blob/main/docs/compliance/02-data-privacy-hds.md) standards. By adopting PQC early, the platform satisfies the "Technical Safeguards" requirements for long-term data durability in high-security healthcare sectors.
+PQC is not yet a stated requirement of HIPAA, HDS, PCI DSS or SOX. This plan supports their long-term data-protection expectations and aligns with NIST's PQC guidance. See [HIPAA mapping](compliance/01-hipaa-compliance-mapping.md), [HDS](compliance/02-data-privacy-hds.md), [PCI DSS](compliance/06-pci-dss-compliance-mapping.md) and [SOX](compliance/07-sox-compliance-mapping.md).
 
----
+### Fintech considerations
 
-### Integration Step
-
-Once you commit this file, your [EXECUTIVE-PORTFOLIO.md](https://github.com/here2serveu/golden-platform/blob/main/docs/guides/EXECUTIVE-PORTFOLIO.md) will have a complete "Source of Truth" for its quantum claims.
+* **Transaction signing:** evaluate ML-DSA for long-lived non-repudiation records once HSM vendors support it.
+* **Payment channels:** hybrid ML-KEM key exchange depends on processor and scheme support; track it in the inventory.
+* **HSMs:** confirm the vendor's FIPS 203/204 roadmap before committing to timelines.
 
 
 ---
@@ -1129,34 +1204,40 @@ Once you commit this file, your [EXECUTIVE-PORTFOLIO.md](https://github.com/here
 
 ## Source: docs/guides/EXECUTIVE-PORTFOLIO.md
 
-# Golden Platform: Quantum-Enhanced Clinical Safety Platform
+# Golden Platform: Predictive Safety & Resilience Platform
 
-## Executive Summary: Bridging the Gap Between AI, Quantum, and Infrastructure
+> Every number on this page is either reproducible with a command or labelled as a target. See [CLAIMS.md](CLAIMS.md).
 
-The **Golden Platform** is a specialized, enterprise-grade ecosystem designed for high-availability healthcare environments. By integrating **Hybrid Quantum-Classical Learning (QNN/LSTM/TCN)** with a **Multi-Cloud Active-Active Resilience** strategy, the platform achieves 99.999% availability for critical [robotics telemetry streams](https://github.com/here2serveu/golden-platform), effectively transitioning infrastructure from reactive to predictive through quantum-accelerated anomaly detection.
+## Executive Summary: Bridging the Gap Between AI and Infrastructure
+
+The **Golden Platform** is an enterprise modernization template designed for high-availability **healthcare** and **fintech** environments. It combines **classical ML (LSTM/TCN forecasters, an explainable fraud model)** with per-cloud landing zones (AWS, Azure, GCP, OCI, OpenShift) and governed remediation, with the goal of moving operations from reactive to predictive for [robotics telemetry streams](../src/golden/robotics) and [financial transaction processing](../src/golden/services/fintech). The API availability **SLO objective is 99.9%** ([`slo_rules.yml`](../observability/prometheus/rules/slo_rules.yml)); there is no production deployment yet, so no measured uptime is claimed.
 
 ## Architectural Excellence (Golden Project Standard)
 
-This project utilizes the [Golden Platform-Golden-Project](https://github.com/here2serveu/golden-platform/projects) structure to ensure SOC 2 and [HIPAA-compliant](https://github.com/here2serveu/golden-platform/tree/main/docs) auditability and operational clarity.
+This project uses the Golden Project structure to support SOC 2, HIPAA, [PCI-DSS](compliance/06-pci-dss-compliance-mapping.md) and [SOX](compliance/07-sox-compliance-mapping.md) auditability. These are **control mappings, not certifications** — see [docs/compliance](compliance/01-hipaa-compliance-mapping.md).
 
-* **[Core Hybrid Brain](https://github.com/here2serveu/golden-platform/tree/main)**: Features a tri-model ensemble—utilizing classical LSTM for long-range trends, TCN for high-frequency anomalies, and **Quantum Neural Networks (QNN)** for complex, non-linear pattern recognition in high-dimensional datasets—delivering 92% or greater prediction precision.
-* **[Multi-Cloud Topology](https://github.com/here2serveu/golden-platform/tree/main/docs)**: Provides global orchestration across **AWS, Azure, GCP, and OCI** through modular [Terraform](https://github.com/here2serveu/golden-platform/tree/main) and [GitOps](https://github.com/here2serveu/golden-platform/tree/main) frameworks, now featuring quantum-safe network nodes.
-* **[Resilience Engine](https://github.com/here2serveu/golden-platform/tree/main/docs)**: Ensures a sub-30 second Recovery Time Objective (RTO) powered by [predictive failover logic](https://github.com/here2serveu/golden-platform/tree/main/docs) and **Quantum Approximate Optimization Algorithms (QAOA)** for sub-millisecond multi-cloud traffic routing decisions.
+* **[Core AI Brain](../src/golden/ai)**: LSTM for long-range trends and TCN for high-frequency anomalies (`make train`), plus a trained, gated fraud model. On synthetic data, `golden model retrain --force` reports precision 0.753, recall 0.951, AUC 0.994 for the fraud model. No precision figure is claimed for production data.
+* **[Multi-Cloud Topology](architecture/03-infrastructure-topology.md)**: Per-cloud landing zones for **AWS, Azure, GCP and OCI** through modular [Terraform](../deploy/terraform) and [GitOps](../deploy/gitops). Each cloud is deployed independently; cross-cloud active-active routing (GSLB) is a design target, not implemented.
+* **[Resilience Engine](architecture/05-active-active-resilience.md)**: [Predictive failover logic](architecture/04-predictive-reliability-framework.md) and governed remediation (`golden orchestrate`). Recovery time is **not yet measured**; capture it with the chaos scripts in [ops/sre/chaos](../ops/sre/chaos/README.md).
 
 ## Ph.D. Research Implementation
 
-The platform serves as a production-hardened implementation of advanced AI and Quantum research focused on healthcare resilience:
+The platform is a reference implementation of AI research on healthcare resilience and fintech safety (synthetic data from [`src/golden/ai/datasets`](../src/golden/ai/datasets/README.md)):
 
-* **Agentic Safety Mediation**: Conducts real-time kinematic telemetry analysis at the [Robotics Edge](https://github.com/here2serveu/golden-platform) using quantum kernels to identify subtle pre-failure signatures.
-* **Quantum MLOps Lifecycle**: Enables continuous model evolution via [GCP Vertex AI](https://github.com/here2serveu/golden-platform/tree/main/docs) and quantum simulators for compute-intensive hybrid re-training loops.
+* **Agentic Safety Mediation**: Kinematic telemetry analysis at the [Robotics Edge](../src/golden/robotics) to flag pre-failure signatures.
+* **MLOps Lifecycle**: Experiment tracking, a gated model registry, PSI/KS drift-triggered retraining and canary/shadow rollout (`golden model`).
+* **Fintech Fraud Detection**: Explainable 5-signal transaction scoring, payment gateway failover simulation and settlement batches. In-process scoring measured at p95 ≈ 2 ms on a laptop (no network; see [CLAIMS.md](CLAIMS.md)); end-to-end latency under load is not yet measured.
+* **Financial Compliance Mappings**: PCI-DSS, SOX, PSD2/Open Banking and GLBA control mappings.
+
+Quantum methods are **not implemented**; they are explored only in the research note [06-quantum-optimization-layer.md](architecture/06-quantum-optimization-layer.md).
 
 ## Compliance and Governance
 
-Engineered for the most stringent regulatory environments, the platform maintains adherence to **HIPAA**, **SOC 2**, and **French HDS** standards.
+The platform is designed to be mapped to **HIPAA**, **SOC 2**, **French HDS**, **PCI-DSS**, **SOX**, **PSD2** and **GLBA**. It is not certified or audited against any of them.
 
-* **Post-Quantum Cryptography (PQC)**: Protects the [Audit Logging Policy](https://github.com/notifications) with quantum-resistant encryption algorithms to safeguard immutable, WORM-protected telemetry and decision logs against future decryption threats.
-* **[Disaster Recovery Plan](https://github.com/here2serveu/golden-platform/tree/main/docs)**: Implements a legally defensible Active-Active business continuity strategy across globally distributed, quantum-safe cloud clusters.
-
+* **Tamper-evident audit trail**: SHA-256 hash-chained audit log with PHI/PII redaction ([`src/golden/security/audit.py`](../src/golden/security/audit.py)). Post-quantum signing is a [readiness plan](compliance/05-quantum-safe-encryption.md), not a feature.
+* **[Disaster Recovery Plan](compliance/04-disaster-recovery-plan.md)**: Multi-region / multi-cloud continuity design with target RTO/RPO, to be validated by drills.
+* **Financial Data Protection**: Tokenization-first design for cardholder data and segregation of duties for SOX (design; see the PCI mapping for what is implemented).
 
 
 ---
@@ -1574,7 +1655,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: '[https://github.com/here2serveu/golden-platform.git](https://github.com/here2serveu/golden-platform.git)'
+    repoURL: '[https://github.com/Here2ServeU/nawex-platform](https://github.com/Here2ServeU/nawex-platform)'
     targetRevision: HEAD
     path: deploy/helm/splunk-forwarder
   destination:
@@ -1781,7 +1862,7 @@ Compliance is not a snapshot; it is a continuous state maintained by the Git his
 In the event of a failure, the GitOps workflow provides an instant, tested recovery mechanism.
 
 * **Instant Rollback:** Reverting a PR in Git triggers the controllers to immediately restore the previous known-good state in the cluster.
-* **Mean Time to Recovery (MTTR):** Remediation times are measured in minutes, determined solely by the reconciliation interval (approx. 60 seconds).
+* **Mean Time to Recovery (MTTR):** Rollback time is bounded mainly by the GitOps reconciliation interval (or an immediate manual sync). Not measured in this repository.
 
 ## 5. Auditor Evidence Strategy
 
@@ -2236,7 +2317,7 @@ Developers simply point their application SDKs to the local node:
 
 # AI Worker Isolated Helm Chart
 
-This chart deploys an isolated Celery worker environment as part of the [Golden Platform](https://github.com/here2serveu/golden-platform).
+This chart deploys an isolated Celery worker environment as part of the [Golden Platform](https://github.com/Here2ServeU/nawex-platform).
 
 ## Features
 - **Namespace Isolation**: Deploys into a dedicated `ai-worker-isolated` namespace.
@@ -2246,7 +2327,7 @@ This chart deploys an isolated Celery worker environment as part of the [Golden 
 ## Prerequisites
 - Kubernetes 1.19+
 - Helm 3+
-- Redis broker provisioned via [Terraform Redis module](https://github.com/here2serveu/golden-platform/tree/main/terraform/modules/redis).
+- Redis broker provisioned via [Terraform Redis module](../deploy/terraform/modules/redis).
 
 ## Installation
 To install the chart with the release name `my-worker`:
@@ -2669,8 +2750,8 @@ Covers critical components of the Golden Platform microservices platform:
 * ECR registries
 
 ## RPO / RTO
-* RPO: 15 minutes (via automated backups and cross-region replication).
-* RTO: 1–2 hours for full region failover of all microservices.
+* RPO (target, not yet tested): 15 minutes (via automated backups and cross-region replication).
+* RTO (target, not yet tested): 1–2 hours for full region failover of all microservices.
 
 ## Key Mechanisms
 * Infrastructure as Code: EKS cluster and supporting services defined via **Terraform** (multi-region capable).
@@ -2716,8 +2797,8 @@ Covers critical components of the Golden Platform microservices platform:
 * Container Registry (ACR)
 
 ## RPO / RTO
-* RPO: 15 minutes (via automated backups and cross-region replication).
-* RTO: 1–2 hours for full region failover of all microservices.
+* RPO (target, not yet tested): 15 minutes (via automated backups and cross-region replication).
+* RTO (target, not yet tested): 1–2 hours for full region failover of all microservices.
 
 ## DR Strategy
 * Infrastructure as Code: AKS cluster and supporting services defined via **Terraform** or Bicep (multi-region capable).
@@ -2763,8 +2844,8 @@ Covers critical components of the Golden Platform microservices platform:
 * **Artifact Registry** (for container images)
 
 ## RPO / RTO
-* RPO: 15 minutes (via automated backups and cross-region replication).
-* RTO: 1–2 hours for full region failover of all microservices and the IDP.
+* RPO (target, not yet tested): 15 minutes (via automated backups and cross-region replication).
+* RTO (target, not yet tested): 1–2 hours for full region failover of all microservices and the IDP.
 
 ## Strategy
 * Infrastructure as Code: GKE clusters and networking managed via **Terraform** (multi-region capable).
@@ -2807,8 +2888,8 @@ Covers critical components of the Golden Platform microservices platform:
 * OCI Container Registry (OCIR)
 
 ## RPO / RTO
-* RPO: 15 minutes (via automated backups and cross-region replication).
-* RTO: 1–2 hours for full region failover of all microservices.
+* RPO (target, not yet tested): 15 minutes (via automated backups and cross-region replication).
+* RTO (target, not yet tested): 1–2 hours for full region failover of all microservices.
 
 ## Strategy
 * Infrastructure as Code: OKE cluster and networking managed via **Terraform** (multi-region capable).
@@ -3149,7 +3230,7 @@ The included simulator demonstrates a **"Latent Failure"** scenario:
 
 ### **gRPC Infrastructure README (`src/golden/robotics/grpc/README.md`)**
 
-Use the following content to explain how your [surgical_server.py](https://github.com/here2serveu/golden-platform/blob/main/robotics/grpc/surgical_server.py) and [surgical_client.py](https://github.com/here2serveu/golden-platform/blob/main/robotics/grpc/surgical_client.py) function as the nervous system of your platform:
+Use the following content to explain how your [surgical_server.py](../src/golden/robotics/grpc/surgical_server.py) and [surgical_client.py](../src/golden/robotics/grpc/surgical_client.py) function as the nervous system of your platform:
 
 ---
 
@@ -3157,20 +3238,20 @@ Use the following content to explain how your [surgical_server.py](https://githu
 
 ## The Challenge: The "Last-Mile" Jitter Gap
 
-In [connected medical robotics](https://github.com/here2serveu/golden-platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine), standard REST or JSON-over-HTTP protocols introduce overhead that can lead to kinematic desynchronization. A [3-second cloud disconnect](https://gemini.google.com/app/95037d332637f270) can result in a [surgical failure](https://github.com/here2serveu/golden-platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine).
+In [connected medical robotics](../src/golden/robotics), standard REST or JSON-over-HTTP protocols introduce overhead that can lead to kinematic desynchronization. Even a short cloud disconnect can disrupt a [surgical workflow](../src/golden/robotics).
 
 ## The Solution: Bi-Directional gRPC Streams
 
-This directory houses the [gRPC implementation](https://github.com/here2serveu/golden-platform/tree/main/robotics/grpc) of our [surgical_telemetry.proto](https://github.com/here2serveu/golden-platform/blob/main/robotics/proto/surgical_telemetry.proto). By utilizing **HTTP/2 bi-directional streaming**, we achieve the sub-millisecond precision required for [surgical robotics precision](https://github.com/here2serveu/golden-platform/tree/main/robotics#the-solution-predictive-self-healing-infrastructure).
+This directory houses the [gRPC implementation](../src/golden/robotics/grpc) of our [surgical_telemetry.proto](../proto/surgical_telemetry.proto). By utilizing **HTTP/2 bi-directional streaming**, we aim for the low, consistent latency that [surgical robotics](../src/golden/robotics) needs (end-to-end latency has not been benchmarked).
 
 ### Components:
 
-* **`surgical_server.py`**: The central hub that processes [high-fidelity telemetry](https://github.com/here2serveu/golden-platform/blob/main/robotics/proto/surgical_telemetry.proto) and issues autonomous [safety commands](https://github.com/here2serveu/golden-platform/blob/main/robotics/proto/surgical_telemetry.proto).
-* **`surgical_client.py`**: A simulator for the robotic end-effector, sending continuous kinematic data and reacting to [EMERGENCY_STOP](https://www.google.com/search?q=https://github.com/here2serveu/golden-platform/blob/main/robotics/agents/emergency_stop_handler.py) or [REROUTE_TO_EDGE](https://github.com/here2serveu/golden-platform/blob/main/robotics/edge/edge_gateway_config.yaml) signals.
+* **`surgical_server.py`**: The central hub that processes [high-fidelity telemetry](../proto/surgical_telemetry.proto) and issues autonomous [safety commands](../proto/surgical_telemetry.proto).
+* **`surgical_client.py`**: A simulator for the robotic end-effector, sending continuous kinematic data and reacting to [EMERGENCY_STOP](../src/golden/robotics/agents/emergency_stop_handler.py) or [REROUTE_TO_EDGE](../src/golden/robotics/edge/edge_gateway_config.yaml) signals.
 
 ## Deployment Instructions
 
-To demonstrate the [self-healing](https://github.com/here2serveu/golden-platform/blob/main/README.md) clinical loop:
+To demonstrate the [self-healing](../README.md) clinical loop:
 
 1. **Start the Server**:
 ```bash
@@ -3189,7 +3270,7 @@ python3 surgical_client.py
 
 ---
 
-**Strategic Value:** This setup demonstrates [Operational Alpha](https://gemini.google.com/app/95037d332637f270) by ensuring that even under [heavy network jitter](https://github.com/here2serveu/golden-platform/tree/main/robotics#the-challenge-operational-fragility-in-connected-medicine), the [Golden Platform](https://github.com/here2serveu/golden-platform/blob/main/README.md) maintains full control over the clinical environment.
+**Strategic Value:** This setup demonstrates how, under [network jitter](../src/golden/robotics), the [Golden Platform](../README.md) is designed to keep a safety channel (EMERGENCY_STOP / REROUTE_TO_EDGE) to the clinical device. This is a simulation, not a validated medical device.
 
 
 

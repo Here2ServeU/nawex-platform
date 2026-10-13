@@ -27,7 +27,7 @@ Clone it, rename it, choose your cloud, and run one command. You get:
 
 ---
 
-## Quick start (local, ~5 minutes)
+## Quick start (local)
 
 ```bash
 git clone https://github.com/Here2ServeU/nawex-platform && cd nawex-platform

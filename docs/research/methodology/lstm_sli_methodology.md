@@ -1,7 +1,7 @@
 # LSTM Service Level Indicator Prediction: Methodology
 
 **Golden Platform Research Division | Rev. Dr. Emmanuel Naweji, PhD**
-**Status:** Production Deployed | v2.0 | April 2026
+**Status:** Reference implementation (synthetic data; not production-deployed) | v2.0 | April 2026
 
 ---
 
@@ -10,12 +10,14 @@
 We present a Long Short-Term Memory (LSTM) neural network architecture for
 proactive service-level indicator (SLI) forecasting in mission-critical enterprise
 systems. The model ingests multivariate time-series telemetry (API latency, error
-rate, CPU utilization) and predicts SLO violations 6 intervals ahead with 95.6%
+rate, CPU utilization) and predicts SLO violations 6 intervals ahead, with targets of 95.6%
 precision and 92.3% recall. Deployed within the Golden Platform AIOps platform, this model
-enables autonomous proactive remediation — reducing mean time to detect (MTTD)
-by an estimated 73% versus threshold-based alerting. The implementation references
+enables autonomous proactive remediation — aiming to reduce mean time to detect (MTTD)
+versus threshold-based alerting (the earlier 73% estimate is unsourced). The implementation references
 `src/golden/ai/models/lstm/lstm_model.py` (`LSTMSLIPredictor`) and
 `src/golden/ai/prediction/lstm_predictor.py`.
+
+> **Evidence status.** This system is a reference implementation evaluated on synthetic data ([`src/golden/ai/datasets`](../../../src/golden/ai/datasets/README.md)); it is not deployed in production and has no client results. The performance figures below (R² 0.961, precision 95.6%, recall 92.3%, 53% RMSE reduction, TCN 94.8%/91.7%) are **design targets carried over from an earlier version and are not reproduced by any command in this repository** — treat them as [needs source] until re-measured. To produce real numbers, run `make train` (LSTM/TCN on synthetic SLI data) and record the reported metrics here. See [CLAIMS.md](../../CLAIMS.md).
 
 ---
 

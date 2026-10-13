@@ -60,7 +60,7 @@ class ImpactEstimator:
         clinical_risk_score: float,
         patients_monitored_per_day: int,
         baseline_readmission_rate: float | None = None,
-        model_sensitivity: float = 0.971,
+        model_sensitivity: float = 0.971,  # assumed target, not measured; pass measured values
         model_specificity: float = 0.945,
     ) -> dict[str, Any]:
         """
@@ -128,7 +128,7 @@ class ImpactEstimator:
         phi_risk_score: float,
         records_at_risk: int,
         detection_lead_time_hours: float = 4.0,
-        model_precision: float = 0.956,
+        model_precision: float = 0.956,  # assumed target, not measured; pass measured values
     ) -> dict[str, Any]:
         """
         Estimate financial exposure from PHI breach risk detected by the platform.
@@ -236,7 +236,7 @@ class ImpactEstimator:
         fraud_score: float,
         transaction_amount: float,
         transactions_per_day: int,
-        model_precision: float = 0.956,
+        model_precision: float = 0.956,  # assumed target, not measured; pass measured values
         model_recall: float = 0.923,
     ) -> dict[str, Any]:
         """

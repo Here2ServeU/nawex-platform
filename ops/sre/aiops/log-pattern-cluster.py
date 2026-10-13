@@ -1,7 +1,7 @@
 # ===========================================================================
 # Golden Platform
 # Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
-# https://github.com/here2serveu/golden-platform
+# https://github.com/Here2ServeU/nawex-platform
 # ===========================================================================
 # Demonstration of log clustering using TF-IDF + KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer

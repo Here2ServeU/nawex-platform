@@ -1,12 +1,13 @@
 # Golden Platform API Specifications
 
-## Three-API Strategy
+> **What exists today vs. what is proposed.** Every FastAPI service in `src/golden` serves its live OpenAPI document at `/openapi.json` and interactive docs at `/docs` (for example `http://localhost:8000/docs` after `make up`). gRPC contracts for the robotics domain are in [`proto/surgical_telemetry.proto`](../../proto/surgical_telemetry.proto) and [`proto/surgical.proto`](../../proto/surgical.proto). The multi-tenant REST v2 surface, the `TransactionService` gRPC contract and the SDKs below are a **proposed design**, not implemented. There is no GraphQL API. See [CLAIMS.md](../CLAIMS.md).
 
-Golden Platform provides three API options for maximum flexibility:
+## Two-API Strategy
 
-1. **REST API** - Standard JSON endpoints (70% of use cases)
-2. **GraphQL API** - Efficient data querying (20% of use cases)
-3. **gRPC** - High-performance services (10% of use cases)
+Golden Platform uses two API styles:
+
+1. **REST API** - JSON endpoints with OpenAPI (most use cases)
+2. **gRPC** - Streaming, service-to-service and robotics telemetry
 
 ---
 
@@ -208,166 +209,10 @@ X-RateLimit-Reset: 1645177200
 
 ---
 
-## GraphQL API
-
-### Design Benefits
-- Client specifies exact fields needed
-- Single round-trip for complex data
-- Better performance for mobile/bandwidth-limited
-- Rich developer experience
-
-### Base URL
-```
-POST https://api.golden-platform.example/graphql?tenantId={tenantId}
-```
-
-### Schema
-
-```graphql
-type Query {
-  # Fintech queries
-  transaction(id: ID!): Transaction
-  transactions(filter: TransactionFilter, limit: Int = 100): [Transaction!]!
-  transactionStats(dateRange: DateRange!): TransactionStats!
-  
-  # Healthcare queries
-  patient(id: ID!): Patient
-  patients(filter: PatientFilter): [Patient!]!
-  patientAlerts(patientId: ID!, severity: [AlertSeverity]): [Alert!]!
-  
-  # Analytics
-  report(type: ReportType!, dateRange: DateRange!): Report!
-}
-
-type Mutation {
-  # Financial
-  processTransaction(input: ProcessTransactionInput!): Transaction!
-  reverseTransaction(transactionId: ID!): Transaction!
-  
-  # Healthcare
-  admitPatient(input: AdmitPatientInput!): Patient!
-  recordVitals(input: RecordVitalsInput!): VitalRecord!
-  submitClinicalDecision(input: ClinicalDecisionInput!): DecisionResult!
-}
-
-type Subscription {
-  # Real-time updates
-  transactionUpdated(filter: TransactionFilter): Transaction!
-  patientAlertTriggered(patientId: ID!): Alert!
-}
-
-# Fintech Types
-type Transaction {
-  id: ID!
-  status: TransactionStatus!
-  amount: Decimal!
-  currency: String!
-  sourceAccount: Account!
-  destinationAccount: Account!
-  fraudScore: Float!
-  fraudDecision: FraudDecision!
-  confidence: Float!
-  settlementTime: DateTime
-  createdAt: DateTime!
-  audit: AuditInfo!
-}
-
-# Healthcare Types
-type Patient {
-  id: ID!
-  mrn: String!
-  name: String!
-  dateOfBirth: Date!
-  demographics: Demographics!
-  medicalHistory: MedicalHistory!
-  currentMedications: [Medication!]!
-  allergies: [String!]!
-}
-
-type Alert {
-  id: ID!
-  patientId: ID!
-  severity: AlertSeverity!
-  message: String!
-  detectedBy: String!
-  confidence: Float!
-  detectedAt: DateTime!
-  acknowledgedAt: DateTime
-  acknowledgedBy: String
-}
-```
-
-### Example Query
-
-```graphql
-query GetPatientWithAlerts($patientId: ID!, $tenantId: ID!) {
-  patient(id: $patientId) {
-    id
-    name
-    dateOfBirth
-    medicalHistory {
-      conditions
-      surgeries
-    }
-    currentMedications {
-      name
-      dosage
-      frequency
-    }
-    alerts: patientAlerts(severity: [HIGH, CRITICAL]) {
-      id
-      severity
-      message
-      detectedAt
-      confidence
-    }
-  }
-}
-
-# Variables
-{
-  "patientId": "P-2026-001",
-  "tenantId": "hospital-a"
-}
-
-# Response
-{
-  "data": {
-    "patient": {
-      "id": "P-2026-001",
-      "name": "John Doe",
-      "dateOfBirth": "1975-06-15",
-      "medicalHistory": {
-        "conditions": ["Diabetes", "Hypertension"],
-        "surgeries": ["Appendectomy 2015"]
-      },
-      "currentMedications": [
-        {
-          "name": "Metformin",
-          "dosage": "1000mg",
-          "frequency": "twice daily"
-        }
-      ],
-      "alerts": [
-        {
-          "id": "ALT-001",
-          "severity": "HIGH",
-          "message": "Blood pressure elevated",
-          "detectedAt": "2026-02-18T14:30:00Z",
-          "confidence": 0.85
-        }
-      ]
-    }
-  }
-}
-```
-
----
-
 ## gRPC API (High-Performance)
 
 ### Benefits
-- Binary protocol (3-5x faster than JSON)
+- Binary protocol (smaller payloads and faster parsing than JSON; not benchmarked here)
 - HTTP/2 multiplexing
 - Streaming support
 - Strong typing (Protocol Buffers)
@@ -377,7 +222,9 @@ query GetPatientWithAlerts($patientId: ID!, $tenantId: ID!) {
 - Real-time patient monitoring
 - Service-to-service communication
 
-### Protocol Definition
+### Protocol Definition (proposed)
+
+Implemented protos today: [`proto/surgical_telemetry.proto`](../../proto/surgical_telemetry.proto) (`SurgicalTelemetry.StreamTelemetry`, bi-directional) and [`proto/surgical.proto`](../../proto/surgical.proto) (`SurgicalBrain`). The fintech contract below is a proposal.
 
 ```protobuf
 syntax = "proto3";
@@ -414,10 +261,10 @@ message Transaction {
 
 ## SDK & Client Libraries
 
-### Available SDKs
+### Planned SDKs (not published)
 - Python: `pip install golden-sdk`
 - JavaScript: `npm install @golden/sdk`
-- Go: `go get github.com/here2serveu/golden-platform`
+- Go: `go get github.com/Here2ServeU/nawex-platform`
 - Java: `implementation 'io.golden:golden-java:2.0.0'`
 - C#: `dotnet add package Golden.Platform`
 
@@ -451,7 +298,7 @@ print(f"Confidence: {result.confidence}")
 
 ## API Versioning
 
-Golden Platform commits to API stability:
+Proposed API stability policy (no external consumers yet):
 
 ```
 v2 - Current (2024-present)
@@ -467,10 +314,9 @@ v3 - Planned (2027+)
 
 ## References
 
-- [REST API - OpenAPI 3.1 Spec](openapi.yaml)
-- [GraphQL Schema](schema.graphql)
-- [gRPC Services](services.proto)
-- [SDK Documentation](https://sdk.golden-platform.example)
+- REST API: live OpenAPI at `/openapi.json` and `/docs` on every service; platform API routes in [`src/golden/api/app.py`](../../src/golden/api/app.py)
+- gRPC: [`proto/surgical_telemetry.proto`](../../proto/surgical_telemetry.proto), [`proto/surgical.proto`](../../proto/surgical.proto)
+- SDKs: not published
 
 ---
 
