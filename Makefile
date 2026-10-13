@@ -34,6 +34,11 @@ bootstrap: ## Create .venv, install Python (dev+ml) and Node deps, install pre-c
 doctor: ## Check local prerequisites and accelerator availability
 	@for t in python3 node npm docker git terraform helm kubectl; do \
 	  if command -v $$t >/dev/null; then printf "  ✓ %s\n" $$t; else printf "  ✗ %s (missing)\n" $$t; fi; done
+	@want=$$(cat .opa-version); \
+	  if ! command -v opa >/dev/null; then printf "  ✗ opa (missing; want %s — brew install opa)\n" "$$want"; \
+	  else have=$$(opa version | awk '/^Version:/{print $$2}'); \
+	    if [ "$$have" = "$$want" ]; then printf "  ✓ opa %s\n" "$$have"; \
+	    else printf "  ! opa %s (repo pins %s in .opa-version)\n" "$$have" "$$want"; fi; fi
 	@$(GOLDEN) gpu doctor
 	@$(GOLDEN) config show >/dev/null && echo "  ✓ platform.yaml valid"
 
