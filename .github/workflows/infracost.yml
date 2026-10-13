@@ -40,13 +40,13 @@ jobs:
 
       - name: Setup Infracost
         if: steps.key.outputs.enabled == 'true'
-        uses: infracost/actions/setup@v3
+        uses: infracost/actions/setup@v4
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
       - name: Checkout base branch
         if: steps.key.outputs.enabled == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.ref }}
 
@@ -58,7 +58,7 @@ jobs:
 
       - name: Checkout PR
         if: steps.key.outputs.enabled == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Cost diff (PR vs base)
         if: steps.key.outputs.enabled == 'true'
