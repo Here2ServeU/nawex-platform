@@ -1,0 +1,172 @@
+# -----------------------------------------------------------------------------------------------
+# access-model.yaml — persona-based AWS access, the single source of truth for workforce access.
+#
+#   AD group  ──SCIM (PingFederate)──▶  IAM Identity Center group  ──assignment──▶  permission set
+#                                                                                  × account group
+#
+# Read by:
+#   * Terraform  deploy/terraform/modules/aws/identity-center   (permission sets + assignments)
+#   * Python     golden.identity.model                          (`golden iam model` lint, role-cleanup
+#                                                                 persona matching, identity-governance API)
+#
+# Account groups are logical names; each environment maps them to account IDs in
+# deploy/terraform/live/aws/org/terraform.tfvars (`account_groups`), so this file holds no account IDs.
+# AWS-managed policies are given by name (with path), so the same model works in every partition.
+# -----------------------------------------------------------------------------------------------
+version: 1
+
+identity_source:
+  idp: pingfederate                 # SAML 2.0 IdP federated to IAM Identity Center (external IdP)
+  directory: active-directory       # users and groups are SCIM 2.0-provisioned from AD via PingFederate
+  provisioning: scim
+  mfa: enforced-at-idp              # PingFederate / PingID policy; Identity Center trusts the assertion
+  group_pattern: "^AWS-[A-Za-z0-9]+(-[A-Za-z0-9]+)*$"
+
+# Customer-managed policy created in every member account by modules/aws/permission-boundary and
+# required on every new role by the enforce-permission-boundary SCP.
+permission_boundary: golden-workload-boundary
+
+account_groups:
+  - management
+  - security
+  - shared-services
+  - network
+  - workloads-prod
+  - workloads-nonprod
+  - sandbox
+
+limits:
+  max_session_hours: 8
+  max_privileged_session_hours: 1
+
+personas:
+  - name: read-only
+    description: Look, don't touch — console and API read access to workload accounts.
+    permission_set: ReadOnly
+    session_duration: PT8H
+    aws_managed_policies:
+      - job-function/ViewOnlyAccess
+    assignments:
+      - group: AWS-ReadOnly
+        account_groups: [shared-services, network, workloads-prod, workloads-nonprod, sandbox]
+      - group: AWS-Developers            # developers can read production, never change it
+        account_groups: [workloads-prod]
+
+  - name: security-auditor
+    description: Internal audit, GRC and external assessors — read security configuration everywhere.
+    permission_set: SecurityAudit
+    session_duration: PT8H
+    allow_management: true
+    aws_managed_policies:
+      - SecurityAudit
+      - job-function/ViewOnlyAccess
+    assignments:
+      - group: AWS-SecurityAudit
+        account_groups: [management, security, shared-services, network, workloads-prod, workloads-nonprod, sandbox]
+
+  - name: security-engineer
+    description: Security operations — operate GuardDuty, Security Hub, Inspector and Access Analyzer.
+    permission_set: SecurityEngineer
+    session_duration: PT4H
+    permissions_boundary: true
+    aws_managed_policies:
+      - SecurityAudit
+    inline_policy:
+      - Sid: OperateSecurityServices
+        Effect: Allow
+        Action:
+          - securityhub:*
+          - guardduty:*
+          - inspector2:*
+          - access-analyzer:*
+          - detective:*
+          - macie2:*
+        Resource: "*"
+    assignments:
+      - group: AWS-SecurityEngineering
+        account_groups: [security]
+
+  - name: developer
+    description: Application teams — build freely in non-production behind the permission boundary.
+    permission_set: Developer
+    session_duration: PT8H
+    permissions_boundary: true
+    delegated_iam: true                # may create roles for their apps, only with the boundary attached
+    aws_managed_policies:
+      - PowerUserAccess
+    assignments:
+      - group: AWS-Developers
+        account_groups: [workloads-nonprod, sandbox]
+
+  - name: platform-engineer
+    description: Platform / cloud engineering — run the landing zone and shared services.
+    permission_set: PlatformEngineer
+    session_duration: PT4H
+    permissions_boundary: true
+    delegated_iam: true
+    aws_managed_policies:
+      - PowerUserAccess
+    assignments:
+      - group: AWS-PlatformEngineering
+        account_groups: [shared-services, workloads-prod, workloads-nonprod]
+
+  - name: sre-oncall
+    description: On-call SREs — read everything, take a bounded set of operational actions in prod.
+    permission_set: SREOnCall
+    session_duration: PT4H
+    permissions_boundary: true
+    aws_managed_policies:
+      - ReadOnlyAccess
+    inline_policy:
+      - Sid: BoundedOperationalActions
+        Effect: Allow
+        Action:
+          - ssm:StartSession
+          - ssm:TerminateSession
+          - ssm:SendCommand
+          - eks:DescribeCluster
+          - eks:AccessKubernetesApi
+          - autoscaling:SetDesiredCapacity
+          - autoscaling:UpdateAutoScalingGroup
+          - ecs:UpdateService
+          - cloudwatch:SetAlarmState
+          - cloudwatch:DisableAlarmActions
+          - cloudwatch:EnableAlarmActions
+        Resource: "*"
+    assignments:
+      - group: AWS-SRE
+        account_groups: [workloads-prod, workloads-nonprod]
+
+  - name: network-admin
+    description: Network engineering — Transit Gateway, VPCs, Direct Connect, Route 53 in the network account.
+    permission_set: NetworkAdmin
+    session_duration: PT4H
+    permissions_boundary: true
+    aws_managed_policies:
+      - job-function/NetworkAdministrator
+    assignments:
+      - group: AWS-NetworkAdmins
+        account_groups: [network]
+
+  - name: finops
+    description: FinOps — billing, Cost Explorer and budgets, read-only.
+    permission_set: FinOps
+    session_duration: PT8H
+    allow_management: true
+    aws_managed_policies:
+      - AWSBillingReadOnlyAccess
+    assignments:
+      - group: AWS-FinOps
+        account_groups: [management]
+
+  - name: break-glass
+    description: Emergency administrator. Membership is empty by default and granted through the PAM / change process.
+    permission_set: BreakGlassAdmin
+    session_duration: PT1H
+    privileged: true
+    allow_management: true
+    aws_managed_policies:
+      - AdministratorAccess
+    assignments:
+      - group: AWS-BreakGlass
+        account_groups: [management, security, shared-services, network, workloads-prod, workloads-nonprod, sandbox]

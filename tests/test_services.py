@@ -178,6 +178,28 @@ def test_migration_planner():
     assert c.post("/api/v1/migration/assess", json={"vms": []}).status_code == 422
 
 
+def test_identity_governance():
+    c = client("identity-governance")
+    model = c.get("/api/v1/identity/access-model").json()
+    assert model["lint"]["valid"] and "AWS-BreakGlass" in model["model"]["group_map"]
+    accounts = c.get("/api/v1/identity/sample-authorization-details").json()["accounts"]
+    roles = c.post("/api/v1/identity/roles/analyze", json={"accounts": accounts}).json()
+    assert roles["summary"]["by_disposition"]["remove"] > 0
+    findings = c.get("/api/v1/identity/sample-findings").json()["findings"]
+    gaps = c.post("/api/v1/identity/gap-assessment", json={"findings": findings}).json()
+    assert gaps["summary"]["gaps"] > 0
+    assert len(c.get("/api/v1/identity/controls").json()["controls"]) >= 10
+    metrics = c.get("/metrics").text
+    assert "golden_identity_roles_total" in metrics and "golden_identity_posture_score" in metrics
+    bad_model = {**model["model"], "personas": []}
+    assert c.post("/api/v1/identity/access-model/lint", json={"model": bad_model}).status_code == 422
+    assert (
+        c.post("/api/v1/identity/gap-assessment", json={"findings": [{"severity": "high"}]}).status_code
+        == 422
+    )
+    assert c.post("/api/v1/identity/roles/analyze", json={"accounts": []}).status_code == 422
+
+
 # ----------------------------------------------------------------------------- platform API
 def test_api_scoring_and_roi():
     c = client("api")

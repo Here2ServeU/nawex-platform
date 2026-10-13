@@ -8,7 +8,9 @@ FAIL=0
 
 for required in \
 security/policies/policy-controls.md \
-security/policies/opa/k8s-security.rego
+security/policies/opa/k8s-security.rego \
+security/policies/opa/aws-iam.rego \
+security/identity/access-model.yaml
 
 do
     if [[ ! -f "$required" ]]; then

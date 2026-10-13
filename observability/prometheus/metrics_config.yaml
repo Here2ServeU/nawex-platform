@@ -30,6 +30,7 @@ rule_files:
   - "rules/ai_safety_rules.yml"
   - "rules/gpu_rules.yml"
   - "rules/migration_rules.yml"
+  - "rules/identity_rules.yml"
 
 scrape_configs:
   # ── Platform API (golden serve api) ───────────────────────────
@@ -77,6 +78,14 @@ scrape_configs:
       - targets: ["migration-planner:8097"]
         labels:
           vertical: migration
+
+  # ── AWS identity governance (IAM modernization) ──────────────
+  - job_name: identity
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["identity-governance:8098"]
+        labels:
+          vertical: identity
 
   # ── NVIDIA DCGM exporter (real GPU clusters only) ────────────
   # Exposes DCGM_FI_DEV_GPU_UTIL, DCGM_FI_DEV_GPU_TEMP, DCGM_FI_DEV_FB_USED,

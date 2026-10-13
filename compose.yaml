@@ -76,6 +76,12 @@ services:
     environment: { <<: *python-env, PORT: "8097" }
     ports: ["8097:8097"]
 
+  identity-governance:
+    <<: *python-service
+    command: ["serve", "identity-governance"]
+    environment: { <<: *python-env, PORT: "8098" }
+    ports: ["8098:8098"]
+
   orchestrator:
     <<: *python-service
     command: ["orchestrate"]

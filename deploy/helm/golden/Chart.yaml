@@ -4,7 +4,7 @@ description: >-
   First-party umbrella chart for the Golden platform. Deploys every Python
   service (api, transaction-engine, fraud-detector, payment-gateway,
   ehr-ingestion, clinical-decision, patient-gateway, gpu-optimizer,
-  migration-planner) from the single ghcr.io/here2serveu/golden-platform image, each
+  migration-planner, identity-governance) from the single ghcr.io/here2serveu/golden-platform image, each
   started with `golden serve <name>`.
 type: application
 version: 0.1.0
@@ -17,6 +17,7 @@ keywords:
   - golden
   - aiops
   - migration
+  - identity
   - fintech
   - healthcare
   - gpu

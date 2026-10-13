@@ -12,4 +12,5 @@ SERVICES: dict[str, tuple[str, int]] = {
     "patient-gateway": ("golden.services.healthcare.patient_gateway:app", 8095),
     "gpu-optimizer": ("golden.services.gpu.optimizer:app", 8096),
     "migration-planner": ("golden.services.migration.planner:app", 8097),
+    "identity-governance": ("golden.services.identity.governance:app", 8098),
 }

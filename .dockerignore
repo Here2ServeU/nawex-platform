@@ -3,5 +3,6 @@
 !README.md
 !LICENSE
 !src/**
+!security/identity/access-model.yaml
 **/__pycache__
 **/*.pyc

@@ -19,6 +19,13 @@ module "registry" {
   tags    = local.tags
 }
 
+# Org-wide permission boundary (security/identity/access-model.yaml); required on
+# every role by the enforce-permission-boundary SCP in live/aws/org.
+module "permission_boundary" {
+  source = "../../../modules/aws/permission-boundary"
+  tags   = local.tags
+}
+
 module "eks" {
   source = "../../../modules/aws/eks"
 
@@ -36,6 +43,8 @@ module "eks" {
 
   workload_namespace       = "golden"
   workload_service_account = "golden"
+
+  permissions_boundary_arn = module.permission_boundary.arn
 
   tags = local.tags
 

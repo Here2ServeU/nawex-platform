@@ -10,6 +10,11 @@ The flagship path is **VMware vSphere → Red Hat OpenShift Virtualization** (Ku
 the detailed runbook is [vmware-to-openshift.md](./vmware-to-openshift.md). The same phases apply to
 replatforming VMs to containers and refactoring to cloud-native services.
 
+Identity is modernized alongside the estate. [aws-iam-modernization.md](./aws-iam-modernization.md)
+covers moving from per-account IAM users and SAML roles to persona-based IAM Identity Center access
+(AD groups via PingFederate SCIM). It also covers SCP/RCP guardrails, a mandatory permission boundary,
+an OPA plan gate and Wiz-driven gap assessment (`golden iam`, service `identity-governance` on port 8098).
+
 ## Lifecycle
 
 ```mermaid
@@ -96,5 +101,6 @@ R = responsible, A = accountable, C = consulted, I = informed.
 ## Related
 
 - [VMware → OpenShift runbook](./vmware-to-openshift.md)
+- [AWS IAM modernization](./aws-iam-modernization.md)
 - [Architecture overview](../architecture/overview.md)
 - [Consulting playbook](../consulting/consulting_playbook.md)

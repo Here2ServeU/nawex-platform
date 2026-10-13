@@ -160,6 +160,80 @@ def cmd_migrate_manifests(args: argparse.Namespace) -> int:
     return 0
 
 
+def _access_model(path: str | None):
+    from golden.identity import load_model
+
+    try:
+        return load_model(path)
+    except FileNotFoundError:
+        if path:
+            raise
+        return None
+
+
+def cmd_iam_model(args: argparse.Namespace) -> int:
+    from golden.identity import lint_summary, load_model
+
+    model = load_model(args.model)
+    result = lint_summary(model)
+    _print({**result, "group_map": model.group_map()} if args.verbose else result)
+    return 0 if result["valid"] else 1
+
+
+def cmd_iam_roles(args: argparse.Namespace) -> int:
+    from golden.identity import analyze_authorization_details, sample_authorization_details
+
+    details = (
+        json.loads(Path(args.input).read_text(encoding="utf-8"))
+        if args.input
+        else sample_authorization_details()
+    )
+    result = analyze_authorization_details(
+        details,
+        unused_days=args.unused_days,
+        org_accounts=set(args.org_accounts.split(",")) if args.org_accounts else None,
+        model=_access_model(args.model),
+    )
+    if not args.verbose:
+        result = {
+            "summary": result["summary"],
+            "consolidation": result["consolidation"],
+            "actions": [
+                {
+                    k: r[k]
+                    for k in ("account_id", "role", "disposition", "suggested_persona", "consolidate_into")
+                }
+                for r in result["roles"]
+                if r["disposition"] not in {"keep", "managed"}
+            ],
+        }
+    _print(result)
+    return 0
+
+
+def cmd_iam_gaps(args: argparse.Namespace) -> int:
+    from golden.identity import assess_gaps, load_findings, sample_findings
+
+    result = assess_gaps(load_findings(args.wiz) if args.wiz else sample_findings())
+    if not args.verbose:
+        result = {
+            "summary": result["summary"],
+            "register": [
+                {k: r[k] for k in ("control", "title", "status", "open_findings", "layers", "remediation")}
+                for r in result["register"]
+            ],
+        }
+    _print(result)
+    return 0
+
+
+def cmd_iam_controls(_: argparse.Namespace) -> int:
+    from golden.identity import catalog
+
+    _print(catalog())
+    return 0
+
+
 def cmd_config_get(args: argparse.Namespace) -> int:
     from golden import platform_config
 
@@ -272,6 +346,28 @@ def build_parser() -> argparse.ArgumentParser:
         s.add_argument("--target-namespace", default="migrated-vms")
         s.add_argument("--storage-class", default="ocs-storagecluster-ceph-rbd-virtualization")
         s.set_defaults(func=func)
+
+    iam = sub.add_parser(
+        "iam", help="AWS IAM modernization (Identity Center, SCP/RCP, boundaries, Wiz)"
+    ).add_subparsers(dest="iam", required=True)
+    s = iam.add_parser("model", help="lint the persona access model (security/identity/access-model.yaml)")
+    s.add_argument("--model", help="access model path (default: GOLDEN_ACCESS_MODEL or the repo file)")
+    s.add_argument("--verbose", action="store_true", help="include the AD group -> permission set map")
+    s.set_defaults(func=cmd_iam_model)
+    s = iam.add_parser("roles", help="role cleanup / consolidation / Identity Center migration plan")
+    s.add_argument(
+        "--input", help="`aws iam get-account-authorization-details` JSON (default: sample estate)"
+    )
+    s.add_argument("--model", help="access model path, for persona matching")
+    s.add_argument("--unused-days", type=int, default=90)
+    s.add_argument("--org-accounts", help="comma-separated account IDs inside the organization")
+    s.add_argument("--verbose", action="store_true")
+    s.set_defaults(func=cmd_iam_roles)
+    s = iam.add_parser("gaps", help="Wiz findings -> control gap register")
+    s.add_argument("--wiz", help="Wiz issues export (CSV, or GraphQL JSON) (default: sample findings)")
+    s.add_argument("--verbose", action="store_true")
+    s.set_defaults(func=cmd_iam_gaps)
+    iam.add_parser("controls", help="print the control-placement catalog").set_defaults(func=cmd_iam_controls)
     return p
 
 

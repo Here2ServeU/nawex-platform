@@ -110,3 +110,9 @@ variable "api_server_authorized_cidrs" {
     error_message = "api_server_authorized_cidrs must be valid CIDRs and must not contain 0.0.0.0/0 or ::/0."
   }
 }
+
+variable "permissions_boundary_arn" {
+  description = "Permission boundary attached to every IAM role this module creates (modules/aws/permission-boundary). null = none."
+  type        = string
+  default     = null
+}

@@ -33,6 +33,7 @@ domains:
   - fintech
   - gpu
   - migration
+  - identity
 
 ai_safety:
   autonomy_mode: dry_run          # dry_run | supervised | autonomous (critical actions ALWAYS need a human)
@@ -47,3 +48,9 @@ migration:                        # VMware vSphere -> OpenShift Virtualization (
   storage_class: ocs-storagecluster-ceph-rbd-virtualization
   max_vms_per_wave: 50
   max_tb_per_wave: 20
+
+identity:                         # AWS IAM modernization: Identity Center, SCPs/RCPs, boundaries, Wiz
+  access_model: security/identity/access-model.yaml   # personas -> permission sets -> AD groups
+  authorization_details: ""       # `aws iam get-account-authorization-details` JSON; empty = sample estate
+  wiz_export: ""                  # Wiz issues CSV / GraphQL JSON export; empty = sample findings
+  unused_role_days: 90

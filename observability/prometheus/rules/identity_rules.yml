@@ -1,0 +1,59 @@
+# Golden Platform — AWS identity governance alerts (identity-governance service).
+# Gauges reflect the latest `roles/analyze` and `gap-assessment` runs; schedule
+# both (e.g. nightly from CI with fresh get-account-authorization-details and Wiz
+# exports). See docs/modernization/aws-iam-modernization.md and
+# ops/runbooks/identity/guardrail-rollout.md.
+groups:
+  - name: golden_identity
+    interval: 60s
+    rules:
+      - alert: IdentityGovernanceDown
+        expr: up{job="identity", instance=~"identity-governance:.*"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          vertical: identity
+        annotations:
+          summary: "identity-governance is down"
+          description: "Role analysis and Wiz gap assessment are unavailable."
+
+      - alert: IdentityOpenTrustRole
+        expr: max(golden_identity_role_findings_total{code="OPEN_TRUST"}) > 0
+        for: 0m
+        labels:
+          severity: critical
+          vertical: identity
+        annotations:
+          summary: "{{ $value }} IAM role(s) trust any AWS principal"
+          description: "Quarantine through the governed quarantine_iam_role action and fix the trust policy."
+          runbook: "ops/runbooks/identity/guardrail-rollout.md"
+
+      - alert: IdentityIamUsersPresent
+        expr: max(golden_identity_iam_users_total) > 0
+        for: 7d
+        labels:
+          severity: warning
+          vertical: identity
+        annotations:
+          summary: "{{ $value }} IAM user(s) still present after a week"
+          description: "Long-lived credentials violate IAM-02; migrate to Identity Center or workload roles."
+
+      - alert: IdentityBoundaryCoverageLow
+        expr: max(golden_identity_boundary_coverage_ratio) < 0.95
+        for: 1d
+        labels:
+          severity: info
+          vertical: identity
+        annotations:
+          summary: "Permission boundary coverage is {{ $value | humanizePercentage }}"
+          description: "Backfill golden-workload-boundary before attaching the enforce-permission-boundary SCP to the next OU."
+
+      - alert: IdentityControlGaps
+        expr: max(golden_identity_controls_total{status="gap"}) > 0
+        for: 1d
+        labels:
+          severity: warning
+          vertical: identity
+        annotations:
+          summary: "{{ $value }} identity control(s) have open high/critical Wiz findings"
+          description: "Review `golden iam gaps` and assign owners per control layer."

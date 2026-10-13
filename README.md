@@ -11,7 +11,8 @@ Clone it, rename it, choose your cloud, and run one command. You get:
 
 - **Landing zones** on AWS (EKS/ECR), Azure (AKS/ACR), GCP (GKE/Artifact Registry) or OpenShift. Each can add an optional GPU node pool. Deploys use keyless OIDC.
 - **A VMware → OpenShift migration factory.** It takes an RVTools inventory and produces a readiness assessment and dependency-aware migration waves. It then generates Migration Toolkit for Virtualization (MTV) manifests for GitOps, with cutover and rollback runbooks.
-- **Production-shaped services** for four domains: healthcare, financial services, GPU / AI-infrastructure optimization, and migration.
+- **AWS IAM modernization.** Workforce access is persona-based through IAM Identity Center, with Active Directory groups provisioned through PingFederate (SAML + SCIM). The template adds SCPs and RCPs, a mandatory permission boundary, an OPA gate on every Terraform plan, role cleanup and consolidation, and a Wiz.io gap assessment mapped to a control-placement catalog.
+- **Production-shaped services** for five domains: healthcare, financial services, GPU / AI-infrastructure optimization, migration, and AWS identity governance.
 - **An AI engine** with LSTM/TCN forecasters, explainable risk scoring, and governed AIOps remediation (observe → analyze → plan → execute). GPU-accelerated training is built in.
 - **AI security** built into every layer: guardrails and caps, autonomy modes, human approval, a kill switch, model integrity checks, auth and rate limiting, and a tamper-evident audit trail.
 - **Day-2 operations:** Prometheus, Grafana, Loki, and Tempo, plus SLOs, alert rules, runbooks, chaos scripts, and a CI/CD pipeline with security scanning.
@@ -59,6 +60,17 @@ kubectl apply -k deploy/openshift/virtualization/operators  # OpenShift Virtuali
 
 Waves are committed to `deploy/openshift/virtualization/waves/` and applied by Argo CD. The cutover itself is a governed action that needs a named human approver. The full runbook is in [docs/modernization/vmware-to-openshift.md](docs/modernization/vmware-to-openshift.md).
 
+## AWS IAM modernization
+
+```bash
+make iam-model     # lint personas → permission sets → AD groups (security/identity/access-model.yaml)
+make iam-roles     # cleanup plan from `aws iam get-account-authorization-details`: remove / consolidate / migrate to Identity Center
+make iam-gaps      # Wiz issues export → control gap register (SCP · RCP · boundary · OPA · Identity Center · IdP)
+make iam-plan      # Terraform plan for SCPs/RCPs + Identity Center, gated by OPA (security/policies/opa/aws-iam.rego)
+```
+
+The access model is a single YAML file. Terraform (`deploy/terraform/modules/aws/identity-center`) and the `identity-governance` service both read it. Guardrails roll out one OU at a time (sandbox → nonprod → prod). Every landing-zone role carries the `golden-workload-boundary` permission boundary. The playbook is in [docs/modernization/aws-iam-modernization.md](docs/modernization/aws-iam-modernization.md), and the rollout and break-glass runbook is in [ops/runbooks/identity/guardrail-rollout.md](ops/runbooks/identity/guardrail-rollout.md).
+
 ## AI security model
 
 Every autonomous action passes through the **ActionGovernor**, and every model input and output passes **guardrails**.
@@ -97,17 +109,18 @@ src/golden/
   decision/              signal → incident → risk/severity → governed action
   gpu/                   GPU telemetry, fleet analysis, optimisation
   migration/             RVTools inventory, assessment, wave planning, MTV manifest generation
-  services/              FastAPI microservices (fintech, healthcare, gpu, migration) on a shared foundation
+  identity/              AWS access model lint, IAM role cleanup/consolidation, control catalog, Wiz gap assessment
+  services/              FastAPI microservices (fintech, healthcare, gpu, migration, identity) on a shared foundation
   api/                   platform API (scoring, decisions, ROI, approvals, audit)
   robotics/              clinical-robotics safety interceptor + gRPC telemetry
 apps/                    client-portal (executive console) · workload (instrumented target app)
 deploy/
-  terraform/             landing zones: live/{aws,azure,gcp}/{dev,staging,prod} + modules
+  terraform/             landing zones: live/{aws,azure,gcp}/{dev,staging,prod}, live/aws/org (SCP/RCP, Identity Center) + modules
   helm/golden/           platform chart + values-{aws,azure,gcp,openshift,local}.yaml
   openshift/             manifests, Helm values, virtualization (operators, MTV, waves)
   gitops/  k8s/          Argo CD / Flux, plain manifests
 observability/           Prometheus rules (SLO, AI safety, GPU, migration), Grafana dashboards, Loki, Tempo
-security/  ops/  docs/   policies (OPA, RBAC, Trivy) · runbooks, SRE, chaos · documentation
+security/  ops/  docs/   access model, policies (OPA k8s + AWS IAM, RBAC, Trivy) · runbooks, SRE, chaos · documentation
 tests/                   pytest suite (unit, service contracts, models, robotics)
 ```
 
@@ -120,6 +133,7 @@ tests/                   pytest suite (unit, service contracts, models, robotics
 | `ehr-ingestion` · `clinical-decision` · `patient-gateway` | 8093–8095 | Healthcare (FHIR R4, NEWS2, HIPAA audit, consent) |
 | `gpu-optimizer` | 8096 | GPU fleet optimization |
 | `migration-planner` | 8097 | VMware → OpenShift assessment, waves, MTV manifests |
+| `identity-governance` | 8098 | AWS access-model lint, IAM role cleanup, Wiz control gap assessment |
 | `client-portal` · `workload` | 3001 · 8080 | Executive console · instrumented target app |
 
 Every service exposes `/health`, `/ready`, and `/metrics` (Prometheus), and runs as non-root with a read-only filesystem.

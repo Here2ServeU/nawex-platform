@@ -92,6 +92,12 @@ module "eks" {
   enable_irsa                              = true
   enable_cluster_creator_admin_permissions = true
 
+  # Every role carries the org permission boundary (enforce-permission-boundary SCP).
+  iam_role_permissions_boundary = var.permissions_boundary_arn
+  eks_managed_node_group_defaults = {
+    iam_role_permissions_boundary = var.permissions_boundary_arn
+  }
+
   cluster_addons = {
     coredns                = {}
     kube-proxy             = {}
@@ -139,9 +145,10 @@ data "aws_iam_policy_document" "irsa_assume" {
 
 # EBS CSI driver (gp3 volumes)
 resource "aws_iam_role" "ebs_csi" {
-  name               = "${var.name}-ebs-csi"
-  assume_role_policy = data.aws_iam_policy_document.irsa_assume["ebs"].json
-  tags               = var.tags
+  name                 = "${var.name}-ebs-csi"
+  assume_role_policy   = data.aws_iam_policy_document.irsa_assume["ebs"].json
+  permissions_boundary = var.permissions_boundary_arn
+  tags                 = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "ebs_csi" {
@@ -152,9 +159,10 @@ resource "aws_iam_role_policy_attachment" "ebs_csi" {
 # Platform workload identity (annotate the `golden` ServiceAccount with this ARN).
 # Attach least-privilege policies for the AWS APIs the services need.
 resource "aws_iam_role" "workload" {
-  name               = "${var.name}-workload"
-  assume_role_policy = data.aws_iam_policy_document.irsa_assume["workload"].json
-  tags               = var.tags
+  name                 = "${var.name}-workload"
+  assume_role_policy   = data.aws_iam_policy_document.irsa_assume["workload"].json
+  permissions_boundary = var.permissions_boundary_arn
+  tags                 = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "workload" {
@@ -167,10 +175,11 @@ resource "aws_iam_role_policy_attachment" "workload" {
 # AWS Load Balancer Controller (serves `ingressClassName: alb`)
 # ------------------------------------------------------------------------------
 resource "aws_iam_role" "alb" {
-  count              = var.enable_alb_controller ? 1 : 0
-  name               = "${var.name}-alb-irsa"
-  assume_role_policy = data.aws_iam_policy_document.irsa_assume["alb"].json
-  tags               = var.tags
+  count                = var.enable_alb_controller ? 1 : 0
+  name                 = "${var.name}-alb-irsa"
+  assume_role_policy   = data.aws_iam_policy_document.irsa_assume["alb"].json
+  permissions_boundary = var.permissions_boundary_arn
+  tags                 = var.tags
 }
 
 resource "aws_iam_policy" "alb" {

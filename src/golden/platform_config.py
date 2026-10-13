@@ -12,7 +12,7 @@ DEFAULTS: dict[str, Any] = {
     "project": {"name": "golden", "display_name": "Golden Platform", "owner": "platform-team"},
     "cloud": {"provider": "local", "region": "us-east-1", "environment": "dev", "gpu_node_pool": False},
     "image": {"registry": "ghcr.io/here2serveu", "tag": "latest"},
-    "domains": ["healthcare", "fintech", "gpu", "migration"],
+    "domains": ["healthcare", "fintech", "gpu", "migration", "identity"],
     "ai_safety": {
         "autonomy_mode": "dry_run",
         "max_actions_per_hour": 20,
@@ -20,9 +20,10 @@ DEFAULTS: dict[str, Any] = {
         "kill_switch": False,
     },
     "migration": {},
+    "identity": {},
 }
 CLOUDS = {"aws", "azure", "gcp", "openshift", "local"}
-DOMAINS = {"healthcare", "fintech", "gpu", "migration"}
+DOMAINS = {"healthcare", "fintech", "gpu", "migration", "identity"}
 
 
 def _merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:

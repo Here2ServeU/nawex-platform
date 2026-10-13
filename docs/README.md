@@ -20,6 +20,7 @@ Docs-as-code for the Golden Platform golden-path monorepo. Start with the
 | Fintech | [verticals/fintech.md](./verticals/fintech.md) · [product/fintech.md](./product/fintech.md) · [04-product/fintech-edition.md](./04-product/fintech-edition.md) |
 | GPU / AI infrastructure | [verticals/gpu.md](./verticals/gpu.md) · [04-product/ai-infra-edition.md](./04-product/ai-infra-edition.md) · [guides/gpu-acceleration.md](./guides/gpu-acceleration.md) |
 | Modernization / migration | [modernization/README.md](./modernization/README.md) · [modernization/vmware-to-openshift.md](./modernization/vmware-to-openshift.md) · runbooks: [cutover](../ops/runbooks/migration/cutover.md), [rollback](../ops/runbooks/migration/rollback.md) |
+| AWS identity governance | [modernization/aws-iam-modernization.md](./modernization/aws-iam-modernization.md) · runbook: [guardrail rollout & break-glass](../ops/runbooks/identity/guardrail-rollout.md) |
 
 ## Architecture
 
@@ -47,6 +48,7 @@ Docs-as-code for the Golden Platform golden-path monorepo. Start with the
 ## Security & compliance
 
 - [security/ai-safety.md](./security/ai-safety.md)
+- [modernization/aws-iam-modernization.md](./modernization/aws-iam-modernization.md) — IAM Identity Center, SCPs/RCPs, permission boundaries, OPA, Wiz
 - Healthcare: [HIPAA mapping](./compliance/01-hipaa-compliance-mapping.md) · [HDS privacy](./compliance/02-data-privacy-hds.md) · [hipaa.md](./compliance/hipaa.md)
 - Financial: [PCI DSS mapping](./compliance/06-pci-dss-compliance-mapping.md) · [SOX](./compliance/07-sox-compliance-mapping.md) · [PSD2](./compliance/08-psd2-open-banking.md) · [GLBA](./compliance/09-glba-financial-privacy.md) · [pci-dss.md](./compliance/pci-dss.md)
 - Cross-cutting: [audit logging](./compliance/03-audit-logging-policy.md) · [DR plan](./compliance/04-disaster-recovery-plan.md) · [post-quantum crypto](./compliance/05-quantum-safe-encryption.md) · [SOC 2](./compliance/soc2.md)

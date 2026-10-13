@@ -160,6 +160,18 @@ def _vm_rollback(p: dict) -> dict:
     return {"plan": p.get("plan"), "source_powered_on": bool(p.get("power_on_source", True))}
 
 
+def _iam_quarantine(p: dict) -> dict:
+    _step("quarantine_iam_role", f"attaching deny-all policy and pinning trust on {p.get('role', 'role')}")
+    _pause()
+    return {"role": p.get("role"), "account_id": p.get("account_id"), "quarantined": True}
+
+
+def _iam_delete(p: dict) -> dict:
+    _step("delete_iam_role", f"deleting unused role {p.get('role', 'role')} after owner sign-off")
+    _pause()
+    return {"role": p.get("role"), "account_id": p.get("account_id"), "deleted": True}
+
+
 HANDLERS: dict[str, Handler] = {
     "scale_up_replicas": _scale,
     "restart_service": _restart,
@@ -180,6 +192,8 @@ HANDLERS: dict[str, Handler] = {
     "start_vm_migration": _vm_migrate,
     "vm_cutover": _vm_cutover,
     "vm_rollback": _vm_rollback,
+    "quarantine_iam_role": _iam_quarantine,
+    "delete_iam_role": _iam_delete,
 }
 
 

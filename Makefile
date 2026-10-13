@@ -111,6 +111,25 @@ migrate-plan: ## Plan dependency-aware migration waves
 migrate-manifests: ## Generate MTV Plan/Migration/Network/StorageMap per wave for GitOps
 	$(GOLDEN) migrate manifests $(INV_ARG) --output deploy/openshift/virtualization/waves
 
+##@ AWS IAM modernization
+.PHONY: iam-model iam-roles iam-gaps iam-policy-test iam-plan
+IAM_DETAILS ?= $(call CFG,identity.authorization_details,)
+WIZ_EXPORT  ?= $(call CFG,identity.wiz_export,)
+iam-model: ## Lint the persona access model (permission sets, AD groups, sessions)
+	$(GOLDEN) iam model --verbose
+
+iam-roles: ## Role cleanup/consolidation plan (IAM_DETAILS=authorization-details.json or sample)
+	$(GOLDEN) iam roles $(if $(IAM_DETAILS),--input $(IAM_DETAILS),) --unused-days $(call CFG,identity.unused_role_days,90)
+
+iam-gaps: ## Wiz findings -> control gap register (WIZ_EXPORT=issues.csv or sample)
+	$(GOLDEN) iam gaps $(if $(WIZ_EXPORT),--wiz $(WIZ_EXPORT),)
+
+iam-policy-test: ## opa check + test the IAM and Kubernetes policy packs
+	opa check --strict security/policies/opa && opa test security/policies/opa -v
+
+iam-plan: ## Terraform plan for the org identity stack (SCP/RCP + Identity Center), gated by OPA
+	scripts/iam-policy-gate.sh deploy/terraform/live/aws/org
+
 ##@ Build & deploy
 .PHONY: build validate-infra plan deploy destroy
 build: ## Build all container images

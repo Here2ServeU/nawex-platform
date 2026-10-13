@@ -66,6 +66,9 @@ ACTION_CATALOG: dict[str, Risk] = {
     "start_vm_migration": Risk.CRITICAL,
     "vm_cutover": Risk.CRITICAL,
     "vm_rollback": Risk.CRITICAL,
+    # AWS identity governance (role cleanup from `golden iam roles`)
+    "quarantine_iam_role": Risk.HIGH,
+    "delete_iam_role": Risk.CRITICAL,
 }
 
 

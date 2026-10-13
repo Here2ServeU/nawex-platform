@@ -209,6 +209,14 @@ services:
       domain: migration
     podDisruptionBudget:
       enabled: false
+  identity-governance:
+    enabled: true
+    port: 8098
+    replicaCount: 1
+    podLabels:
+      domain: identity
+    podDisruptionBudget:
+      enabled: false
   gpu-optimizer:
     enabled: true
     port: 8096

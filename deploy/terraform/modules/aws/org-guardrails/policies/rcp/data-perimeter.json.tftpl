@@ -1,0 +1,56 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EnforceOrgIdentities",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": [
+        "s3:*",
+        "sqs:*",
+        "kms:*",
+        "secretsmanager:*",
+        "sts:AssumeRole",
+        "sts:DecodeAuthorizationMessage",
+        "sts:GetAccessKeyInfo",
+        "sts:GetFederationToken",
+        "sts:GetServiceBearerToken",
+        "sts:GetSessionToken",
+        "sts:SetContext"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEqualsIfExists": {
+          "aws:PrincipalOrgID": "${org_id}",
+          "aws:ResourceTag/dp:exclude:identity": "true"
+        },
+        "BoolIfExists": { "aws:PrincipalIsAWSService": "false" }
+      }
+    },
+    {
+      "Sid": "EnforceConfusedDeputyProtection",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": ["s3:*", "sqs:*", "kms:*", "secretsmanager:*", "sts:*"],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEqualsIfExists": {
+          "aws:SourceOrgID": "${org_id}",
+          "aws:ResourceTag/dp:exclude:confused-deputy": "true"
+        },
+        "Null": { "aws:SourceAccount": "false" },
+        "Bool": { "aws:PrincipalIsAWSService": "true" }
+      }
+    },
+    {
+      "Sid": "EnforceSecureTransport",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": ["s3:*", "sqs:*", "kms:*", "secretsmanager:*", "sts:*"],
+      "Resource": "*",
+      "Condition": {
+        "BoolIfExists": { "aws:SecureTransport": "false" }
+      }
+    }
+  ]
+}

@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- **AWS identity governance domain** (`identity`):
+  - persona-based access model (`security/identity/access-model.yaml`) mapping AD groups (SCIM via
+    PingFederate) to IAM Identity Center permission sets per account group;
+  - Terraform modules `aws/org-guardrails` (SCPs: root/IAM-user denial, mandatory permission boundary,
+    security-service protection, region allow-list; RCP: data perimeter), `aws/identity-center`,
+    `aws/permission-boundary` and `aws/wiz-connector`, plus the `live/aws/org` root;
+  - OPA plan gate `security/policies/opa/aws-iam.rego` with tests and `scripts/iam-policy-gate.sh`;
+  - `golden iam model|roles|gaps|controls`, the `identity-governance` service (:8098), Prometheus
+    alerts, and the governed `quarantine_iam_role` / `delete_iam_role` actions.
+
+### Changed
+- The EKS module and the `live/aws/{dev,staging,prod}` landing zones attach the `golden-workload-boundary`
+  permission boundary to every IAM role they create.
+
 ## [2.0.0] — 2026-10-11
 Complete rewrite as the **Golden Platform**: a plug-and-play, end-to-end enterprise modernization template.
 
