@@ -57,6 +57,12 @@
 - Install `jq` or remove `| jq .` in scripts
 - Ensure scripts are executable: `chmod +x scripts/*.sh`
 
+## 12) Shell (zsh)
+**Symptoms**: `golden: error: unrecognized arguments: # ...` after pasting a command from the docs
+- zsh (the macOS default) does not treat `#` as a comment at an interactive prompt, so trailing `# comments` reach the CLI as arguments
+- Enable it once: `echo 'setopt interactivecomments' >> ~/.zshrc && source ~/.zshrc`
+- Or drop the trailing `# ...` when pasting
+
 ---
 
 *Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.*
