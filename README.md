@@ -52,6 +52,8 @@ open http://localhost:3001        # executive console
 make demo               # narrated demo + HTML reports for all four domains
 ```
 
+On zsh, run `setopt interactivecomments` first so the trailing `# comments` in these snippets aren't passed as arguments (see [troubleshooting](docs/guides/troubleshooting.md#12-shell-zsh)).
+
 ## Adopt it for your engagement
 
 ```bash
