@@ -37,7 +37,7 @@ jobs:
       GOLDEN_KILL_SWITCH: "true"
       GOLDEN_API_KEYS: ""
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build and start the API
         run: |
@@ -81,7 +81,7 @@ jobs:
 
       - name: Upload ZAP reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: zap-reports
           path: zap/
