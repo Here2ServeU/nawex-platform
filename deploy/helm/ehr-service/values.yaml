@@ -1,0 +1,91 @@
+# DEPRECATED: prefer the `golden` chart (deploy/helm/golden), which deploys
+# ehr-ingestion together with every other platform service.
+replicaCount: 3
+
+# Service name passed to `golden serve <name>`.
+serviceName: ehr-ingestion
+
+image:
+  repository: ghcr.io/here2serveu/golden-platform
+  pullPolicy: IfNotPresent
+  # Defaults to .Chart.AppVersion when empty.
+  tag: ""
+
+service:
+  type: ClusterIP
+  port: 8093
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1000m"
+    memory: "2Gi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 15
+  targetCPUUtilizationPercentage: 65
+  targetMemoryUtilizationPercentage: 75
+
+platform:
+  autonomyMode: dry_run
+  killSwitch: false
+  # Secret holding GOLDEN_API_KEYS.
+  apiKeysSecret: golden-api-keys
+
+# Extra non-secret configuration rendered as UPPER_SNAKE_CASE env vars.
+config: 
+  fhirVersion: "R4"
+  phiAuditEnabled: "true"
+  kafkaBroker: "kafka:9092"
+  kafkaTopicInput: "ehr.events"
+  kafkaTopicOutput: "ehr.analyzed"
+  redisUrl: "redis://healthcare-redis:6379"
+
+security:
+  networkPolicy:
+    enabled: true
+    allowedNamespaces:
+      - healthcare
+      - monitoring
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+topologySpreadConstraints:
+  enabled: true
+  maxSkew: 1
+  topologyKey: topology.kubernetes.io/zone

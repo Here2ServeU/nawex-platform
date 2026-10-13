@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: golden-platform
+  labels:
+    app: golden-platform
+    environment: production
+  annotations:
+    openshift.io/description: "Golden Platform - Healthcare & Fintech Services"
+    openshift.io/display-name: "Golden Platform"
+    openshift.io/requester: "platform-admin"
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: golden-healthcare
+  labels:
+    app: golden-healthcare
+    environment: production
+  annotations:
+    openshift.io/description: "Healthcare Services - HIPAA Compliant"
+    openshift.io/display-name: "Golden Healthcare"
+    openshift.io/requester: "platform-admin"
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: golden-fintech
+  labels:
+    app: golden-fintech
+    environment: production
+  annotations:
+    openshift.io/description: "Fintech Services - PCI-DSS Compliant"
+    openshift.io/display-name: "Golden Fintech"
+    openshift.io/requester: "platform-admin"
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: golden-robotics
+  labels:
+    app: golden-robotics
+    environment: production
+  annotations:
+    openshift.io/description: "Robotics & Edge Control - Real-time Processing"
+    openshift.io/display-name: "Golden Robotics"
+    openshift.io/requester: "platform-admin"

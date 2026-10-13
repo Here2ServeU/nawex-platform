@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: datadog-agent
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    # Upstream vendor chart (no first-party chart in this repo).
+    repoURL: https://helm.datadoghq.com
+    chart: datadog
+    targetRevision: 3.69.3
+    helm:
+      valuesObject:
+        datadog:
+          apiKeyExistingSecret: datadog-secret
+          clusterName: golden
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      # Datadog CRDs/DaemonSets are large; server-side apply avoids annotation size limits
+      - ServerSideApply=true

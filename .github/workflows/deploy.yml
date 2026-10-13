@@ -1,76 +1,163 @@
+# Keyless (OIDC) deployment to AWS, Azure, GCP or OpenShift. No long-lived cloud secrets.
+#
+# One-time setup per cloud (see docs/guides/deploy.md):
+#   AWS     vars: AWS_DEPLOY_ROLE_ARN, AWS_REGION                     (IAM role trusting token.actions.githubusercontent.com)
+#   Azure   vars: AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID (federated credential on an app registration)
+#   GCP     vars: GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT, GCP_PROJECT_ID
+#   OpenShift secrets: OPENSHIFT_SERVER, OPENSHIFT_TOKEN
+# Optional per environment: TF_BACKEND_CONFIG (contents of backend.hcl) as a secret.
+# Create GitHub Environments dev / staging / prod and add required reviewers to staging + prod.
 name: deploy
+
 on:
-    workflow_dispatch:
-                inputs:
-                        target:
-                                description: Deployment target strategy
-                                required: true
-                                default: openshift-manifests
-                                type: choice
-                                options:
-                                        - openshift-manifests
-                                        - openshift-helm
-                        execute_deploy:
-                                description: Execute deployment scripts (requires cluster credentials)
-                                required: true
-                                default: false
-                                type: boolean
+  workflow_dispatch:
+    inputs:
+      cloud:
+        description: Target cloud
+        type: choice
+        options: [aws, azure, gcp, openshift]
+        default: aws
+      environment:
+        description: Environment
+        type: choice
+        options: [dev, staging, prod]
+        default: dev
+      action:
+        description: Terraform action
+        type: choice
+        options: [plan, apply, destroy]
+        default: plan
+      image_tag:
+        description: Image tag to deploy (defaults to the commit SHA)
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.cloud }}-${{ inputs.environment }}
+  cancel-in-progress: false
 
 jobs:
-        preflight:
-        runs-on: ubuntu-latest
-        steps:
-                        - name: Checkout
-                            uses: actions/checkout@v4
+  deploy:
+    name: ${{ inputs.action }} ${{ inputs.cloud }}/${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+      id-token: write  # OIDC federation to the cloud
+    env:
+      CLOUD: ${{ inputs.cloud }}
+      ENVIRONMENT: ${{ inputs.environment }}
+      ACTION: ${{ inputs.action }}
+      IMAGE_TAG: ${{ inputs.image_tag || github.sha }}
+      TF_IN_AUTOMATION: "1"
+    steps:
+      - uses: actions/checkout@v4
 
-                        - name: YAML syntax validation
-                            shell: bash
-                            run: |
-                                    set -euo pipefail
-                                    python -m pip install --upgrade pip pyyaml
-                                    python - <<'PY'
-                                    import pathlib
-                                    import sys
-                                    import yaml
+      - name: Preflight — required configuration is present
+        env:
+          AWS_ROLE: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          AZ_CLIENT: ${{ vars.AZURE_CLIENT_ID }}
+          GCP_WIP: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          OCP_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+        run: |
+          missing=""
+          case "$CLOUD" in
+            aws) [ -n "$AWS_ROLE" ] || missing="vars.AWS_DEPLOY_ROLE_ARN" ;;
+            azure) [ -n "$AZ_CLIENT" ] || missing="vars.AZURE_CLIENT_ID (+ AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID)" ;;
+            gcp) [ -n "$GCP_WIP" ] || missing="vars.GCP_WORKLOAD_IDENTITY_PROVIDER (+ GCP_SERVICE_ACCOUNT)" ;;
+            openshift) [ -n "$OCP_SERVER" ] || missing="secrets.OPENSHIFT_SERVER (+ OPENSHIFT_TOKEN)" ;;
+          esac
+          if [ -n "$missing" ]; then
+            echo "::error::Missing $missing for $CLOUD. See docs/guides/deploy.md."
+            exit 1
+          fi
 
-                                    roots = [pathlib.Path("openshift/manifests"), pathlib.Path("openshift/helm-values")]
-                                    files = []
-                                    for root in roots:
-                                            if root.exists():
-                                                    files.extend(root.rglob("*.yaml"))
-                                                    files.extend(root.rglob("*.yml"))
+      # ------------------------------------------------------------------ cloud auth (OIDC)
+      - name: AWS auth
+        if: inputs.cloud == 'aws'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
 
-                                    if not files:
-                                            print("No deployment YAML files found.")
-                                            sys.exit(1)
+      - name: Azure auth
+        if: inputs.cloud == 'azure'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-                                    for file in files:
-                                            with file.open("r", encoding="utf-8") as fh:
-                                                    list(yaml.safe_load_all(fh))
-                                    print(f"Validated {len(files)} YAML files.")
-                                    PY
+      - name: Azure Terraform env
+        if: inputs.cloud == 'azure'
+        run: |
+          {
+            echo "ARM_USE_OIDC=true"
+            echo "ARM_CLIENT_ID=${{ vars.AZURE_CLIENT_ID }}"
+            echo "ARM_TENANT_ID=${{ vars.AZURE_TENANT_ID }}"
+            echo "ARM_SUBSCRIPTION_ID=${{ vars.AZURE_SUBSCRIPTION_ID }}"
+          } >> "$GITHUB_ENV"
 
-                        - name: Verify deploy scripts
-                            shell: bash
-                            run: |
-                                    set -euo pipefail
-                                    [[ -x scripts/deploy-openshift.sh || -f scripts/deploy-openshift.sh ]]
-                                    [[ -x scripts/deploy-openshift-helm.sh || -f scripts/deploy-openshift-helm.sh ]]
+      - name: GCP auth
+        if: inputs.cloud == 'gcp'
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
-        deploy:
-                if: ${{ inputs.execute_deploy }}
-                needs: preflight
-                runs-on: ubuntu-latest
-                steps:
-                        - name: Checkout
-                            uses: actions/checkout@v4
+      - name: gcloud + GKE auth plugin
+        if: inputs.cloud == 'gcp'
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: gke-gcloud-auth-plugin
 
-                        - name: Run deployment script
-                            shell: bash
-                            run: |
-                                    set -euo pipefail
-                                    if [[ "${{ inputs.target }}" == "openshift-helm" ]]; then
-                                        bash scripts/deploy-openshift-helm.sh
-                                    else
-                                        bash scripts/deploy-openshift.sh
-                                    fi
+      - name: OpenShift CLI
+        if: inputs.cloud == 'openshift'
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: "4"
+
+      - name: OpenShift login
+        if: inputs.cloud == 'openshift'
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER }}
+          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
+
+      # ------------------------------------------------------------------ tooling + deploy
+      - uses: hashicorp/setup-terraform@v3
+        if: inputs.cloud != 'openshift'
+        with:
+          terraform_version: "~1.9"
+          terraform_wrapper: false
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.3
+
+      - name: Remote state backend
+        if: inputs.cloud != 'openshift'
+        env:
+          TF_BACKEND_CONFIG: ${{ secrets.TF_BACKEND_CONFIG }}
+        run: |
+          if [ -n "$TF_BACKEND_CONFIG" ]; then
+            printf '%s\n' "$TF_BACKEND_CONFIG" > "deploy/terraform/live/${CLOUD}/${ENVIRONMENT}/backend.hcl"
+          else
+            echo "::warning::No TF_BACKEND_CONFIG secret — using local state (fine for dev, not for shared envs)."
+          fi
+
+      - name: Deploy
+        run: scripts/deploy.sh "$CLOUD" "$ENVIRONMENT" "$ACTION"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### ${ACTION} ${CLOUD}/${ENVIRONMENT}"
+            echo "- image tag: \`${IMAGE_TAG}\`"
+            echo "- commit: \`${GITHUB_SHA::7}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

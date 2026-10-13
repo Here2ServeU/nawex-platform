@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fraud-detection.fullname" . }}
+  labels:
+    {{- include "fraud-detection.labels" . | nindent 4 }}
+    compliance: pci-dss
+    data-classification: sensitive
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "fraud-detection.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fraud-detection.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/part-of: golden
+        compliance: pci-dss
+        data-classification: sensitive
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.service.port | quote }}
+        prometheus.io/path: "/metrics"
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.security.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Values.serviceName }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["golden", "serve", {{ .Values.serviceName | quote }}]
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            - name: GOLDEN_AUTONOMY_MODE
+              value: {{ .Values.platform.autonomyMode | quote }}
+            - name: GOLDEN_KILL_SWITCH
+              value: {{ .Values.platform.killSwitch | toString | quote }}
+            - name: GOLDEN_API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.platform.apiKeysSecret }}
+                  key: GOLDEN_API_KEYS
+                  optional: true
+            {{- range $k, $v := .Values.config }}
+            - name: {{ $k | snakecase | upper }}
+              value: {{ $v | toString | quote }}
+            {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.security.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      {{- if .Values.topologySpreadConstraints.enabled }}
+      topologySpreadConstraints:
+        - maxSkew: {{ .Values.topologySpreadConstraints.maxSkew | default 1 }}
+          topologyKey: {{ .Values.topologySpreadConstraints.topologyKey | default "topology.kubernetes.io/zone" }}
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              {{- include "fraud-detection.selectorLabels" . | nindent 14 }}
+      {{- end }}

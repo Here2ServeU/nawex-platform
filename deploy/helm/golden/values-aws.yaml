@@ -1,0 +1,41 @@
+# AWS EKS overlay. Used by scripts/deploy.sh aws <env>, which also sets:
+#   --set image.registry=<terraform output registry_url>
+#   --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=<workload_identity>
+# Requires the AWS Load Balancer Controller and EBS CSI driver (installed by
+# deploy/terraform/modules/aws/eks).
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: ""   # IRSA role (terraform output workload_identity)
+
+storageClass: gp3
+
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    # alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:<region>:<account>:certificate/<id>
+  hosts:
+    - host: golden.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
+
+networkPolicy:
+  # The ALB targets pod IPs from inside the VPC, not from a namespace.
+  allowedNamespaces:
+    - kube-system
+    - monitoring
+
+defaults:
+  autoscaling:
+    enabled: true
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway

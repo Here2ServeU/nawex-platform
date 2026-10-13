@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------------------------------------
+# platform.yaml — the ONE file an engineer edits to adopt this template.
+#
+#   1. scripts/init-project.sh <slug> "<Display Name>"   # rebrand code, images, env, metrics
+#   2. edit the values below                              # cloud, region, domains, safety
+#   3. make bootstrap && make test && make up              # local, everything running
+#   4. make deploy                                         # landing zone + platform on your cloud
+#
+# Every Makefile target reads defaults from here; any value can be overridden on the command line
+# (e.g. `make deploy CLOUD=gcp ENV=prod`). Copy to platform.local.yaml (git-ignored) for personal
+# overrides.
+# ---------------------------------------------------------------------------------------------
+
+project:
+  name: golden                    # slug: resource names, namespace, image names
+  display_name: Golden Platform   # shown in UIs and reports
+  owner: platform-team
+
+cloud:
+  provider: aws                   # aws | azure | gcp | openshift | local
+  region: us-east-1               # azure: eastus · gcp: us-central1
+  environment: dev                # dev | staging | prod
+  gpu_node_pool: false            # add a GPU node pool (EKS/AKS/GKE) for the gpu domain / training
+
+image:
+  registry: ghcr.io/here2serveu   # overridden by the cloud registry output on `make deploy`
+  tag: latest
+
+# Business domains to deploy. Remove any you don't need — services for disabled domains are not
+# installed by the Helm chart.
+domains:
+  - healthcare
+  - fintech
+  - gpu
+  - migration
+  - identity
+
+ai_safety:
+  autonomy_mode: dry_run          # dry_run | supervised | autonomous (critical actions ALWAYS need a human)
+  max_actions_per_hour: 20
+  rate_limit_per_minute: 600
+  kill_switch: false
+
+migration:                        # VMware vSphere -> OpenShift Virtualization (MTV)
+  inventory: ""                   # RVTools export dir / vInfo CSV / JSON; empty = sample estate
+  source_provider: vsphere-prod
+  target_namespace: migrated-vms
+  storage_class: ocs-storagecluster-ceph-rbd-virtualization
+  max_vms_per_wave: 50
+  max_tb_per_wave: 20
+
+identity:                         # AWS IAM modernization: Identity Center, SCPs/RCPs, boundaries, Wiz
+  access_model: security/identity/access-model.yaml   # personas -> permission sets -> AD groups
+  authorization_details: ""       # `aws iam get-account-authorization-details` JSON; empty = sample estate
+  wiz_export: ""                  # Wiz issues CSV / GraphQL JSON export; empty = sample findings
+  unused_role_days: 90

@@ -1,0 +1,70 @@
+# Golden Platform — modernization / VM migration alerts (migration-planner +
+# MTV/Forklift cutover progress). See docs/modernization/vmware-to-openshift.md
+# and ops/runbooks/migration/.
+groups:
+  - name: golden_migration_recordings
+    interval: 30s
+    rules:
+      - record: migration:vms_failed:ratio
+        expr: |
+          sum(golden_migration_vms_total{status=~"failed|error"})
+          / clamp_min(sum(golden_migration_vms_total{status=~"succeeded|completed|failed|error"}), 1)
+      - record: migration:duration_seconds:p95
+        expr: histogram_quantile(0.95, sum by (le) (rate(golden_migration_duration_seconds_bucket[1h])))
+
+  - name: golden_migration
+    interval: 30s
+    rules:
+      - alert: MigrationPlannerDown
+        expr: up{job="migration", instance=~"migration-planner:.*"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          vertical: migration
+        annotations:
+          summary: "migration-planner is down"
+          description: "Assessment, wave planning and MTV manifest generation are unavailable."
+
+      - alert: MigrationFailuresSpike
+        expr: sum by (reason) (increase(golden_migration_failures_total[15m])) >= 3
+        for: 0m
+        labels:
+          severity: critical
+          vertical: migration
+        annotations:
+          summary: "{{ $value }} VM migration failures in 15m ({{ $labels.reason }})"
+          description: "Pause the active wave (stop new MTV Migrations) and follow ops/runbooks/migration/rollback.md if the cutover window is at risk."
+          runbook: "ops/runbooks/migration/rollback.md"
+
+      - alert: MigrationFailureRatioHigh
+        expr: migration:vms_failed:ratio > 0.05
+        for: 10m
+        labels:
+          severity: warning
+          vertical: migration
+        annotations:
+          summary: "More than 5% of migrated VMs failed"
+          description: "Failed ratio is {{ $value | humanizePercentage }} — wave exit criteria will not be met."
+
+      - alert: MigrationWaveStalled
+        expr: |
+          (golden_migration_wave_progress_ratio > 0 and golden_migration_wave_progress_ratio < 1)
+          and changes(golden_migration_wave_progress_ratio[1h]) == 0
+        for: 30m
+        labels:
+          severity: warning
+          vertical: migration
+        annotations:
+          summary: "Migration wave {{ $labels.wave }} stalled at {{ $value | humanizePercentage }}"
+          description: "No progress for 90m. Check MTV Migration/Plan status, VDDK transfer rates and datastore/ODF capacity."
+          runbook: "ops/runbooks/migration/cutover.md"
+
+      - alert: MigrationDurationHigh
+        expr: migration:duration_seconds:p95 > 4 * 3600
+        for: 15m
+        labels:
+          severity: info
+          vertical: migration
+        annotations:
+          summary: "p95 per-VM migration duration above 4h"
+          description: "p95 is {{ $value | humanizeDuration }}. Consider warm migration (precopy) for large disks or splitting the wave."

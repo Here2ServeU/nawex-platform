@@ -1,0 +1,17 @@
+# Deploys KubeVirt, CDI, networking add-ons, etc. once the HCO operator is up.
+apiVersion: hco.kubevirt.io/v1beta1
+kind: HyperConverged
+metadata:
+  name: kubevirt-hyperconverged
+  namespace: openshift-cnv
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  # Live migration tuning for evacuating nodes during cluster upgrades.
+  liveMigrationConfig:
+    parallelMigrationsPerCluster: 5
+    parallelOutboundMigrationsPerNode: 2
+    completionTimeoutPerGiB: 800
+    progressTimeout: 150
+  featureGates:
+    enableCommonBootImageImport: true

@@ -1,0 +1,80 @@
+# Reference Deployment for the Node.js workload app (ghcr.io/here2serveu/golden-workload).
+# The Python platform services are deployed with the Helm chart deploy/helm/golden.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: golden-workload
+  namespace: golden
+  labels:
+    app: golden-workload
+    app.kubernetes.io/name: golden-workload
+    app.kubernetes.io/part-of: golden
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: golden-workload
+  template:
+    metadata:
+      labels:
+        app: golden-workload
+        app.kubernetes.io/name: golden-workload
+        app.kubernetes.io/part-of: golden
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: workload
+          image: ghcr.io/here2serveu/golden-workload:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "8080"
+            - name: NODE_ENV
+              value: production
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

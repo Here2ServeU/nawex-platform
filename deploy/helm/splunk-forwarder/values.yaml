@@ -1,0 +1,36 @@
+namespace: logging
+
+splunk:
+  hecEndpoint: "http://SPLUNK_HEC_HOST:8088/services/collector"
+  hecToken: "CHANGE_ME"
+  tls: false
+
+image:
+  repository: fluent/fluent-bit
+  tag: "2.2.0"
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Host log files under /var/log are root-owned, so the collector runs as uid 0.
+# Everything else is locked down (no capabilities, read-only root FS, read-only
+# hostPath mount).
+podSecurityContext:
+  runAsUser: 0
+  runAsGroup: 0
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  privileged: false
+  capabilities:
+    drop:
+      - ALL

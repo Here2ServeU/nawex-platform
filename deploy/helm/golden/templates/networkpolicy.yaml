@@ -1,0 +1,74 @@
+{{- if .Values.networkPolicy.enabled }}
+{{- $ports := list }}
+{{- range $name, $raw := .Values.services }}
+{{- $svc := include "golden.serviceConfig" (dict "root" $ "name" $name "cfg" $raw) | fromYaml }}
+{{- if ne (toString $svc.enabled) "false" }}
+{{- $ports = append $ports $svc.port }}
+{{- end }}
+{{- end }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "golden.fullname" . }}
+  labels:
+    {{- include "golden.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/part-of: golden
+  policyTypes:
+    - Ingress
+    {{- if .Values.networkPolicy.restrictEgress }}
+    - Egress
+    {{- end }}
+  ingress:
+    # Service-to-service traffic inside the release.
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: {{ .Release.Name }}
+              app.kubernetes.io/part-of: golden
+      ports:
+        {{- range $ports }}
+        - protocol: TCP
+          port: {{ . }}
+        {{- end }}
+    {{- with .Values.networkPolicy.allowedNamespaces }}
+    # Ingress controller / Prometheus namespaces.
+    - from:
+        {{- range . }}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ . }}
+        {{- end }}
+      ports:
+        {{- range $ports }}
+        - protocol: TCP
+          port: {{ . }}
+        {{- end }}
+    {{- end }}
+  {{- if .Values.networkPolicy.restrictEgress }}
+  egress:
+    # DNS
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Intra-release traffic
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: {{ .Release.Name }}
+              app.kubernetes.io/part-of: golden
+    {{- with .Values.networkPolicy.extraEgress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}

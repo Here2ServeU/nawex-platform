@@ -1,0 +1,17 @@
+node_modules
+npm-debug.log*
+coverage
+test
+public
+api
+auth
+common
+dashboard
+.git
+.gitignore
+.dockerignore
+Dockerfile
+eslint.config.js
+*.md
+.env
+.env.*

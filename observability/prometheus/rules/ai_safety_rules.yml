@@ -1,0 +1,81 @@
+# Golden AI-safety alerts (golden.security).
+# See docs/security/ai-safety.md for the controls these signals come from.
+groups:
+  - name: golden_ai_safety
+    interval: 30s
+    rules:
+      - alert: KillSwitchEngaged
+        expr: max by (job, instance) (golden_kill_switch_engaged) == 1
+        for: 0m
+        labels:
+          severity: critical
+          domain: ai-safety
+        annotations:
+          summary: "AI kill switch engaged on {{ $labels.instance }}"
+          description: "GOLDEN_KILL_SWITCH is active — all autonomous remediation actions are halted. Confirm this was intentional and follow the kill-switch runbook before releasing it."
+          runbook: "docs/security/ai-safety.md#kill-switch"
+
+      - alert: GuardrailRejectionSpike
+        expr: |
+          sum by (service, reason) (rate(golden_guardrail_rejections_total[5m])) > 1
+          and
+          sum by (service, reason) (rate(golden_guardrail_rejections_total[5m]))
+            > 5 * sum by (service, reason) (rate(golden_guardrail_rejections_total[1h] offset 5m))
+        for: 5m
+        labels:
+          severity: warning
+          domain: ai-safety
+        annotations:
+          summary: "Guardrail rejection spike on {{ $labels.service }} ({{ $labels.reason }})"
+          description: "{{ $value | humanize }} rejections/s, >5x the trailing-hour baseline. Possible adversarial / out-of-distribution input campaign or a broken upstream producer."
+
+      - alert: GuardrailRejectionsSustained
+        expr: sum by (service, reason) (rate(golden_guardrail_rejections_total[15m])) > 5
+        for: 15m
+        labels:
+          severity: warning
+          domain: ai-safety
+        annotations:
+          summary: "Sustained guardrail rejections on {{ $labels.service }}"
+          description: "{{ $value | humanize }} rejections/s for 15m (reason={{ $labels.reason }})."
+
+      - alert: ActionsBlockedSpike
+        expr: sum by (reason) (increase(golden_actions_blocked_total[10m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          domain: ai-safety
+        annotations:
+          summary: "Autonomous actions blocked ({{ $labels.reason }})"
+          description: "{{ $value | humanize }} remediation actions were blocked in 10m (budget exhausted, approval required or kill switch). The agent may be looping — check the audit log."
+
+      - alert: ActionBudgetExhausted
+        expr: sum(increase(golden_actions_blocked_total{reason=~"budget.*|rate.*"}[1h])) > 0
+        for: 0m
+        labels:
+          severity: info
+          domain: ai-safety
+        annotations:
+          summary: "Hourly action budget exhausted"
+          description: "GOLDEN_MAX_ACTIONS_PER_HOUR was reached; further actions are being blocked until the window rolls over."
+
+      - alert: RateLimitingActive
+        expr: sum by (service) (rate(golden_rate_limited_total[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          domain: ai-safety
+        annotations:
+          summary: "Clients rate limited on {{ $labels.service }}"
+          description: "{{ $value | humanize }} requests/s rejected by GOLDEN_RATE_LIMIT_PER_MINUTE. Possible abuse / DoS or a mis-sized client."
+
+      - alert: AuthFailuresHigh
+        expr: |
+          sum by (service) (rate(golden_http_requests_total{status=~"401|403"}[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          domain: ai-safety
+        annotations:
+          summary: "Elevated 401/403 responses on {{ $labels.service }}"
+          description: "{{ $value | humanize }} unauthenticated/forbidden requests/s — check for API key brute forcing or a rotated key."

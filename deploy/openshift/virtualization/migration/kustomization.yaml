@@ -1,0 +1,19 @@
+# Example migration wave ("wave-01"). `golden migrate plan --inventory rvtools.csv`
+# generates one copy of these manifests per wave under ../waves/<wave>/.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: golden
+      app.kubernetes.io/component: vm-migration
+      golden.io/migration-wave: wave-01
+    includeSelectors: false
+resources:
+  - target-namespace.yaml
+  - vsphere-secret.yaml
+  - providers.yaml
+  - network-map.yaml
+  - storage-map.yaml
+  - plan.yaml
+  - migration.yaml
+  - sample-virtualmachine.yaml

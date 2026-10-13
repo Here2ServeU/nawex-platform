@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kafka-zookeeper.fullname" . }}-kafka
+  labels:
+    app: kafka
+spec:
+  replicas: {{ .Values.kafka.replicaCount }}
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false   # avoid KAFKA_* env injected by the Service
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: {{ .Values.uid }}
+        runAsGroup: {{ .Values.uid }}
+        fsGroup: {{ .Values.uid }}
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: kafka
+          image: {{ .Values.kafka.image }}
+          env:
+            - name: KAFKA_BROKER_ID
+              value: "1"
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: "{{ include "kafka-zookeeper.fullname" . }}-zookeeper:{{ .Values.zookeeper.clientPort }}"
+            - name: KAFKA_LISTENERS
+              value: "PLAINTEXT://0.0.0.0:{{ .Values.kafka.brokerPort }}"
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://{{ include "kafka-zookeeper.fullname" . }}-kafka:{{ .Values.kafka.brokerPort }}"
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+              value: "1"
+            - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+              value: "1"
+          ports:
+            - containerPort: {{ .Values.kafka.brokerPort }}
+          resources:
+            {{- toYaml .Values.kafka.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: config
+              mountPath: /etc/kafka
+            - name: data
+              mountPath: /var/lib/kafka/data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: config
+          emptyDir: {}
+        - name: data
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}

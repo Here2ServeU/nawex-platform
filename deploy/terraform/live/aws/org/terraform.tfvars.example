@@ -1,0 +1,34 @@
+# Copy to terraform.tfvars and adjust. Applied from the management / delegated-admin account.
+project = "golden"
+region  = "us-east-1"
+
+allowed_regions = ["us-east-1", "us-west-2"]
+
+# Logical account groups used in security/identity/access-model.yaml -> account IDs.
+account_groups = {
+  management        = ["111111111111"]
+  security          = ["222222222222"]
+  shared-services   = ["333333333333"]
+  network           = ["444444444444"]
+  workloads-prod    = ["555555555555"]
+  workloads-nonprod = ["666666666666"]
+  sandbox           = ["777777777777"]
+}
+
+# Staged rollout (ops/runbooks/identity/guardrail-rollout.md): attach to the sandbox
+# OU first, then nonprod, then prod once `golden iam roles` shows no NO_BOUNDARY roles.
+scp_targets = {
+  deny-root-and-iam-users     = ["ou-xxxx-sandbox"]
+  protect-security-services   = ["ou-xxxx-sandbox"]
+  region-allowlist            = ["ou-xxxx-sandbox"]
+  enforce-permission-boundary = ["ou-xxxx-sandbox"]
+}
+
+rcp_targets = {
+  data-perimeter = ["ou-xxxx-sandbox"]
+}
+
+tags = {
+  owner       = "cloud-security"
+  cost_center = "REPLACE_ME"
+}

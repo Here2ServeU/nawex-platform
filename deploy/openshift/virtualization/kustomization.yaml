@@ -1,0 +1,13 @@
+# VMware vSphere -> OpenShift Virtualization migration (MTV / Forklift).
+#
+# Apply in two stages (the CRs in migration/ need the operator CRDs first):
+#   oc apply -k deploy/openshift/virtualization/operators
+#   oc wait --for=condition=Available -n openshift-cnv hyperconverged/kubevirt-hyperconverged --timeout=30m
+#   oc apply -k deploy/openshift/virtualization/migration
+#
+# This top-level kustomization renders everything for CI validation.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - operators
+  - migration

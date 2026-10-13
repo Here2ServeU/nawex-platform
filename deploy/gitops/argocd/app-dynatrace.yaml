@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dynatrace-operator
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    # Upstream vendor chart (no first-party chart in this repo).
+    repoURL: https://raw.githubusercontent.com/Dynatrace/dynatrace-operator/main/config/helm/repos/stable
+    chart: dynatrace-operator
+    targetRevision: 1.3.0
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: dynatrace
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      # Dynatrace installs extensive CRDs (DynaKube), so ServerSideApply is often required to avoid "Too long: must have at most 262144 bytes" errors
+      - ServerSideApply=true

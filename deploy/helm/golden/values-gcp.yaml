@@ -1,0 +1,36 @@
+# Google GKE overlay. Used by scripts/deploy.sh gcp <env>, which also sets:
+#   --set image.registry=<terraform output registry_url>
+#   --set serviceAccount.annotations."iam\.gke\.io/gcp-service-account"=<workload_identity>
+serviceAccount:
+  annotations:
+    iam.gke.io/gcp-service-account: ""   # terraform output workload_identity
+
+storageClass: standard-rwo
+
+ingress:
+  enabled: true
+  className: gce
+  annotations:
+    kubernetes.io/ingress.allow-http: "true"
+    # networking.gke.io/managed-certificates: golden-cert
+  hosts:
+    - host: golden.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
+
+networkPolicy:
+  # GCE load balancer health checks / NEG traffic come from Google ranges;
+  # GKE Dataplane V2 allows them when the Service is exposed via Ingress.
+  allowedNamespaces:
+    - kube-system
+    - monitoring
+
+defaults:
+  autoscaling:
+    enabled: true
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway

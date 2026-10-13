@@ -1,0 +1,124 @@
+# Local platform: `make up` (or `docker compose up -d --build`).
+# Observability stack: `make up-observability` (joins this project's network).
+name: golden-platform
+
+x-python-service: &python-service
+  image: ${GOLDEN_IMAGE:-golden-platform:local}
+  build:
+    context: .
+    dockerfile: Dockerfile
+  restart: unless-stopped
+  read_only: true
+  tmpfs: [/tmp]
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+  env_file:
+    - path: .env
+      required: false
+  environment: &python-env
+    GOLDEN_ENV: local
+    GOLDEN_AUTONOMY_MODE: ${GOLDEN_AUTONOMY_MODE:-dry_run}
+    GOLDEN_KILL_SWITCH: ${GOLDEN_KILL_SWITCH:-false}
+    GOLDEN_API_KEYS: ${GOLDEN_API_KEYS:-}
+
+services:
+  api:
+    <<: *python-service
+    command: ["serve", "api"]
+    environment: { <<: *python-env, PORT: "8000" }
+    ports: ["8000:8000"]
+
+  transaction-engine:
+    <<: *python-service
+    command: ["serve", "transaction-engine"]
+    environment: { <<: *python-env, PORT: "8090" }
+    ports: ["8090:8090"]
+
+  fraud-detector:
+    <<: *python-service
+    command: ["serve", "fraud-detector"]
+    environment: { <<: *python-env, PORT: "8091", FRAUD_THRESHOLD: "0.75" }
+    ports: ["8091:8091"]
+
+  payment-gateway:
+    <<: *python-service
+    command: ["serve", "payment-gateway"]
+    environment: { <<: *python-env, PORT: "8092" }
+    ports: ["8092:8092"]
+
+  ehr-ingestion:
+    <<: *python-service
+    command: ["serve", "ehr-ingestion"]
+    environment: { <<: *python-env, PORT: "8093" }
+    ports: ["8093:8093"]
+
+  clinical-decision:
+    <<: *python-service
+    command: ["serve", "clinical-decision"]
+    environment: { <<: *python-env, PORT: "8094" }
+    ports: ["8094:8094"]
+
+  patient-gateway:
+    <<: *python-service
+    command: ["serve", "patient-gateway"]
+    environment: { <<: *python-env, PORT: "8095" }
+    ports: ["8095:8095"]
+
+  gpu-optimizer:
+    <<: *python-service
+    command: ["serve", "gpu-optimizer"]
+    environment: { <<: *python-env, PORT: "8096" }
+    ports: ["8096:8096"]
+
+  migration-planner:
+    <<: *python-service
+    command: ["serve", "migration-planner"]
+    environment: { <<: *python-env, PORT: "8097" }
+    ports: ["8097:8097"]
+
+  identity-governance:
+    <<: *python-service
+    command: ["serve", "identity-governance"]
+    environment: { <<: *python-env, PORT: "8098" }
+    ports: ["8098:8098"]
+
+  orchestrator:
+    <<: *python-service
+    command: ["orchestrate"]
+    environment:
+      <<: *python-env
+      GOLDEN_OBSERVER_SOURCE: http
+      GOLDEN_OBSERVER_ENDPOINT: http://workload:8080/metrics/json
+    healthcheck: { disable: true }
+    depends_on: [workload]
+
+  workload:
+    build: { context: apps/workload }
+    image: golden-workload:local
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    environment: { PORT: "8080" }
+    ports: ["8080:8080"]
+
+  client-portal:
+    build: { context: apps/client-portal }
+    image: golden-client-portal:local
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    environment: { PORT: "3001", PLATFORM_NAME: "${PLATFORM_NAME:-Golden Platform}" }
+    ports: ["3001:3001"]
+
+  robotics-server:
+    <<: *python-service
+    profiles: [robotics]
+    build: { context: ., dockerfile: Dockerfile, args: { EXTRAS: robotics } }
+    image: golden-platform:robotics
+    entrypoint: ["python", "-m", "golden.robotics.grpc.surgical_server"]
+    command: []
+    environment: { <<: *python-env, PORT: "50051" }
+    healthcheck: { disable: true }
+    ports: ["50051:50051"]

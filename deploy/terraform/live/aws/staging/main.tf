@@ -1,0 +1,52 @@
+# ------------------------------------------------------------------------------
+# Golden platform landing zone - AWS / staging
+# Generated layout: every live/{aws,azure,gcp}/{dev,staging,prod} directory
+# exposes the same inputs (variables.tf) and outputs (outputs.tf).
+# ------------------------------------------------------------------------------
+
+locals {
+  name = "${var.project}-${var.environment}"
+  tags = merge({
+    Project     = var.project
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  }, var.tags)
+}
+
+module "registry" {
+  source  = "../../../modules/aws/registry"
+  project = var.project
+  tags    = local.tags
+}
+
+# Org-wide permission boundary (security/identity/access-model.yaml); required on
+# every role by the enforce-permission-boundary SCP in live/aws/org.
+module "permission_boundary" {
+  source = "../../../modules/aws/permission-boundary"
+  tags   = local.tags
+}
+
+module "eks" {
+  source = "../../../modules/aws/eks"
+
+  name               = local.name
+  region             = var.region
+  kubernetes_version = var.kubernetes_version
+  single_nat_gateway = var.environment != "prod"
+
+  node_count         = var.node_count
+  node_instance_type = var.node_instance_type
+
+  gpu_node_pool_enabled = var.gpu_node_pool_enabled
+  gpu_instance_type     = var.gpu_instance_type
+  gpu_node_count        = var.gpu_node_count
+
+  workload_namespace       = "golden"
+  workload_service_account = "golden"
+
+  permissions_boundary_arn = module.permission_boundary.arn
+
+  tags = local.tags
+
+  api_server_authorized_cidrs = var.api_server_authorized_cidrs
+}

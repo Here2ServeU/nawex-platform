@@ -1,0 +1,134 @@
+# Golden Platform — Prometheus configuration
+#
+# Targets use the docker compose service DNS names / ports of the golden-path
+# stack (root compose.yaml). Every Python service is the same image
+# (ghcr.io/here2serveu/golden-platform) started with `golden serve <service>` and
+# exposes /health, /ready and /metrics (Prometheus text format).
+#
+# One scrape job per domain. The `vertical` target label drives Alertmanager
+# routing; the per-service identity comes from `instance` and from the
+# `service` label emitted by the application itself (do NOT add a `service`
+# target label — it would collide and be renamed to `exported_service`).
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+  external_labels:
+    platform: golden
+    environment: production
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+rule_files:
+  - "rules/golden_alerts.yml"
+  - "rules/slo_rules.yml"
+  - "rules/ai_safety_rules.yml"
+  - "rules/gpu_rules.yml"
+  - "rules/migration_rules.yml"
+  - "rules/identity_rules.yml"
+
+scrape_configs:
+  # ── Platform API (golden serve api) ───────────────────────────
+  - job_name: platform-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api:8000"]
+        labels:
+          vertical: platform
+
+  # ── Fintech services ─────────────────────────────────────────
+  - job_name: fintech
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "transaction-engine:8090"
+          - "fraud-detector:8091"
+          - "payment-gateway:8092"
+        labels:
+          vertical: fintech
+
+  # ── Healthcare services ──────────────────────────────────────
+  - job_name: healthcare
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "ehr-ingestion:8093"
+          - "clinical-decision:8094"
+          - "patient-gateway:8095"
+        labels:
+          vertical: healthcare
+
+  # ── GPU / AI-infrastructure optimizer ────────────────────────
+  - job_name: gpu
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["gpu-optimizer:8096"]
+        labels:
+          vertical: gpu
+
+  # ── Modernization / VM migration planner ─────────────────────
+  - job_name: migration
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["migration-planner:8097"]
+        labels:
+          vertical: migration
+
+  # ── AWS identity governance (IAM modernization) ──────────────
+  - job_name: identity
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["identity-governance:8098"]
+        labels:
+          vertical: identity
+
+  # ── NVIDIA DCGM exporter (real GPU clusters only) ────────────
+  # Exposes DCGM_FI_DEV_GPU_UTIL, DCGM_FI_DEV_GPU_TEMP, DCGM_FI_DEV_FB_USED,
+  # DCGM_FI_DEV_POWER_USAGE, DCGM_FI_DEV_XID_ERRORS ... The target is simply
+  # reported as down on laptops / CI where no exporter runs.
+  - job_name: dcgm-exporter
+    metrics_path: /metrics
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["dcgm-exporter:9400"]
+        labels:
+          vertical: gpu
+
+  # ── Node apps (apps/) ────────────────────────────────────────
+  - job_name: apps
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "client-portal:3001"
+          - "workload:8080"
+        labels:
+          vertical: platform
+
+  # ── Infrastructure exporters (optional) ──────────────────────
+  - job_name: kafka
+    static_configs:
+      - targets: ["kafka-exporter:9308"]
+
+  - job_name: redis
+    static_configs:
+      - targets: ["redis-exporter:9121"]
+
+  # ── Observability stack self-monitoring ──────────────────────
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: loki
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["loki:3100"]
+
+  - job_name: tempo
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["tempo:3200"]

@@ -1,0 +1,27 @@
+# Source: on-prem VMware vSphere (vCenter).
+apiVersion: forklift.konveyor.io/v1beta1
+kind: Provider
+metadata:
+  name: vsphere-dc1
+  namespace: openshift-mtv
+spec:
+  type: vsphere
+  url: https://vcenter.example.com/sdk
+  secret:
+    name: vsphere-credentials
+    namespace: openshift-mtv
+  settings:
+    # VMware VDDK image (built from the VMware VDDK SDK and pushed to your own
+    # registry; VMware's license prevents redistributing it publicly).
+    vddkInitImage: registry.example.com/golden/vddk:8.0.3
+    sdkEndpoint: vcenter
+---
+# Destination: the OpenShift cluster MTV runs on (empty url = host cluster).
+apiVersion: forklift.konveyor.io/v1beta1
+kind: Provider
+metadata:
+  name: host
+  namespace: openshift-mtv
+spec:
+  type: openshift
+  url: ""

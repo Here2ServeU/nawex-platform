@@ -1,0 +1,10 @@
+apiVersion: v2
+name: express-app
+description: >-
+  Golden-path chart for the platform's Node.js apps. Defaults deploy the
+  workload app (ghcr.io/here2serveu/golden-workload, port 8080); use
+  ci/client-portal-values.yaml as a template for the client portal
+  (ghcr.io/here2serveu/golden-client-portal, port 3001).
+type: application
+version: 0.2.0
+appVersion: "0.1.0"

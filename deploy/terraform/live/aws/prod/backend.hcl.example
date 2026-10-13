@@ -1,0 +1,7 @@
+# Copy to backend.hcl and run: terraform init -backend-config=backend.hcl
+# Create the bucket/table once with deploy/terraform/modules/aws/backend.
+bucket         = "REPLACE_ME-golden-tfstate"
+key            = "golden/prod/terraform.tfstate"
+region         = "us-east-1"
+dynamodb_table = "golden-terraform-locks"
+encrypt        = true

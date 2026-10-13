@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Golden Platform — Executive Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+          integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g"
+          crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ HEADER -->
+<header class="portal-header">
+  <div class="header-brand">
+    <div class="brand-logo" id="brandLogo">G</div>
+    <div>
+      <div class="brand-name" id="brandName">Golden Platform</div>
+      <div class="brand-tagline">Executive Console — Reliability, AI Infrastructure &amp; Modernization</div>
+    </div>
+  </div>
+  <div class="header-center">
+    <div id="phaseBadge" class="phase-badge">System Normal</div>
+    <div class="conn-label conn-label-spaced">
+      <span id="connDot" class="conn-dot"></span>
+      <span id="connLabel">Connecting…</span>
+    </div>
+  </div>
+  <nav class="vertical-toggle" aria-label="Industry vertical">
+    <button type="button" class="toggle-btn active" data-vertical="healthcare">🏥 Hospital</button>
+    <button type="button" class="toggle-btn" data-vertical="fintech">🏦 Financial Institution</button>
+    <button type="button" class="toggle-btn" data-vertical="gpu">🖥️ AI Infrastructure / GPU Fleet</button>
+    <button type="button" class="toggle-btn" data-vertical="migration">🚚 VMware → OpenShift</button>
+  </nav>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════ ALERT TICKER -->
+<div class="alert-ticker">
+  <div class="ticker-label">Live Alerts</div>
+  <div class="ticker-track">
+    <div id="tickerInner" class="ticker-inner">
+      <span class="ticker-item">
+        <span class="ticker-dot medium"></span>
+        <span>Awaiting live data stream…</span>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ MAIN -->
+<main class="portal-main">
+
+  <!-- AI Safety Guardrails (simulated; real enforcement lives in the Python platform) -->
+  <section class="card safety-card" aria-label="AI safety guardrails">
+    <div class="card-title safety-title">
+      AI Safety Guardrails
+      <span class="sim-badge">Simulated</span>
+    </div>
+    <div class="safety-grid">
+      <div class="safety-item">
+        <div class="safety-label">Autonomy mode</div>
+        <div id="safetyMode" class="safety-value mode-supervised">supervised</div>
+      </div>
+      <div class="safety-item">
+        <div class="safety-label">Actions this hour</div>
+        <div class="safety-value"><span id="safetyActions">0</span> / <span id="safetyCap">20</span></div>
+        <div class="safety-track"><div id="safetyFill" class="safety-fill"></div></div>
+      </div>
+      <div class="safety-item">
+        <div class="safety-label">Kill switch</div>
+        <div id="safetyKill" class="safety-value kill-armed">armed</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Top Row: Risk Gauge | Research Provenance | ROI Panel -->
+  <div class="top-row">
+
+    <div class="card risk-gauge-card">
+      <div class="card-title">Composite AI Risk Score</div>
+      <div class="risk-gauge-wrap">
+        <canvas id="gaugeChart"></canvas>
+        <div class="risk-gauge-label">
+          <div id="gaugeValue" class="risk-gauge-value">0.18</div>
+          <div class="risk-gauge-sub">Risk Index</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title card-title-split">
+        Research Methodology
+        <span class="research-badge">✦ Peer-Reviewed AI</span>
+      </div>
+      <div id="provenanceGrid" class="provenance-grid"></div>
+    </div>
+
+    <div class="card roi-panel">
+      <div class="card-title">Contract ROI Justification</div>
+      <div id="roiMain" class="roi-main-number">27x</div>
+      <div id="roiSub" class="roi-sub">Return on Investment</div>
+      <div class="roi-row">
+        <span class="roi-row-label">Monthly Contract</span>
+        <span id="roiCost" class="roi-row-value cost">$17,500</span>
+      </div>
+      <div class="roi-row">
+        <span class="roi-row-label">Monthly Value Protected</span>
+        <span id="roiProtected" class="roi-row-value positive">$480K</span>
+      </div>
+      <div class="roi-row">
+        <span class="roi-row-label">Payback Period</span>
+        <span id="roiPayback" class="roi-row-value">1.1 days</span>
+      </div>
+      <div class="roi-row">
+        <span class="roi-row-label">Annual Net Benefit</span>
+        <span id="roiAnnual" class="roi-row-value positive">$5.55M</span>
+      </div>
+      <div class="roi-breakdown" id="roiBreakdown"></div>
+    </div>
+  </div>
+
+  <!-- Stat Cards Row (populated per vertical) -->
+  <div id="statsRow" class="stats-row"></div>
+
+  <!-- Migration wave progress (migration vertical only) -->
+  <section id="migrationPanel" class="card migration-panel" hidden>
+    <div class="card-title">Migration Programme — Assessment &amp; Wave Progress</div>
+    <div class="assess-bar" aria-label="Assessment breakdown">
+      <div id="assessReady" class="assess-seg ready"></div>
+      <div id="assessRemediate" class="assess-seg remediate"></div>
+      <div id="assessBlocked" class="assess-seg blocked"></div>
+    </div>
+    <div class="assess-legend">
+      <span><span class="legend-dot ready"></span>Ready <strong id="legendReady">—</strong></span>
+      <span><span class="legend-dot remediate"></span>Needs remediation <strong id="legendRemediate">—</strong></span>
+      <span><span class="legend-dot blocked"></span>Blocked <strong id="legendBlocked">—</strong></span>
+    </div>
+    <div id="waveTrack" class="wave-track"></div>
+  </section>
+
+  <!-- Charts + Explainability Row -->
+  <div class="charts-row">
+    <div class="card">
+      <div class="card-title">AI Risk Score — 60-Point Rolling Window</div>
+      <canvas id="riskChart" height="120"></canvas>
+    </div>
+    <div class="card explainability-card">
+      <div id="explainTitle" class="card-title">Top Risk Contributing Factors</div>
+      <div id="explainFactors"></div>
+    </div>
+  </div>
+
+  <footer class="phd-footer">
+    <div>
+      <div class="footer-author">Rev. Dr. Emmanuel Naweji — Principal Researcher</div>
+      <div class="footer-meta">IEEE AI Reliability Standards 2024</div>
+    </div>
+    <div class="footer-pills">
+      <span class="footer-pill">HIPAA §164.312(b) Aligned</span>
+      <span class="footer-pill">PCI-DSS v4.0 Ready</span>
+      <span class="footer-pill">FHIR R4 Compliant</span>
+      <span class="footer-pill">BSA/AML Framework</span>
+      <span class="footer-pill">NVIDIA DCGM Telemetry</span>
+      <span class="footer-pill">OpenShift Virtualization</span>
+      <span class="footer-pill">SOC 2 Type II Architecture</span>
+    </div>
+  </footer>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

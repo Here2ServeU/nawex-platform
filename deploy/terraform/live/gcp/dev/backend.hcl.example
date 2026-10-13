@@ -1,0 +1,4 @@
+# Copy to backend.hcl and run: terraform init -backend-config=backend.hcl
+# Create the bucket once with deploy/terraform/modules/gcp/backend.
+bucket = "REPLACE_ME-golden-tfstate"
+prefix = "golden/dev"

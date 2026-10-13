@@ -1,0 +1,10 @@
+{{- if .Values.worker.createNamespace }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "platform.namespace" . }}
+  labels:
+    name: {{ include "platform.namespace" . }}
+    # Ensures service mesh / network policies can target this specifically
+    security: isolated
+{{- end }}

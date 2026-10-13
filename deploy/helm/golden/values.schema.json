@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "golden chart values",
+  "type": "object",
+  "required": [
+    "image",
+    "platform",
+    "services"
+  ],
+  "properties": {
+    "image": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": [
+            "Always",
+            "IfNotPresent",
+            "Never"
+          ]
+        },
+        "registry": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "platform": {
+      "type": "object",
+      "properties": {
+        "autonomyMode": {
+          "type": "string",
+          "enum": [
+            "dry_run",
+            "supervised",
+            "autonomous"
+          ]
+        },
+        "killSwitch": {
+          "type": "boolean"
+        },
+        "logLevel": {
+          "type": "string"
+        }
+      }
+    },
+    "apiKeys": {
+      "type": "object",
+      "properties": {
+        "existingSecret": {
+          "type": "string"
+        },
+        "secretKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "optional": {
+          "type": "boolean"
+        },
+        "create": {
+          "type": "boolean"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "services": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "port"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "replicaCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "gpu": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "gpu": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

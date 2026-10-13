@@ -1,0 +1,6 @@
+# Copy to backend.hcl and run: terraform init -backend-config=backend.hcl
+# Create the storage account once with deploy/terraform/modules/azure/backend.
+resource_group_name  = "golden-tfstate-rg"
+storage_account_name = "REPLACEMEgoldentfstate"
+container_name       = "tfstate"
+key                  = "golden/dev/terraform.tfstate"

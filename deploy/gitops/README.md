@@ -1,0 +1,82 @@
+# GitOps Control Plane
+
+**Automated Configuration Management for the Express AI-Driven Platform**
+
+This directory defines the GitOps control plane, utilizing **ArgoCD** and **Flux** to manage the lifecycle of the Web App Workload, Observability Stack, and Platform Infrastructure. It enforces a "Code is Law" philosophy, ensuring that the desired state defined in Git is always reflected in the cluster.
+
+---
+
+## Directory Layout
+
+### 1. ArgoCD (Application Layer)
+Located in `argocd/`. Manages high-level applications and ensuring continuous synchronization.
+
+* `app-golden.yaml`: Deploys every Golden platform service from `deploy/helm/golden`.
+* `app-openshift-virtualization.yaml`: (OpenShift) installs OpenShift Virtualization + MTV for VMware VM migration.
+* `app-splunk-forwarder.yaml`: Deploys the Splunk Universal Forwarder DaemonSet.
+* `app-monitoring-stack.yaml`: Deploys Prometheus and Grafana for metrics.
+* `app-datadog.yaml` / `app-dynatrace.yaml`: Vendor agents from their upstream Helm repositories.
+
+### 2. Flux (Infrastructure Layer)
+Located in `flux/`. Manages low-level cluster resources and automated reconciliation.
+
+* `apps/resources/kustomization.yaml`: Entry point listing every HelmRelease.
+* `apps/resources/golden-helmrelease.yaml`: HelmRelease for the Golden platform chart.
+* `apps/resources/splunk-forwarder-helmrelease.yaml`: HelmRelease for Splunk logging.
+* `apps/resources/monitoring-stack-helmrelease.yaml` / `datadog-helmrelease.yaml`: Observability stacks.
+
+### 3. Policies (Compliance & Security)
+Located in `policies/`. Documentation on how this architecture satisfies regulatory controls.
+
+* `drift-detection.md`: Explains the auto-sync and self-heal mechanisms.
+* `soc2-gitops-controls.md`: Details how GitOps meets SOC 2 Type II requirements (Change Management, Audit Trails).
+
+---
+
+## Usage Guide: ArgoCD
+
+To bootstrap the Application Layer using ArgoCD:
+
+1. **Install ArgoCD** (if not already present):
+    ```bash
+    kubectl create namespace argocd
+    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    ```
+
+2. **Create the API key Secret** (out of band, e.g. External Secrets):
+    ```bash
+    kubectl create namespace golden
+    kubectl -n golden create secret generic golden-api-keys --from-literal=GOLDEN_API_KEYS=<comma-separated-keys>
+    ```
+
+3. **Deploy Applications**:
+    ```bash
+    kubectl apply -f deploy/gitops/argocd/app-golden.yaml
+    kubectl apply -f deploy/gitops/argocd/app-splunk-forwarder.yaml
+    ```
+
+**Result:** ArgoCD will begin synchronizing the Golden platform services and the Splunk Forwarder immediately.
+
+---
+
+## Usage Guide: Flux
+
+To bootstrap the Infrastructure Layer using Flux:
+
+1. **Install Flux CLI & Controllers**:
+    ```bash
+    flux install --namespace flux-system
+    ```
+
+2. **Apply Source & Kustomization**:
+    ```bash
+    kubectl apply -f gitops/flux/namespace.yaml
+    kubectl apply -f gitops/flux/gitrepository-platform.yaml
+    kubectl apply -f gitops/flux/kustomization-platform.yaml
+    ```
+
+**Result:** Flux will enter a continuous reconciliation loop (1-minute interval), ensuring that any drift in the `deploy/helm/` charts is instantly corrected.
+
+---
+
+*Copyright (c) 2026 Nawex Platform (NAWEX). Owned by Rev. Dr. Emmanuel Naweji. All rights reserved.*

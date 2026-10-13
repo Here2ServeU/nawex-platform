@@ -1,0 +1,17 @@
+title = "golden-platform gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documented placeholders and synthetic test data"
+paths = [
+  '''(^|/)package-lock\.json$''',
+  '''\.example$''',
+  '''(^|/)tests/''',
+]
+regexes = [
+  '''REPLACE_ME''',
+  '''<[a-z-]+>''',
+  '''hooks\.slack\.com/services/YOUR/WEBHOOK/URL''',
+]

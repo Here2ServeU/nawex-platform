@@ -1,0 +1,41 @@
+image:
+  repository: splunk/splunk
+  tag: "9.3.2"
+  pullPolicy: IfNotPresent
+
+hec:
+  token: "changeme-token"
+  port: 8088
+  ssl: false
+
+service:
+  type: ClusterIP
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: "2"
+    memory: 4Gi
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Splunk Enterprise runs as the `splunk` user (uid 41812). Its Ansible-based
+# entrypoint rewrites files outside /opt/splunk/{etc,var}, so the root
+# filesystem stays writable (documented exception in .trivyignore.yaml).
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 41812
+  runAsGroup: 41812
+  fsGroup: 41812
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+      - ALL

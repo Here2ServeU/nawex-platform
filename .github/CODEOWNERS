@@ -1,0 +1,5 @@
+# Default owner for everything; refine per team after `scripts/init-project.sh`.
+*                       @Here2ServeU
+/src/golden/security/   @Here2ServeU
+/deploy/                @Here2ServeU
+/.github/               @Here2ServeU

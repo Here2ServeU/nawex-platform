@@ -1,0 +1,71 @@
+# OpenShift overrides for the `golden` chart - fintech domain only
+# (transaction-engine, fraud-detector, payment-gateway; PCI-DSS scope).
+#   helm upgrade --install golden-fintech deploy/helm/golden \
+#     -f deploy/openshift/helm-values/fintech-values.yaml -n golden-fintech
+serviceAccount:
+  create: false
+  name: golden-fintech-sa
+
+commonLabels:
+  compliance: pci-dss
+  platform: openshift
+
+platform:
+  extraConfig:
+    PCI_DSS_ENABLED: "true"
+    ENCRYPTION_AT_REST: "true"
+    ENCRYPTION_IN_TRANSIT: "true"
+    FRAUD_DETECTION_THRESHOLD: "0.75"
+
+apiKeys:
+  existingSecret: golden-api-keys
+  optional: false
+
+networkPolicy:
+  allowedNamespaces:
+    - openshift-ingress
+    - openshift-monitoring
+    - golden-platform
+
+route:
+  enabled: true
+  services:
+    - transaction-engine
+    - fraud-detector
+    - payment-gateway
+
+defaults:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 15
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  podAnnotations:
+    compliance.openshift.io/pci-dss: "true"
+
+services:
+  api:
+    enabled: false
+  ehr-ingestion:
+    enabled: false
+  clinical-decision:
+    enabled: false
+  patient-gateway:
+    enabled: false
+  gpu-optimizer:
+    enabled: false
+  migration-planner:
+    enabled: false
+  fraud-detector:
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: "2"
+        memory: 2Gi

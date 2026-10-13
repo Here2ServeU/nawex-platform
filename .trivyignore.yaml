@@ -1,0 +1,35 @@
+# Accepted Trivy findings. Every entry needs a justification and an owner
+# review; keep this list minimal. Used by .github/workflows/security.yml and
+# security/container-scanning/trivy.yaml via `--ignorefile .trivyignore.yaml`.
+misconfigurations:
+  - id: AWS-0104
+    paths:
+      - "terraform-aws-modules/eks/aws/node_groups.tf"
+    statement: >-
+      Third-party terraform-aws-modules/eks node security group "egress_all"
+      (recommended rule). EKS worker nodes need outbound HTTPS to ECR, the
+      EKS/STS/EC2 APIs and public registries through the VPC NAT gateway; the
+      module offers no input to scope this rule without disabling all of its
+      recommended node rules. Mitigations: nodes live in private subnets only,
+      egress leaves via NAT, and pod traffic is constrained by Kubernetes
+      NetworkPolicies. Revisit when adding VPC interface endpoints + an egress
+      proxy.
+
+  - id: KSV-0053
+    paths:
+      - "ops/runbooks/rbac/k8s_rbac_sre.yaml"
+    statement: >-
+      `sre-break-glass` ClusterRole intentionally grants pods/exec for
+      incident response. It is bound only to the `sre-break-glass` group,
+      which is empty by default and populated just-in-time (ticket required,
+      max 4h); all exec calls are captured by API-server audit logging.
+
+  - id: KSV-0014
+    paths:
+      - "deploy/helm/splunk-hec/templates/deployment.yaml"
+    statement: >-
+      Splunk Enterprise (splunk/splunk) provisions itself with Ansible at
+      start-up and writes outside /opt/splunk/{etc,var} (which are emptyDir
+      volumes), so it cannot run with a read-only root filesystem. It runs
+      as the non-root splunk user (uid 41812) with all capabilities dropped,
+      no privilege escalation and seccomp RuntimeDefault.

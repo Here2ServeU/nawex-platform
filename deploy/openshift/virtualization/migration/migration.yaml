@@ -1,0 +1,12 @@
+# Starts the plan. For warm migrations, set `cutover` to the agreed change
+# window (RFC 3339); MTV then stops the source VMs and copies the final delta.
+apiVersion: forklift.konveyor.io/v1beta1
+kind: Migration
+metadata:
+  name: wave-01-run-1
+  namespace: openshift-mtv
+spec:
+  plan:
+    name: wave-01
+    namespace: openshift-mtv
+  cutover: "2026-11-14T02:00:00Z"
