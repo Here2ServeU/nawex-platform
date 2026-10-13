@@ -32,9 +32,12 @@ class InferenceError(ValueError):
     def __init__(self, message: str, status: int = 400) -> None:
         super().__init__(message)
         self.status = status
+        # Messages are written by this module from request shape/limits (never from caught exceptions or
+        # tracebacks); still cap them so nothing large or unexpected is reflected to the client.
+        self.public_message = message[:300]
 
     def to_dict(self) -> dict[str, str]:
-        return {"error": str(self)}
+        return {"error": self.public_message}
 
 
 @dataclass

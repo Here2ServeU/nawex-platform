@@ -12,6 +12,10 @@ paths = [
 ]
 regexes = [
   '''REPLACE_ME''',
+  # External Secrets remoteRef paths (e.g. key: golden/db/pgbouncer) name a secret, they are not one.
+  '''^golden/[a-z0-9/_-]+$''',
+  # Terraform variable references (e.g. var.enable_ipv6 ? ... : ...) are expressions, not values.
+  '''^var\.[a-z0-9_]+$''',
   '''<[a-z-]+>''',
   '''hooks\.slack\.com/services/YOUR/WEBHOOK/URL''',
 ]

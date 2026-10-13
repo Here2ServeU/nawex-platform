@@ -52,6 +52,13 @@ spec:
         - key: nvidia.com/gpu
           operator: Exists
           effect: NoSchedule
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: vllm
           image: vllm/vllm-openai:v0.6.3
@@ -67,6 +74,8 @@ spec:
               value: Qwen/Qwen2.5-7B-Instruct
             - name: SERVED_MODEL_NAME
               value: qwen2.5-7b-instruct
+            - name: HOME
+              value: /tmp
             - name: HF_HOME
               value: /cache/huggingface
             - name: HF_TOKEN
@@ -110,6 +119,7 @@ spec:
             failureThreshold: 4
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
             seccompProfile:
@@ -119,11 +129,16 @@ spec:
               mountPath: /cache
             - name: dshm
               mountPath: /dev/shm
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: hf-cache
           persistentVolumeClaim:
             claimName: vllm-hf-cache
         # NCCL / PyTorch dataloaders need more shared memory than the 64Mi container default.
+        - name: tmp
+          emptyDir:
+            sizeLimit: 4Gi
         - name: dshm
           emptyDir:
             medium: Memory

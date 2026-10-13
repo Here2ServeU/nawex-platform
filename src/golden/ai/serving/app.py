@@ -46,8 +46,10 @@ def make_app(server: FraudModelServer | None = None) -> FastAPI:
     app = create_app(SERVICE, "Open Inference Protocol (V2) model server.", ready_check=lambda: srv.ready)
     app.state.model_server = srv
 
-    def _error(e: InferenceError) -> JSONResponse:
-        return JSONResponse(e.to_dict(), status_code=e.status)
+    @app.exception_handler(InferenceError)
+    async def inference_error(_: Request, exc: InferenceError) -> JSONResponse:
+        # Open Inference Protocol error body: {"error": "<message>"}.
+        return JSONResponse({"error": exc.public_message}, status_code=exc.status)
 
     def _check_name(name: str) -> None:
         if name != srv.name:
@@ -63,10 +65,7 @@ def make_app(server: FraudModelServer | None = None) -> FastAPI:
 
     @app.get("/v2/models/{name}")
     def metadata(name: str) -> Any:
-        try:
-            _check_name(name)
-        except InferenceError as e:
-            return _error(e)
+        _check_name(name)
         return srv.metadata().to_dict()
 
     @app.get("/v2/models/{name}/ready")
@@ -76,23 +75,17 @@ def make_app(server: FraudModelServer | None = None) -> FastAPI:
 
     @app.post("/v2/models/{name}/infer")
     async def infer(name: str, request: Request) -> JSONResponse:
+        _check_name(name)
         try:
-            _check_name(name)
-            try:
-                body = await request.json()
-            except ValueError:
-                raise InferenceError("request body is not valid JSON") from None
-            resp = srv.infer(body)
-        except InferenceError as e:
-            return _error(e)
+            body = await request.json()
+        except ValueError:
+            raise InferenceError("request body is not valid JSON") from None
+        resp = srv.infer(body)
         return JSONResponse(resp.to_dict(), headers=srv.response_headers(resp))
 
     @app.post("/v2/models/{name}/reload")
     def reload(name: str) -> Any:
-        try:
-            _check_name(name)
-        except InferenceError as e:
-            return _error(e)
+        _check_name(name)
         swapped = srv.reload()
         return {"name": srv.name, "version": srv.version, "swapped": swapped, "ready": srv.ready}
 

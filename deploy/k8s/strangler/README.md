@@ -43,7 +43,9 @@ Header routes outrank path-only routes in Kong's router, so the header pins alwa
 ### Stage 0 — prerequisites
 
 - The legacy app is reachable from the cluster: update the `EndpointSlice` addresses (on-prem VIP or
-  the IPs the VM kept on a Multus VLAN after MTV), or use `legacy-monolith-dns` / `legacy-monolith-vm`.
+  the IPs the VM kept on a Multus VLAN after MTV), or use `legacy-monolith-vm`. (An ExternalName Service to the legacy load balancer also works, but is
+  deliberately not shipped: ExternalName can be repointed to any host — CVE-2021-25740 — so prefer
+  explicit EndpointSlices.)
 - `payments-v2` passes its own tests against a copy of production data; data sync is in place
   (CDC from the legacy DB, see [database-migration.md](../../../docs/modernization/database-migration.md)).
 

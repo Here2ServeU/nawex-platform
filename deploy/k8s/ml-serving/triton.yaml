@@ -51,6 +51,13 @@ spec:
         - key: nvidia.com/gpu
           operator: Exists
           effect: NoSchedule
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: triton
           image: nvcr.io/nvidia/tritonserver:24.08-py3
@@ -91,6 +98,7 @@ spec:
             periodSeconds: 15
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
             seccompProfile:
@@ -101,11 +109,16 @@ spec:
               readOnly: true
             - name: dshm
               mountPath: /dev/shm
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: models
           persistentVolumeClaim:
             claimName: triton-model-repository
             readOnly: true
+        - name: tmp
+          emptyDir:
+            sizeLimit: 2Gi
         - name: dshm
           emptyDir:
             medium: Memory
