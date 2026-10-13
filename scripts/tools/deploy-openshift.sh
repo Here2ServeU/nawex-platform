@@ -2,7 +2,7 @@
 # ===========================================================================
 # Golden Platform
 # Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.
-# https://github.com/here2serveu/golden-platform
+# https://github.com/Here2ServeU/nawex-platform
 # ===========================================================================
 # OpenShift Deployment Script for Golden Platform
 # This script automates the deployment of NRP to OpenShift clusters

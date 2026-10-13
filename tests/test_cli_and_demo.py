@@ -9,7 +9,21 @@ from golden.cli import build_parser, main
 
 def test_help_lists_every_command():
     help_text = build_parser().format_help()
-    for cmd in ("serve", "roi", "train", "orchestrate", "demo", "security", "gpu", "migrate", "iam"):
+    for cmd in (
+        "serve",
+        "roi",
+        "train",
+        "orchestrate",
+        "demo",
+        "security",
+        "gpu",
+        "migrate",
+        "iam",
+        "agent",
+        "llm",
+        "rag",
+        "model",
+    ):
         assert cmd in help_text
 
 

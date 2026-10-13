@@ -1,0 +1,411 @@
+{
+  "uid": "golden-agentops",
+  "title": "Golden Platform \u2014 Agent Operations",
+  "tags": [
+    "golden",
+    "agent-ops",
+    "llm",
+    "finops"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "editable": true,
+  "refresh": "30s",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "What are we spending? ($/hour)",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-golden"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-golden"
+          },
+          "refId": "A",
+          "expr": "sum(rate(golden_agent_cost_usd_total[1h])) * 3600",
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "description": "Current agent spend rate."
+    },
+    {
+      "id": 2,
+      "title": "What is it buying us? (cost per successful task)",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-golden"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-golden"
+          },
+          "refId": "A",
+          "expr": "agent:cost_per_success_usd:24h",
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "description": "Total 24h spend / successful runs. Failures stay in the numerator: the number finance should see."
+    },
+    {
+      "id": 3,
+      "title": "Who is spending it? (30d, by team)",
+      "type": "bargauge",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-golden"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-golden"
+          },
+          "refId": "A",
+          "expr": "sum by (team) (increase(golden_agent_cost_usd_total[30d]))",
+          "legendFormat": "{{team}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "description": "Chargeback by owning team (agents.yaml)."
+    },
+    {
+      "id": 4,
+      "title": "How much is wasted? (failed-run tax)",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-golden"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-golden"
+          },
+          "refId": "A",
+          "expr": "agent:failed_run_tax:ratio6h",
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "description": "Share of spend on runs that did not succeed (alert > 35%)."
+    },
+    {
+      "id": 5,
+      "title": "Projected monthly spend vs budget",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-golden"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-golden"
+          },
+          "refId": "A",
+          "expr": "agent:projected_monthly_usd:1h",
+          "legendFormat": "projected (1h)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "description": "1h-rate projection; fast-burn alert at 2x the $300 budget, slow-burn at 1.2x."
+    },
+    {
+      "id": 6,
+      "title": "Run results",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-golden"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 5,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-golden"
+          },
+          "refId": "A",
+          "expr": "sum by (result) (increase(golden_agent_runs_total[15m]))",
+          "legendFormat": "{{result}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "description": "success / looped / capped / ceiling / drained / blocked / killed."
+    },
+    {
+      "id": 7,
+      "title": "Loops caught (money saved)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-golden"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 13,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-golden"
+          },
+          "refId": "A",
+          "expr": "sum by (agent, kind) (increase(golden_agent_loops_detected_total[15m]))",
+          "legendFormat": "{{agent}} {{kind}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "description": "stuck / bouncing / drifting."
+    },
+    {
+      "id": 8,
+      "title": "Guardrail decisions",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-golden"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 13,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-golden"
+          },
+          "refId": "A",
+          "expr": "sum by (stage, decision, category) (rate(golden_llm_guard_decisions_total[5m]))",
+          "legendFormat": "{{stage}} {{decision}} {{category}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "description": "Input / tool / output stage blocks by OWASP category."
+    },
+    {
+      "id": 9,
+      "title": "Output quality SLI (eval pass rate)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-golden"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 13,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-golden"
+          },
+          "refId": "A",
+          "expr": "agent:eval_pass:ratio1h",
+          "legendFormat": "pass rate 1h"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "description": "Probabilistic SLO: share of sampled outputs passing property checks (objective 97%)."
+    },
+    {
+      "id": 10,
+      "title": "Behaviour drift (PSI vs baseline)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-golden"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 21,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-golden"
+          },
+          "refId": "A",
+          "expr": "max by (agent, feature) (golden_agent_behavior_psi)",
+          "legendFormat": "{{agent}} {{feature}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "description": "> 0.25 = significant shift in steps / cost / outcome mix."
+    },
+    {
+      "id": 11,
+      "title": "LLM calls by outcome",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-golden"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 21,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-golden"
+          },
+          "refId": "A",
+          "expr": "sum by (status) (rate(golden_llm_calls_total[5m]))",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "description": "success / cache_hit / blocked / budget_exceeded / error / refusal."
+    },
+    {
+      "id": 12,
+      "title": "Model rollout traffic",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-golden"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 21,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-golden"
+          },
+          "refId": "A",
+          "expr": "sum by (version, role) (rate(golden_model_requests_total[5m]))",
+          "legendFormat": "{{role}} {{version}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "description": "Champion vs challenger share during canary / shadow."
+    }
+  ]
+}

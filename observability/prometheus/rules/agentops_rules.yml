@@ -1,0 +1,102 @@
+# Golden Platform — AI agent operations: cost burn rate, failed-run tax, loops, guardrails, evals,
+# behavioural drift, red-team gate and model rollout. Monthly agent budget = $300 (platform.yaml
+# agent_ops.monthly_budget_usd); thresholds below are multiples of it. See docs/agent-operations/.
+groups:
+  - name: golden_agentops_recordings
+    interval: 60s
+    rules:
+      - record: agent:cost_usd:rate1h
+        expr: sum(rate(golden_agent_cost_usd_total[1h]))
+      - record: agent:cost_usd:rate24h
+        expr: sum(rate(golden_agent_cost_usd_total[24h]))
+      - record: agent:projected_monthly_usd:1h
+        expr: agent:cost_usd:rate1h * 60 * 60 * 24 * 30
+      - record: agent:projected_monthly_usd:24h
+        expr: agent:cost_usd:rate24h * 60 * 60 * 24 * 30
+      - record: agent:failed_run_tax:ratio6h
+        expr: sum(rate(golden_agent_wasted_usd_total[6h])) / clamp_min(sum(rate(golden_agent_cost_usd_total[6h])), 1e-9)
+      - record: agent:cost_per_success_usd:24h
+        expr: sum(increase(golden_agent_cost_usd_total[24h])) / clamp_min(sum(increase(golden_agent_runs_total{result="success"}[24h])), 1)
+      - record: agent:eval_pass:ratio1h
+        expr: sum(rate(golden_agent_eval_total{result="pass"}[1h])) / clamp_min(sum(rate(golden_agent_eval_total[1h])), 1e-9)
+      - record: agent:eval_pass:ratio6h
+        expr: sum(rate(golden_agent_eval_total{result="pass"}[6h])) / clamp_min(sum(rate(golden_agent_eval_total[6h])), 1e-9)
+
+  - name: golden_agentops
+    interval: 60s
+    rules:
+      - alert: AgentBurnRateFast
+        expr: agent:projected_monthly_usd:1h > 600
+        for: 5m
+        labels: {severity: page, vertical: agent-ops}
+        annotations:
+          summary: "Agent spend is on pace for ${{ $value | humanize }}/month (2x budget)"
+          description: "A runaway is likely. Check golden_agent_loops_detected_total and per-agent cost; engage the kill switch if it is not self-limiting."
+          runbook: "ops/runbooks/agent-ops/runaway-agent.md"
+
+      - alert: AgentBurnRateSlow
+        expr: agent:projected_monthly_usd:24h > 360
+        for: 2h
+        labels: {severity: ticket, vertical: agent-ops}
+        annotations:
+          summary: "Agent spend trending to ${{ $value | humanize }}/month (1.2x budget)"
+          description: "Sustained overspend. Review cost per successful task and routing in the weekly cost review."
+
+      - alert: AgentFailedRunTaxHigh
+        expr: agent:failed_run_tax:ratio6h > 0.35
+        for: 1h
+        labels: {severity: ticket, vertical: agent-ops}
+        annotations:
+          summary: "{{ $value | humanizePercentage }} of agent spend went to runs that failed"
+
+      - alert: AgentLoopStorm
+        expr: sum by (agent) (increase(golden_agent_loops_detected_total[15m])) >= 5
+        labels: {severity: warning, vertical: agent-ops}
+        annotations:
+          summary: "{{ $labels.agent }} hit {{ $value }} loops in 15m"
+          description: "Loops are being caught (money saved) but something upstream changed: prompt, model, tool or input shape."
+
+      - alert: AgentBudgetKill
+        expr: increase(golden_agent_budget_breaches_total{action="kill"}[5m]) > 0
+        labels: {severity: page, vertical: agent-ops}
+        annotations:
+          summary: "An agent budget breach engaged the platform kill switch"
+          runbook: "ops/runbooks/agent-ops/runaway-agent.md"
+
+      - alert: LLMGuardrailBlocksSpike
+        expr: sum(rate(golden_llm_guard_decisions_total{decision="block"}[10m])) * 600 > 20
+        for: 10m
+        labels: {severity: warning, vertical: agent-ops}
+        annotations:
+          summary: "Guardrails blocked {{ $value | humanize }} LLM requests in 10m"
+          description: "Possible prompt-injection campaign or a broken client; inspect categories by label."
+
+      # Probabilistic SLO: 97% of sampled outputs pass their property checks (multi-window burn rate).
+      - alert: AgentEvalSLOFastBurn
+        expr: (1 - agent:eval_pass:ratio1h) > (14.4 * 0.03) and (1 - agent:eval_pass:ratio6h) > (6 * 0.03)
+        for: 5m
+        labels: {severity: page, vertical: agent-ops}
+        annotations:
+          summary: "Agent output quality SLO burning fast (eval pass rate {{ $value | humanizePercentage }} failing)"
+
+      - alert: AgentBehaviourDrift
+        expr: max by (agent, feature) (golden_agent_behavior_psi) > 0.25
+        for: 30m
+        labels: {severity: warning, vertical: agent-ops}
+        annotations:
+          summary: "{{ $labels.agent }} behaviour drifted on {{ $labels.feature }} (PSI {{ $value | humanize }})"
+          description: "Same inputs, different behaviour: check for a model, prompt or tool change since the baseline."
+
+      - alert: LLMRedTeamGateFailing
+        expr: min(golden_llm_redteam_pass_rate) < 1
+        for: 0m
+        labels: {severity: critical, vertical: agent-ops}
+        annotations:
+          summary: "Red-team probes are getting through ({{ $value | humanizePercentage }} defended); block promotion"
+
+      - alert: ModelShadowDisagreementHigh
+        expr: sum by (model) (rate(golden_model_shadow_disagreements_total[30m])) / clamp_min(sum by (model) (rate(golden_model_requests_total{role="champion"}[30m])), 1e-9) > 0.1
+        for: 30m
+        labels: {severity: ticket, vertical: ml}
+        annotations:
+          summary: "Challenger disagrees with champion on {{ $value | humanizePercentage }} of requests"

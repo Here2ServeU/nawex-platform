@@ -82,6 +82,17 @@ services:
     environment: { <<: *python-env, PORT: "8098" }
     ports: ["8098:8098"]
 
+  agent-ops:
+    <<: *python-service
+    command: ["serve", "agent-ops"]
+    environment:
+      <<: *python-env
+      PORT: "8099"
+      GOLDEN_AGENTOPS_DIR: /tmp/agentops
+      GOLDEN_LLM_PROVIDER: ${GOLDEN_LLM_PROVIDER:-simulated}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports: ["8099:8099"]
+
   orchestrator:
     <<: *python-service
     command: ["orchestrate"]

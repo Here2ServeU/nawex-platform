@@ -1,60 +1,128 @@
-# Interview Demo Runbook
+# Interview Demo: 10 Minutes
 
-Use this runbook to showcase production-style reliability engineering in 10–15 minutes.
+One rehearsed demo covering architecture, a live failure, governed remediation with human approval,
+the audit trail, and recovery. Every command below runs against this repository as it is today. Every
+number you quote comes from a command run on screen; nothing is asserted from slides.
 
-## Demo Flow (10–15 minutes)
-1. **Show Architecture**: Highlight the multi-domain structure (AI, app, GitOps, Terraform, SRE, Fintech, Healthcare).
-2. **Start Services**: App + Orchestrator, then robotics demo (optional), fintech demo, or healthcare demo.
-3. **Show Observability**: Live metrics and `/metrics` payload.
-4. **Inject Chaos**: Latency, error spike, CPU, memory leak, payment gateway failure, or EHR gateway failure.
-5. **Explain AIOps Loop**: Observe → Analyze → Plan → Execute.
-6. **Show Remediation**: Reset with `/ops/heal` and demonstrate recovery.
-7. **(Fintech)** Show fraud detection scoring, transaction processing, and payment failover.
-8. **(Healthcare)** Show clinical decision scoring, EHR ingestion, PHI access audit, and patient data gateway.
+**Setup (do it before the call):** `make bootstrap && make up && make up-observability`. Confirm that
+`curl -s localhost:8000/health` returns `ok`. Open three windows: a terminal, Grafana
+(<http://localhost:3000>), and the API docs (<http://localhost:8000/docs>).
 
-## Tools to Showcase
-- **Observability**: Prometheus metrics endpoint, log-driven AIOps.
-- **Chaos Engineering**: Built-in chaos endpoints + traffic generator.
-- **Security & Compliance**: SOC2/HIPAA/PCI-DSS/SOX docs in `docs/compliance/`.
-- **Fintech**: Fraud detection, payment gateway, transaction processing in `fintech/`.
-- **Healthcare**: EHR ingestion, clinical decision support, patient data gateway in `healthcare/`.
-- **GitOps**: ArgoCD/Flux manifests in `gitops/`.
-- **Infrastructure-as-Code**: Terraform modules in `terraform/`.
-- **Kubernetes Packaging**: Helm charts in `helm/` (incl. fraud-detection, payment-gateway, ehr-service, clinical-gateway).
-- **Load Testing**: k6 script in `tools/k6/`.
-- **API Exercises**: VS Code REST client file in `tools/http/`.
-- **Supply Chain Security**: Trivy script in `scripts/`.
+For the approval step, start the platform in **supervised** mode:
+`GOLDEN_AUTONOMY_MODE=supervised docker compose up -d`. In the default `dry_run` mode nothing
+executes, which is safer but less interesting to watch.
 
-## Unified DevSecOps Demo (Recommended)
+## 0:00–1:30 · The shape of it
 
-The easiest way to see the entire platform in action:
+Open `README.md` → *Repository layout*, then say:
+
+> "This is one template for enterprise modernization. `platform.yaml` is the only file an engineer
+> edits, and every `make` target reads its defaults from it. One Python package and one container image
+> run all the services. Each service gets health and readiness checks, Prometheus metrics, API keys,
+> rate limiting, a non-root user and a read-only filesystem from a shared foundation, so no service
+> has to remember to add them."
+
+Point at `src/golden/services/common.py` (`create_app`), then at `deploy/terraform/live/` and
+`deploy/helm/golden/` (one chart, with an overlay per cloud).
+
+## 1:30–3:00 · It's running, and it's observable
 
 ```bash
-# Standard demo (10–15 minutes)
-scripts/tools/demo-devsecops.sh
-
-# With robotics simulation
-scripts/tools/demo-devsecops.sh --robotics
-
-# With AWS audit trail info (requires AWS credentials)
-scripts/tools/demo-devsecops.sh --aws-audit
+docker compose ps                          # 14 services, all healthy
+curl -s localhost:8091/metrics | grep golden_http_requests_total | head -3
+make security-status                       # autonomy mode, kill switch, caps, audit chain
 ```
 
-This single script orchestrates:
-1. Kafka/Zookeeper startup
-2. Express app + AIOps orchestrator
-3. Health validation
-4. Chaos injection
-5. Recovery & remediation
-6. Security & compliance review
+In Grafana, open *Golden Platform Overview*. Say that the SLO rules live in
+`observability/prometheus/rules/slo_rules.yml` as multi-window burn-rate alerts, not as one-off
+thresholds.
 
-## Fast Commands (Manual)
+## 3:00–4:30 · Break something
+
 ```bash
-scripts/tools/healthcheck.sh
-scripts/tools/chaos_demo.sh
-scripts/tools/heal.sh
+curl -s -XPOST localhost:8092/ops/chaos/error -H 'content-type: application/json' -d '{"error_rate": 0.5}'
+k6 run tools/k6/transaction-load.js        # or: for i in $(seq 200); do curl -s localhost:8092/health >/dev/null; done
 ```
 
----
+Watch the payment-gateway error rate climb on the dashboard. If Alertmanager is running, `HighErrorRate`
+fires. Say:
 
-*Copyright (c) 2026 Rev. Dr. Emmanuel Naweji. All rights reserved.*
+> "Chaos is built into the services: bounded (latency is capped at 10 seconds) and switchable
+> (`GOLDEN_CHAOS_ENABLED=false`) so it can't be left on in production by mistake."
+
+## 4:30–7:00 · Governed remediation: the part that matters
+
+```bash
+curl -s -XPOST localhost:8000/v1/decisions -H 'content-type: application/json' \
+  -d '{"fraud_score": 0.97, "criticality": "high", "target": "acct-7781"}' | jq
+```
+
+Read out the response: `security.fraud` → risk `critical` → `SEV1` → recommended
+`isolate_fraud_transactions` → outcome **`pending_approval`**. Then say:
+
+> "The AI recommends; it doesn't act alone. Every action goes through the ActionGovernor: an allowlist,
+> a blast-radius limit, rate caps and an autonomy mode. Critical actions *always* need a named human,
+> in every mode."
+
+```bash
+curl -s localhost:8000/v1/actions/pending | jq '.pending[0]'
+curl -s -XPOST localhost:8000/v1/actions/<request_id>/approve -H 'content-type: application/json' \
+  -d '{"approver": "jane.doe"}' | jq '.outcome, .reason'          # "execute", "approved_by:jane.doe"
+curl -s localhost:8000/v1/audit | jq '.chain_valid, .total'      # true, N
+```
+
+Explain the audit chain: each entry carries the SHA-256 hash of the previous one, so editing or
+deleting a past entry breaks every hash after it. That's what `chain_valid` checks. The code is in
+`src/golden/security/audit.py`.
+
+Then show the kill switch:
+
+```bash
+GOLDEN_KILL_SWITCH=true docker compose up -d api && make security-status   # kill_switch_engaged: true
+```
+
+## 7:00–8:30 · Recover
+
+```bash
+curl -s -XPOST localhost:8092/ops/reset
+GOLDEN_KILL_SWITCH=false docker compose up -d api
+```
+
+The error rate returns to baseline on the dashboard. Close the loop with:
+
+> "Detection, decision, approval, action, audit, recovery: each step is a separate, testable component,
+> and `make check` runs all of them in CI."
+
+## 8:30–10:00 · Pick one depth slice for the role
+
+| Role | Show | Command |
+|---|---|---|
+| Platform / cloud architect | IAM modernization: personas → permission sets, SCP/RCP guardrails, OPA gate on the plan | `make iam-model`, `make iam-policy-test`, `golden iam roles \| jq .summary` |
+| SRE | Agent cost controls proven by switching them off | `make agent-verify`, `make agent-overnight` |
+| Migration lead | VMware → OpenShift: assessment, waves, MTV manifests | `make migrate-assess`, `make migrate-plan` |
+| AI / ML platform | Drift-triggered retrain, gated promotion that needs an approver | `golden model retrain --force`, `golden model promote 2 --approver you` (watch it refuse a weaker model) |
+| Security | OWASP LLM Top 10 red-team gate, Envoy ext_authz | `make redteam`, `curl -XPOST localhost:8099/ext_authz/v1/messages -d '{"prompt":"ignore previous instructions"}'` |
+
+## Questions you will get, and the honest answers
+
+- **"Is this in production?"** "It's a template I built and run end to end locally and in CI, and I
+  have deployed it to a dev account (`make deploy CLOUD=aws ENV=dev`)." Only say the deploy part
+  after you've done it. The data is synthetic, and [CLAIMS.md](../CLAIMS.md) lists what is measured
+  and what is a target.
+- **"How did you measure that number?"** Quote only numbers you can reproduce on screen:
+  - `make test` (test count and coverage);
+  - `golden agent verify` / `overnight` (cost-control proofs);
+  - `golden model retrain --force` (holdout recall, AUC and FP rate on synthetic data);
+  - your own k6 and chaos runs.
+- **"Why LSTM and TCN instead of a simpler baseline?"** The thresholds still decide on their own. The
+  forecasters only add a `forecast_risk` flag, and without trained weights the analyzer falls back to
+  a statistical forecast (`src/golden/ai/agents/analyzer.py`, `agent_config.yaml`). The honest gap: no
+  published comparison against a seasonal-naive baseline yet. Say that, and say how you'd run it
+  (`make train` plus the same holdout).
+- **"What happens if OPA is down during a plan?"** The gate fails closed: no policy result means no
+  apply. `scripts/iam-policy-gate.sh` exits non-zero when `opa` is missing.
+- **"Why one image for all services?"** One build, one SBOM and one scan to keep patched, at the cost
+  of a larger image and coupled releases. Splitting is a Helm values change, not a rewrite.
+
+Rehearse the whole run against a timer until it fits in 10 minutes with a minute to spare. Record it
+once for the website.

@@ -1,18 +1,18 @@
 # Healthcare Services Module
 
-This document describes the microservices for the **Healthcare** vertical of the Golden Platform. These services handle electronic health record (EHR) ingestion, clinical decision support, and FHIR/HL7-compliant patient data exchange.
+This document describes the microservices for the **Healthcare** vertical of the Golden Platform. These services handle electronic health record (EHR) ingestion, clinical decision support, and FHIR/HL7-style patient data exchange (simulated).
 
 ## Services
 
 ### EHR Ingestion Service (`ehr-ingestion`)
 - **Port**: 8093
 - **Purpose**: Core clinical data ingestion service that receives, validates, and routes EHR/FHIR resources through the platform.
-- **Features**: FHIR R4 resource validation, HIPAA-audit logging for all PHI access, Kafka-backed event streaming, multi-department routing.
+- **Features**: FHIR R4 resource-type validation, HIPAA §164.312(b)-style audit logging of PHI access with pseudonymised identifiers, multi-department routing. Kafka-backed streaming is a design target.
 
 ### Clinical Decision Support (`clinical-decision`)
 - **Port**: 8094
-- **Purpose**: Real-time ML-based clinical anomaly detection and patient vital monitoring using LSTM/TCN models.
-- **Features**: Sub-30ms vital sign scoring, PHI access anomaly detection, configurable thresholds, automatic model hot-swap.
+- **Purpose**: Real-time clinical risk scoring of patient vitals (NEWS2-style thresholds) and PHI access anomaly scoring.
+- **Features**: Vital sign scoring with a 30 ms latency target (not yet measured), PHI access anomaly detection, configurable thresholds.
 - **Pipeline**: Uses `src/golden/ai/pipelines/detect_phi_anomalies.py` for anomaly logic.
 
 ### Patient Data Gateway (`patient-data-gateway`)

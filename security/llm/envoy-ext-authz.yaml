@@ -1,0 +1,28 @@
+# Envoy HTTP filter: every request to the model server is checked by the agent-ops guard before it
+# reaches the model. Infrastructure-level enforcement — a client that skips the SDK, or a prompt that
+# talks its way past a system prompt, still passes through this filter.
+#
+# Place it in the listener's http_filters before the router. `agent-ops` answers 200 (allow) or 403
+# (deny, with x-golden-guard-categories). Swap the cluster for a commercial AI firewall (Prisma AIRS,
+# Lakera, ...) or a Llama Guard sidecar without touching application code.
+http_filters:
+  - name: envoy.filters.http.ext_authz
+    typed_config:
+      "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
+      transport_api_version: V3
+      failure_mode_allow: false          # fail closed: if the guard is down, model traffic stops
+      with_request_body:
+        max_request_bytes: 65536
+        allow_partial_message: false
+      http_service:
+        server_uri:
+          uri: http://agent-ops.golden.svc.cluster.local:8099
+          cluster: agent-ops-guard
+          timeout: 0.5s
+        path_prefix: /ext_authz
+        authorization_response:
+          allowed_upstream_headers:
+            patterns: [{exact: x-golden-guard}]
+  - name: envoy.filters.http.router
+    typed_config:
+      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router

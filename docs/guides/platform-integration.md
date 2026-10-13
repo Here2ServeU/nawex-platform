@@ -23,7 +23,7 @@ This guide shows how Golden Platform's architectural components integrate to cre
 │ │ │
 │ ┌──────────────────────────────────────────────────────────┐ │
 │ │ API Gateway (Kong/Traefik) + Load Balancing │ │
-│ │ ├─ REST v2 API ├─ GraphQL API ├─ gRPC Services │ │
+│ │ ├─ REST API (OpenAPI)        ├─ gRPC Services        │ │
 │ └──────────────┬────────────────────────────────────────────┘ │
 │ │ │
 │ ┌──────────────────────────────────────────────────────────┐ │
@@ -435,6 +435,8 @@ Implementation in Golden Platform:
 
 ## 5. Error Budget in Action
 
+> Illustrative scenario, not a recorded incident. The 99.999% SLO here is an example tier; the SLO encoded in Prometheus today is 99.9%.
+
 ### FinTech Transaction SLO
 
 ```
@@ -481,6 +483,8 @@ Decisions:
 ---
 
 ## 6. Disaster Recovery Flow
+
+> Illustrative target flow. Automated multi-region DNS failover, replica promotion and Kafka broker switching are not implemented in `deploy/`; the timings shown are targets, not measurements. See [CLAIMS.md](../CLAIMS.md).
 
 ### Multi-Region Failover
 
@@ -541,7 +545,7 @@ Primary Region (US-East) failures detected
 | **Orchestration** | Kubernetes 1.25+ | OpenShift 4.13+ | Cloud-native standard, multi-cloud support |
 | **Service Mesh** | Istio 1.17+ | Linkerd 2.14+ | Best observability, traffic management |
 | **API Gateway** | Kong 3.0+ | Traefik v2 | Rate limiting, plugins, managed service support |
-| **Auth Provider** | Keycloak | Auth0, Okta | Open-source, HIPAA-compliant option |
+| **Auth Provider** | Keycloak | Auth0, Okta | Open-source; can be deployed in a HIPAA-aligned configuration |
 | **Database** | PostgreSQL 15+ | CockroachDB | ACID compliance, Row-Level Security, multi-region |
 | **Cache** | Redis 7+ | Memcached | Advanced data structures, TTL support |
 | **Secrets Mgmt** | HashiCorp Vault | AWS Secrets Mgr | Encryption-as-a-service, key rotation |

@@ -4,7 +4,7 @@ This directory contains the containerized microservices for the **Fintech** vert
 
 **Golden Platform** introduces a pre-settlement ML inference layer that intercepts transation flow before ledger finalization. 
 
-The fraud scoring engine executes ensemble-based anomaly detection within a strict 50ms latency boundary, ensuring risk mitigation without degrading payment throughput. 
+The fraud scoring engine runs an explainable 5-signal composite score (amount, velocity, geo, channel, MCC) with a 50 ms latency budget as the design target. Measured in-process (no network, laptop) at p95 ≈ 2 ms; end-to-end latency under load is not yet measured — see [CLAIMS.md](../CLAIMS.md). 
 
 ## Production-Grade Architecture
 ```
@@ -21,7 +21,7 @@ The fraud scoring engine executes ensemble-based anomaly detection within a stri
             ▼                        ▼
 ┌──────────────────────┐   ┌──────────────────────┐
 │ Fraud Detection      │   │ Payment Gateway      │
-│ ML Inference <50ms   │   │ Processor Routing    │
+│ Scoring (50ms budget)│   │ Processor Routing    │
 └──────────────────────┘   └──────────────────────┘
             │
             ▼
@@ -36,23 +36,23 @@ The fraud scoring engine executes ensemble-based anomaly detection within a stri
 ```
 
 This FinTech Domain is composed of 5 bounded services: 
-- **Transation Engine** acts as the orchestration core, implementing idempotent processing and Kafka-backed event sourcing to guarantee reliability and replay capability. 
-- Before any transction proceeds to settlement, it is intercepted by the **Fraud Detector**, which performs sub-50ms ML inference using LSTM and TCN models. 
+- **Transation Engine** acts as the orchestration core: it validates transactions and gates them inline on the fraud score. Kafka-backed event sourcing and replay are a design target; the current service keeps state in memory. 
+- Before any transction proceeds to settlement, it is intercepted by the **Fraud Detector**, which computes an explainable 5-signal fraud score (`src/golden/ai/pipelines/detect_fraud.py`). LSTM/TCN models are used for SLI forecasting, not fraud scoring. 
 - **FinTech Redis** provides low-latency state caching for transation context and rate limiting. 
 - The **Payment Gateway Simulator** abstracts processor integrations and supports latency injection for resilience testing. 
-- The **FinTech Watchdog** continuously monitors SLO adherence, fraud latency tresholds, and compliance posture, ensuring PCI-DSS alignment. 
+- The **FinTech Watchdog** continuously monitors SLO adherence, fraud latency tresholds, and compliance posture, supporting PCI-DSS alignment (mapping, not certification). 
 
 ## Services
 
 ### Transaction Engine (`transaction-engine`)
 - **Port**: 8090
 - **Purpose**: Core payment processing service that receives, validates, and routes financial transactions.
-- **Features**: Kafka-backed event sourcing, idempotent transaction processing, PCI-DSS compliant data handling.
+- **Features**: Validation, inline fraud gating, settlement status. Kafka-backed event sourcing and PCI-DSS-scoped data handling (tokenization) are design targets.
 
 ### Fraud Detector (`fraud-detector`)
 - **Port**: 8091
-- **Purpose**: Real-time ML-based fraud scoring service using LSTM/TCN models.
-- **Features**: Sub-50ms scoring latency, configurable thresholds, automatic model hot-swap.
+- **Purpose**: Real-time explainable fraud scoring (5 weighted signals with per-account behavioural history).
+- **Features**: 50 ms latency budget (in-process p95 ≈ 2 ms measured), configurable threshold (`FRAUD_THRESHOLD`), model version reported at `/model`. A trained fraud model with a gated registry and rollback is managed separately by `golden model`.
 - **Pipeline**: Uses `src/golden/ai/pipelines/detect_fraud.py` for scoring logic.
 
 ### Payment Gateway Simulator (`payment-gateway`)

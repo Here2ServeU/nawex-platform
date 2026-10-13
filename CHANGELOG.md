@@ -13,6 +13,25 @@
   - `golden iam model|roles|gaps|controls`, the `identity-governance` service (:8098), Prometheus
     alerts, and the governed `quarantine_iam_role` / `delete_iam_role` actions.
 
+- **AI agent operations** (`golden.agentops`, service `agent-ops` :8099, `golden agent|llm|rag`):
+  - a safe runner with agent identity and tool allowlists;
+  - three-gate dollar budgets, with drain, stop and kill all implemented;
+  - loop detection, checkpointing and drain-on-rollout;
+  - a run ledger with unit economics, and proofs that every control works (`golden agent verify`, run in CI);
+  - an LLM gateway (Claude via the official SDK, or a simulated offline model) that handles guardrails,
+    per-caller token budgets, caching, routing, retries and fallback, plus system-prompt leak detection;
+  - OWASP LLM Top 10 guardrails, an Envoy ext_authz endpoint, a red-team gate (and an Argo/Garak workflow),
+    and evals-as-monitoring with behavioural PSI drift;
+  - Prometheus rules and a Grafana dashboard.
+- **RAG** (`golden.ai.rag`): chunking, hashing embeddings, a vector index, and grounded answers with citations.
+- **ML lifecycle** (`golden.ai.lifecycle`, `golden model …`):
+  - experiment tracking with an optional MLflow mirror;
+  - a trained JSON-serialised fraud model;
+  - a model registry with gated, approver-required promotion and rollback;
+  - PSI/KS drift (`golden.ai.drift`) with gated retraining, plus a weekly `retrain.yml` workflow;
+  - canary, shadow, feature-flag and blue/green routing.
+- AIOps analyzer: a slope and z-score capacity-trend rule that catches slow climbs before a threshold is crossed.
+
 ### Changed
 - The EKS module and the `live/aws/{dev,staging,prod}` landing zones attach the `golden-workload-boundary`
   permission boundary to every IAM role they create.

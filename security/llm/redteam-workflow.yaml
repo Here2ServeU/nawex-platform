@@ -1,0 +1,33 @@
+# Continuous red-teaming as an Argo Workflow: the in-repo probe suite (fast, deterministic) gates
+# every rollout step; Garak runs the broad scan against the canary endpoint. Either failing blocks
+# canary -> stable promotion.
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: llm-redteam-gate
+  namespace: golden
+spec:
+  entrypoint: gate
+  arguments:
+    parameters:
+      - name: target
+        value: http://agent-ops-canary.golden.svc.cluster.local:8099
+  templates:
+    - name: gate
+      steps:
+        - - name: probe-suite
+            template: probe-suite
+          - name: garak
+            template: garak
+    - name: probe-suite
+      container:
+        image: ghcr.io/here2serveu/golden-platform:latest
+        command: [golden, agent, redteam, --threshold, "1.0"]
+        securityContext: {runAsNonRoot: true, allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+    - name: garak
+      container:
+        image: python:3.12-slim
+        command: [sh, -c]
+        args:
+          - pip install --quiet garak && python -m garak --model_type rest --model_name "{{workflow.parameters.target}}" --probes promptinject,dan,leakreplay
+        securityContext: {runAsNonRoot: true, runAsUser: 10001, allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}

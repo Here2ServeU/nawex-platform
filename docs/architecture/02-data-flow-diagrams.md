@@ -2,7 +2,9 @@
 
 ## Executive Summary
 
-This architecture integrates **Agentic Clinical Safety** with a **High-Availability AIOps Plane**. By utilizing dual-model inference (LSTM/TCN), the platform predicts kinematic anomalies in robotics telemetry before they result in clinical failure, triggering automated GitOps-driven failover.
+This architecture integrates **Agentic Clinical Safety** with a **High-Availability AIOps Plane**. By utilizing dual-model inference (LSTM/TCN), the platform is designed to predict kinematic anomalies in robotics telemetry before they result in clinical failure and to trigger governed, GitOps-driven remediation.
+
+> Scope note: the diagram shows the target design. Cross-cloud active-active failover (GSLB) is not implemented in `deploy/`; each cloud has its own landing zone. The thresholds below are illustrative policy values. See [CLAIMS.md](../CLAIMS.md).
 
 ## System Architecture Diagram
 
@@ -54,10 +56,10 @@ graph TD
 
 | Component | Technology Stack | Responsibility |
 | --- | --- | --- |
-| **Edge Layer** | [Robotics Module](https://github.com/here2serveu/golden-platform/tree/main/robotics) | Real-time kinematic telemetry ingestion and local safety mediation. |
-| **Predictive Engine** | [AI Brain (LSTM/TCN)](https://github.com/here2serveu/golden-platform/tree/main/ai) | Time-series forecasting to identify "pre-failure" signatures in sensor data. |
-| **Resilience Engine** | [SRE / GitOps](https://github.com/here2serveu/golden-platform/tree/main/gitops) | Automated re-provisioning and failover via [ArgoCD](https://github.com/here2serveu/golden-platform/tree/main/gitops) based on risk scores. |
-| **Audit Plane** | [Compliance Docs](https://www.google.com/search?q=https://github.com/here2serveu/golden-platform/tree/main/docs/compliance) | Ensures every automated action is logged for HIPAA and HDS regulatory standards. |
+| **Edge Layer** | [Robotics Module](../../src/golden/robotics) | Real-time kinematic telemetry ingestion and local safety mediation. |
+| **Predictive Engine** | [AI Brain (LSTM/TCN)](../../src/golden/ai) | Time-series forecasting to identify "pre-failure" signatures in sensor data. |
+| **Resilience Engine** | [SRE / GitOps](../../deploy/gitops) | Automated re-provisioning and failover via [ArgoCD](../../deploy/gitops) based on risk scores. |
+| **Audit Plane** | [Compliance Docs](../compliance) | Ensures every automated action is logged for HIPAA and HDS regulatory standards. |
 
 ---
 

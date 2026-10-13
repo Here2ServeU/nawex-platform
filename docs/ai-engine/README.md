@@ -1,7 +1,7 @@
 # AIOps & Predictive Resilience Engine (golden.ai)
 
 ## The Nervous System of the Express Platform
-This directory contains the **Autonomous Reliability Agents** and **Deep Learning Models** that power the platform's self-healing capabilities. It transforms raw telemetry into actionable remediation plans using a continuous *Observe-Analyze-Plan-Execute* control loop.
+This directory contains the **Autonomous Reliability Agents** and **Deep Learning Models** that power the platform's governed self-healing: every action passes the `ActionGovernor` and the default autonomy mode is `dry_run` (`golden security status`). It transforms raw telemetry into actionable remediation plans using a continuous *Observe-Analyze-Plan-Execute* control loop.
 
 ---
 
