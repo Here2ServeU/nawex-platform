@@ -183,3 +183,14 @@ def test_model_and_rag_cli(tmp_path, capsys):
     capsys.readouterr()
     assert main(["rag", "ask", "Is card data stored after authorization?"]) == 0
     assert "[1]" in capsys.readouterr().out
+
+
+def test_cli_promote_refuses_weaker_model_cleanly(tmp_path, capsys):
+    reg = str(tmp_path)
+    assert main(["model", "retrain", "--force", "--registry", reg]) == 0
+    assert main(["model", "retrain", "--force", "--registry", reg, "--seed", "7", "--scenario", "mixed"]) == 0
+    capsys.readouterr()
+    # v2 has lower recall than the champion: the gate refuses it with exit 3, no traceback.
+    assert main(["model", "promote", "2", "--approver", "jane.doe", "--registry", reg]) == 3
+    out = capsys.readouterr().out
+    assert '"promoted": false' in out and "recall" in out

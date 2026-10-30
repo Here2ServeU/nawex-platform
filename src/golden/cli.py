@@ -344,9 +344,10 @@ def cmd_model_retrain(args: argparse.Namespace) -> int:
 
 def cmd_model_promote(args: argparse.Namespace) -> int:
     from golden.ai.lifecycle import DEFAULT_GATES, MODEL_NAME, ModelRegistry
+    from golden.ai.lifecycle.registry import PromotionRejected
 
-    _print(
-        ModelRegistry(args.registry).promote(
+    try:
+        result = ModelRegistry(args.registry).promote(
             MODEL_NAME,
             args.version,
             gates=DEFAULT_GATES,
@@ -354,7 +355,11 @@ def cmd_model_promote(args: argparse.Namespace) -> int:
             approver=args.approver,
             tolerance=args.tolerance,
         )
-    )
+    except PromotionRejected as exc:
+        # A refused promotion is an expected outcome, not a crash: report it and exit 3.
+        _print({"model": MODEL_NAME, "version": args.version, "promoted": False, "reason": str(exc)})
+        return 3
+    _print(result)
     return 0
 
 
