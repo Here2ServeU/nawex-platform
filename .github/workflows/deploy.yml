@@ -55,7 +55,7 @@ jobs:
       IMAGE_TAG: ${{ inputs.image_tag || github.sha }}
       TF_IN_AUTOMATION: "1"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Preflight — required configuration is present
         env:
@@ -79,14 +79,14 @@ jobs:
       # ------------------------------------------------------------------ cloud auth (OIDC)
       - name: AWS auth
         if: inputs.cloud == 'aws'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
 
       - name: Azure auth
         if: inputs.cloud == 'azure'
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
@@ -104,38 +104,38 @@ jobs:
 
       - name: GCP auth
         if: inputs.cloud == 'gcp'
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
       - name: gcloud + GKE auth plugin
         if: inputs.cloud == 'gcp'
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
         with:
           install_components: gke-gcloud-auth-plugin
 
       - name: OpenShift CLI
         if: inputs.cloud == 'openshift'
-        uses: redhat-actions/openshift-tools-installer@v1
+        uses: redhat-actions/openshift-tools-installer@v3
         with:
           oc: "4"
 
       - name: OpenShift login
         if: inputs.cloud == 'openshift'
-        uses: redhat-actions/oc-login@v1
+        uses: redhat-actions/oc-login@v2
         with:
           openshift_server_url: ${{ secrets.OPENSHIFT_SERVER }}
           openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
 
       # ------------------------------------------------------------------ tooling + deploy
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         if: inputs.cloud != 'openshift'
         with:
           terraform_version: "~1.9"
           terraform_wrapper: false
 
-      - uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@v5
         with:
           version: v3.16.3
 
